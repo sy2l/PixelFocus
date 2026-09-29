@@ -210,29 +210,28 @@ struct ArtworkDetailView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
+    @ViewBuilder
     private var quotaHintText: some View {
-        Group {
-            if isPremiumUser {
-                Text("Premium : 15 & 20 illimités.")
-                    .font(.footnote)
-                    .foregroundStyle(.green)
+        if isPremiumUser {
+            Text("Premium : 15 & 20 illimités.")
+                .font(.footnote)
+                .foregroundStyle(.green)
 
-            } else if selectedMinutes == 15 || selectedMinutes == 20 {
-                let remainingSessions = appCoordinator.remainingQuota(for: selectedMinutes, isPremium: false) ?? 0
-                Text("Gratuit : \(selectedMinutes) min limité à 1/jour. Restant: \(remainingSessions)")
-                    .font(.footnote)
-                    .foregroundStyle(remainingSessions > 0 ? .secondary : .red)
+        } else if selectedMinutes == 15 || selectedMinutes == 20 {
+            let remainingSessions = appCoordinator.remainingQuota(for: selectedMinutes, isPremium: false) ?? 0
+            Text("Gratuit : \(selectedMinutes) min limité à 1/jour. Restant: \(remainingSessions)")
+                .font(.footnote)
+                .foregroundStyle(remainingSessions > 0 ? Color.secondary : Color.red)
 
-            } else if selectedMinutes == 30 {
-                Text("30 min : illimité + 1 token protection (cap 3/jour).")
-                    .font(.footnote)
-                    .foregroundStyle(.blue)
+        } else if selectedMinutes == 30 {
+            Text("30 min : illimité + 1 token protection (cap 3/jour).")
+                .font(.footnote)
+                .foregroundStyle(.blue)
 
-            } else {
-                Text("25 min : illimité (recommandé).")
-                    .font(.footnote)
-                    .foregroundStyle(.green)
-            }
+        } else {
+            Text("25 min : illimité (recommandé).")
+                .font(.footnote)
+                .foregroundStyle(.green)
         }
     }
 
