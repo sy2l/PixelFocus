@@ -23,6 +23,9 @@ Le Premium donne :
 - Sessions 15 et 20 min illimitées.
 - Toutes les images du mois pendant la période d'abonnement.
 - Les packs thématiques de l'année en cours.
+- 1 booster offert par jour et jusqu'à 5 boosters gagnés utilisables par jour (voir §3).
+
+Principe : **le jeu est finissable en gratuit**. Payer fait aller plus vite, jamais plus loin.
 
 ---
 
@@ -60,11 +63,40 @@ Notes techniques :
 
 ---
 
-## 3. Packs thématiques
+## 3. Boosters
+
+Remplacent l'ancien système de « pixels stockés » (streak 5 jours → +5 pixels, cap 5), qui est supprimé.
+
+- **1 booster = 5 pixels révélés** sur une image au choix, parmi celles auxquelles l'utilisateur a accès.
+
+### 3.1 Gagner des boosters (streak)
+- **Tous les 3 jours consécutifs** → +1 booster.
+- **18 jours consécutifs** → +1 booster supplémentaire (❓ à chaque multiple de 18 : 18, 36, 54… ?).
+- Premium : **+1 booster offert chaque jour** (❓ perdu s'il n'est pas utilisé dans la journée ?).
+- ❓ Stock maximum de boosters gagnés (proposition : 10).
+
+### 3.2 Utiliser des boosters
+
+| | Gratuit | Premium |
+|---|---|---|
+| Boosters **gagnés** utilisables par jour | 1 | 5 (❓ ou 3 ?) |
+| Boosters **achetés** | sans limite | sans limite |
+
+- Deux stocks séparés : **gagnés** (soumis à la limite du jour) et **achetés** (aucune limite, aucune expiration).
+- ❓ Ordre de consommation proposé : les gagnés d'abord tant que la limite du jour le permet, puis les achetés.
+
+### 3.3 Achat de boosters (consommables)
+❓ Proposition : 1 booster 0,99 € · 5 boosters 2,99 € · 15 boosters 6,99 €.
+
+Note technique : un consommable n'est pas restauré par Apple → le stock acheté est sauvegardé par l'app (iCloud), puis sur le compte utilisateur quand Android et le web arriveront.
+
+---
+
+## 4. Packs thématiques
 
 6 à 8 packs par an, **thèmes neutres et universels** : aucune fête religieuse ou semi-religieuse (pas de Noël, Halloween, Pâques…), pas de « Bonne année ».
 
-### 3.1 Packs géographiques — cycle de 5 ans
+### 4.1 Packs géographiques — cycle de 5 ans
 
 | Année du cycle | Continent | Capitales |
 |---|---|---|
@@ -76,29 +108,30 @@ Notes techniques :
 
 Le cycle recommence ensuite avec de nouvelles images.
 
-### 3.2 Packs saisonniers / thématiques
+### 4.2 Packs saisonniers / thématiques
 - Reviennent chaque année avec des **images spécifiques à l'année** (été 2027 ≠ été 2028).
 - La liste des thèmes est **renouvelée tous les 5 ans**.
 - Exemples : Printemps & nature, Vacances d'été, Saveurs du monde (semaine du goût), Océans, Espace…
 
-### 3.3 Fin d'année (remplace tout pack « nouvel an »)
+### 4.3 Fin d'année (remplace tout pack « nouvel an »)
 - **Rétrospective** de l'année écoulée : faits marquants **positifs ou consensuels uniquement** (sport, espace, science, culture, nature).
 - **L'année à venir** : sans vœux ni « bonne année ».
 
-### 3.4 Règles de neutralité du contenu
+### 4.4 Règles de neutralité du contenu
 - Pas de drapeaux, pas de territoires ou capitales au statut contesté.
 - Pas d'édifices religieux : privilégier monuments civils, paysages, faune, cuisine.
 - Pas de politique, conflits ou catastrophes.
 
-### 3.5 Accès aux packs
+### 4.5 Accès aux packs
 - Packs de l'**année en cours** : inclus dans le Premium.
 - Packs des **années précédentes** : achat à l'unité, **2,99 € par pack**.
+- Tous les packs doivent aussi pouvoir **se gagner en jouant** (❓ mécanique : défi du type « 15 sessions pendant la période du pack » ?).
 - ❓ Un gratuit peut-il acheter à l'unité un pack de l'année en cours ?
 - Un pack acheté est définitif (règle Apple).
 
 ---
 
-## 4. Identité utilisateur & multiplateforme
+## 5. Identité utilisateur & multiplateforme
 
 - **V1 (iOS)** : pas de compte. La date du premier lancement est stockée dans le **trousseau iCloud** (résiste à la réinstallation) pour la règle du cadeau de bienvenue.
 - **Cible (Android, web)** : il faudra un compte utilisateur et un backend pour partager achats et progression entre plateformes.
@@ -106,7 +139,7 @@ Le cycle recommence ensuite avec de nouvelles images.
 
 ---
 
-## 5. Contenu
+## 6. Contenu
 
 Environ 500 images par an (365 daily, 52 weekly, 12 monthly, et les packs).
 - Le catalogue et les images sont **téléchargés depuis un hébergement statique** (ex. GitHub Pages), ce qui permet de publier sans mise à jour App Store.
