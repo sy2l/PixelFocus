@@ -24,7 +24,7 @@ Le Premium donne :
 - Toutes les images du mois pendant la période d'abonnement.
 - Les packs thématiques de l'année en cours.
 - 2 boosters offerts au début de chaque mois, et jusqu'à 3 boosters gagnés utilisables par jour (voir §3).
-- Accès exclusif aux packs thématiques et géographiques (voir §4.5).
+- Les packs thématiques et géographiques de l'année en cours (voir §4.5).
 
 Principe : **le jeu de base (daily, weekly, monthly) est finissable en gratuit**. Payer fait aller plus vite. Les packs thématiques restent un bonus Premium.
 
@@ -131,7 +131,7 @@ Le cycle recommence ensuite avec de nouvelles images.
 - Pas de politique, conflits ou catastrophes.
 
 ### 4.5 Accès aux packs
-- Les packs (thématiques, continents, capitales) sont **réservés au Premium** : pas de défi gratuit pour les débloquer.
+- Les packs (thématiques, continents, capitales) **ne se gagnent pas en jouant** : accès via le Premium ou l'achat à l'unité.
 - Packs de l'**année en cours** : inclus dans le Premium.
 
 | Pack | Premium | Gratuit (achat à l'unité) |
