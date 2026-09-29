@@ -1,47 +1,2301 @@
 {
-  "contentVersion": 1,
-  "month": "2026-01",
+  "contentVersion": 2,
+  "month": "2026-01-01..2027-03-31",
   "daily": [
-    { "date": "2026-01-01", "artworkId": "daily_2026_01_01" },
-    { "date": "2026-01-02", "artworkId": "daily_2026_01_02" },
-    { "date": "2026-01-03", "artworkId": "daily_2026_01_03" },
-    { "date": "2026-01-04", "artworkId": "daily_2026_01_04" },
-    { "date": "2026-01-05", "artworkId": "daily_2026_01_05" },
-    { "date": "2026-01-06", "artworkId": "daily_2026_01_06" },
-    { "date": "2026-01-07", "artworkId": "daily_2026_01_07" },
-    { "date": "2026-01-08", "artworkId": "daily_2026_01_08" },
-    { "date": "2026-01-09", "artworkId": "daily_2026_01_09" },
-    { "date": "2026-01-10", "artworkId": "daily_2026_01_10" },
-    { "date": "2026-01-11", "artworkId": "daily_2026_01_11" },
-    { "date": "2026-01-12", "artworkId": "daily_2026_01_12" },
-    { "date": "2026-01-13", "artworkId": "daily_2026_01_13" },
-    { "date": "2026-01-14", "artworkId": "daily_2026_01_14" },
-    { "date": "2026-01-15", "artworkId": "daily_2026_01_15" },
-    { "date": "2026-01-16", "artworkId": "daily_2026_01_16" },
-    { "date": "2026-01-17", "artworkId": "daily_2026_01_17" },
-    { "date": "2026-01-18", "artworkId": "daily_2026_01_18" },
-    { "date": "2026-01-19", "artworkId": "daily_2026_01_19" },
-    { "date": "2026-01-20", "artworkId": "daily_2026_01_20" },
-    { "date": "2026-01-21", "artworkId": "daily_2026_01_21" },
-    { "date": "2026-01-22", "artworkId": "daily_2026_01_22" },
-    { "date": "2026-01-23", "artworkId": "daily_2026_01_23" },
-    { "date": "2026-01-24", "artworkId": "daily_2026_01_24" },
-    { "date": "2026-01-25", "artworkId": "daily_2026_01_25" },
-    { "date": "2026-01-26", "artworkId": "daily_2026_01_26" },
-    { "date": "2026-01-27", "artworkId": "daily_2026_01_27" },
-    { "date": "2026-01-28", "artworkId": "daily_2026_01_28" },
-    { "date": "2026-01-29", "artworkId": "daily_2026_01_29" },
-    { "date": "2026-01-30", "artworkId": "daily_2026_01_30" },
-    { "date": "2026-01-31", "artworkId": "daily_2026_01_31" }
+    {
+      "date": "2026-01-01",
+      "artworkId": "daily_2026_01_01"
+    },
+    {
+      "date": "2026-01-02",
+      "artworkId": "daily_2026_01_02"
+    },
+    {
+      "date": "2026-01-03",
+      "artworkId": "daily_2026_01_03"
+    },
+    {
+      "date": "2026-01-04",
+      "artworkId": "daily_2026_01_04"
+    },
+    {
+      "date": "2026-01-05",
+      "artworkId": "daily_2026_01_05"
+    },
+    {
+      "date": "2026-01-06",
+      "artworkId": "daily_2026_01_06"
+    },
+    {
+      "date": "2026-01-07",
+      "artworkId": "daily_2026_01_07"
+    },
+    {
+      "date": "2026-01-08",
+      "artworkId": "daily_2026_01_08"
+    },
+    {
+      "date": "2026-01-09",
+      "artworkId": "daily_2026_01_09"
+    },
+    {
+      "date": "2026-01-10",
+      "artworkId": "daily_2026_01_10"
+    },
+    {
+      "date": "2026-01-11",
+      "artworkId": "daily_2026_01_11"
+    },
+    {
+      "date": "2026-01-12",
+      "artworkId": "daily_2026_01_12"
+    },
+    {
+      "date": "2026-01-13",
+      "artworkId": "daily_2026_01_13"
+    },
+    {
+      "date": "2026-01-14",
+      "artworkId": "daily_2026_01_14"
+    },
+    {
+      "date": "2026-01-15",
+      "artworkId": "daily_2026_01_15"
+    },
+    {
+      "date": "2026-01-16",
+      "artworkId": "daily_2026_01_16"
+    },
+    {
+      "date": "2026-01-17",
+      "artworkId": "daily_2026_01_17"
+    },
+    {
+      "date": "2026-01-18",
+      "artworkId": "daily_2026_01_18"
+    },
+    {
+      "date": "2026-01-19",
+      "artworkId": "daily_2026_01_19"
+    },
+    {
+      "date": "2026-01-20",
+      "artworkId": "daily_2026_01_20"
+    },
+    {
+      "date": "2026-01-21",
+      "artworkId": "daily_2026_01_21"
+    },
+    {
+      "date": "2026-01-22",
+      "artworkId": "daily_2026_01_22"
+    },
+    {
+      "date": "2026-01-23",
+      "artworkId": "daily_2026_01_23"
+    },
+    {
+      "date": "2026-01-24",
+      "artworkId": "daily_2026_01_24"
+    },
+    {
+      "date": "2026-01-25",
+      "artworkId": "daily_2026_01_25"
+    },
+    {
+      "date": "2026-01-26",
+      "artworkId": "daily_2026_01_26"
+    },
+    {
+      "date": "2026-01-27",
+      "artworkId": "daily_2026_01_27"
+    },
+    {
+      "date": "2026-01-28",
+      "artworkId": "daily_2026_01_28"
+    },
+    {
+      "date": "2026-01-29",
+      "artworkId": "daily_2026_01_29"
+    },
+    {
+      "date": "2026-01-30",
+      "artworkId": "daily_2026_01_30"
+    },
+    {
+      "date": "2026-01-31",
+      "artworkId": "daily_2026_01_31"
+    },
+    {
+      "date": "2026-02-01",
+      "artworkId": "daily_2026_02_01"
+    },
+    {
+      "date": "2026-02-02",
+      "artworkId": "daily_2026_02_02"
+    },
+    {
+      "date": "2026-02-03",
+      "artworkId": "daily_2026_02_03"
+    },
+    {
+      "date": "2026-02-04",
+      "artworkId": "daily_2026_02_04"
+    },
+    {
+      "date": "2026-02-05",
+      "artworkId": "daily_2026_02_05"
+    },
+    {
+      "date": "2026-02-06",
+      "artworkId": "daily_2026_02_06"
+    },
+    {
+      "date": "2026-02-07",
+      "artworkId": "daily_2026_02_07"
+    },
+    {
+      "date": "2026-02-08",
+      "artworkId": "daily_2026_02_08"
+    },
+    {
+      "date": "2026-02-09",
+      "artworkId": "daily_2026_02_09"
+    },
+    {
+      "date": "2026-02-10",
+      "artworkId": "daily_2026_02_10"
+    },
+    {
+      "date": "2026-02-11",
+      "artworkId": "daily_2026_02_11"
+    },
+    {
+      "date": "2026-02-12",
+      "artworkId": "daily_2026_02_12"
+    },
+    {
+      "date": "2026-02-13",
+      "artworkId": "daily_2026_02_13"
+    },
+    {
+      "date": "2026-02-14",
+      "artworkId": "daily_2026_02_14"
+    },
+    {
+      "date": "2026-02-15",
+      "artworkId": "daily_2026_02_15"
+    },
+    {
+      "date": "2026-02-16",
+      "artworkId": "daily_2026_02_16"
+    },
+    {
+      "date": "2026-02-17",
+      "artworkId": "daily_2026_02_17"
+    },
+    {
+      "date": "2026-02-18",
+      "artworkId": "daily_2026_02_18"
+    },
+    {
+      "date": "2026-02-19",
+      "artworkId": "daily_2026_02_19"
+    },
+    {
+      "date": "2026-02-20",
+      "artworkId": "daily_2026_02_20"
+    },
+    {
+      "date": "2026-02-21",
+      "artworkId": "daily_2026_02_21"
+    },
+    {
+      "date": "2026-02-22",
+      "artworkId": "daily_2026_02_22"
+    },
+    {
+      "date": "2026-02-23",
+      "artworkId": "daily_2026_02_23"
+    },
+    {
+      "date": "2026-02-24",
+      "artworkId": "daily_2026_02_24"
+    },
+    {
+      "date": "2026-02-25",
+      "artworkId": "daily_2026_02_25"
+    },
+    {
+      "date": "2026-02-26",
+      "artworkId": "daily_2026_02_26"
+    },
+    {
+      "date": "2026-02-27",
+      "artworkId": "daily_2026_02_27"
+    },
+    {
+      "date": "2026-02-28",
+      "artworkId": "daily_2026_02_28"
+    },
+    {
+      "date": "2026-03-01",
+      "artworkId": "daily_2026_03_01"
+    },
+    {
+      "date": "2026-03-02",
+      "artworkId": "daily_2026_03_02"
+    },
+    {
+      "date": "2026-03-03",
+      "artworkId": "daily_2026_03_03"
+    },
+    {
+      "date": "2026-03-04",
+      "artworkId": "daily_2026_03_04"
+    },
+    {
+      "date": "2026-03-05",
+      "artworkId": "daily_2026_03_05"
+    },
+    {
+      "date": "2026-03-06",
+      "artworkId": "daily_2026_03_06"
+    },
+    {
+      "date": "2026-03-07",
+      "artworkId": "daily_2026_03_07"
+    },
+    {
+      "date": "2026-03-08",
+      "artworkId": "daily_2026_03_08"
+    },
+    {
+      "date": "2026-03-09",
+      "artworkId": "daily_2026_03_09"
+    },
+    {
+      "date": "2026-03-10",
+      "artworkId": "daily_2026_03_10"
+    },
+    {
+      "date": "2026-03-11",
+      "artworkId": "daily_2026_03_11"
+    },
+    {
+      "date": "2026-03-12",
+      "artworkId": "daily_2026_03_12"
+    },
+    {
+      "date": "2026-03-13",
+      "artworkId": "daily_2026_03_13"
+    },
+    {
+      "date": "2026-03-14",
+      "artworkId": "daily_2026_03_14"
+    },
+    {
+      "date": "2026-03-15",
+      "artworkId": "daily_2026_03_15"
+    },
+    {
+      "date": "2026-03-16",
+      "artworkId": "daily_2026_03_16"
+    },
+    {
+      "date": "2026-03-17",
+      "artworkId": "daily_2026_03_17"
+    },
+    {
+      "date": "2026-03-18",
+      "artworkId": "daily_2026_03_18"
+    },
+    {
+      "date": "2026-03-19",
+      "artworkId": "daily_2026_03_19"
+    },
+    {
+      "date": "2026-03-20",
+      "artworkId": "daily_2026_03_20"
+    },
+    {
+      "date": "2026-03-21",
+      "artworkId": "daily_2026_03_21"
+    },
+    {
+      "date": "2026-03-22",
+      "artworkId": "daily_2026_03_22"
+    },
+    {
+      "date": "2026-03-23",
+      "artworkId": "daily_2026_03_23"
+    },
+    {
+      "date": "2026-03-24",
+      "artworkId": "daily_2026_03_24"
+    },
+    {
+      "date": "2026-03-25",
+      "artworkId": "daily_2026_03_25"
+    },
+    {
+      "date": "2026-03-26",
+      "artworkId": "daily_2026_03_26"
+    },
+    {
+      "date": "2026-03-27",
+      "artworkId": "daily_2026_03_27"
+    },
+    {
+      "date": "2026-03-28",
+      "artworkId": "daily_2026_03_28"
+    },
+    {
+      "date": "2026-03-29",
+      "artworkId": "daily_2026_03_29"
+    },
+    {
+      "date": "2026-03-30",
+      "artworkId": "daily_2026_03_30"
+    },
+    {
+      "date": "2026-03-31",
+      "artworkId": "daily_2026_03_31"
+    },
+    {
+      "date": "2026-04-01",
+      "artworkId": "daily_2026_04_01"
+    },
+    {
+      "date": "2026-04-02",
+      "artworkId": "daily_2026_04_02"
+    },
+    {
+      "date": "2026-04-03",
+      "artworkId": "daily_2026_04_03"
+    },
+    {
+      "date": "2026-04-04",
+      "artworkId": "daily_2026_04_04"
+    },
+    {
+      "date": "2026-04-05",
+      "artworkId": "daily_2026_04_05"
+    },
+    {
+      "date": "2026-04-06",
+      "artworkId": "daily_2026_04_06"
+    },
+    {
+      "date": "2026-04-07",
+      "artworkId": "daily_2026_04_07"
+    },
+    {
+      "date": "2026-04-08",
+      "artworkId": "daily_2026_04_08"
+    },
+    {
+      "date": "2026-04-09",
+      "artworkId": "daily_2026_04_09"
+    },
+    {
+      "date": "2026-04-10",
+      "artworkId": "daily_2026_04_10"
+    },
+    {
+      "date": "2026-04-11",
+      "artworkId": "daily_2026_04_11"
+    },
+    {
+      "date": "2026-04-12",
+      "artworkId": "daily_2026_04_12"
+    },
+    {
+      "date": "2026-04-13",
+      "artworkId": "daily_2026_04_13"
+    },
+    {
+      "date": "2026-04-14",
+      "artworkId": "daily_2026_04_14"
+    },
+    {
+      "date": "2026-04-15",
+      "artworkId": "daily_2026_04_15"
+    },
+    {
+      "date": "2026-04-16",
+      "artworkId": "daily_2026_04_16"
+    },
+    {
+      "date": "2026-04-17",
+      "artworkId": "daily_2026_04_17"
+    },
+    {
+      "date": "2026-04-18",
+      "artworkId": "daily_2026_04_18"
+    },
+    {
+      "date": "2026-04-19",
+      "artworkId": "daily_2026_04_19"
+    },
+    {
+      "date": "2026-04-20",
+      "artworkId": "daily_2026_04_20"
+    },
+    {
+      "date": "2026-04-21",
+      "artworkId": "daily_2026_04_21"
+    },
+    {
+      "date": "2026-04-22",
+      "artworkId": "daily_2026_04_22"
+    },
+    {
+      "date": "2026-04-23",
+      "artworkId": "daily_2026_04_23"
+    },
+    {
+      "date": "2026-04-24",
+      "artworkId": "daily_2026_04_24"
+    },
+    {
+      "date": "2026-04-25",
+      "artworkId": "daily_2026_04_25"
+    },
+    {
+      "date": "2026-04-26",
+      "artworkId": "daily_2026_04_26"
+    },
+    {
+      "date": "2026-04-27",
+      "artworkId": "daily_2026_04_27"
+    },
+    {
+      "date": "2026-04-28",
+      "artworkId": "daily_2026_04_28"
+    },
+    {
+      "date": "2026-04-29",
+      "artworkId": "daily_2026_04_29"
+    },
+    {
+      "date": "2026-04-30",
+      "artworkId": "daily_2026_04_30"
+    },
+    {
+      "date": "2026-05-01",
+      "artworkId": "daily_2026_05_01"
+    },
+    {
+      "date": "2026-05-02",
+      "artworkId": "daily_2026_05_02"
+    },
+    {
+      "date": "2026-05-03",
+      "artworkId": "daily_2026_05_03"
+    },
+    {
+      "date": "2026-05-04",
+      "artworkId": "daily_2026_05_04"
+    },
+    {
+      "date": "2026-05-05",
+      "artworkId": "daily_2026_05_05"
+    },
+    {
+      "date": "2026-05-06",
+      "artworkId": "daily_2026_05_06"
+    },
+    {
+      "date": "2026-05-07",
+      "artworkId": "daily_2026_05_07"
+    },
+    {
+      "date": "2026-05-08",
+      "artworkId": "daily_2026_05_08"
+    },
+    {
+      "date": "2026-05-09",
+      "artworkId": "daily_2026_05_09"
+    },
+    {
+      "date": "2026-05-10",
+      "artworkId": "daily_2026_05_10"
+    },
+    {
+      "date": "2026-05-11",
+      "artworkId": "daily_2026_05_11"
+    },
+    {
+      "date": "2026-05-12",
+      "artworkId": "daily_2026_05_12"
+    },
+    {
+      "date": "2026-05-13",
+      "artworkId": "daily_2026_05_13"
+    },
+    {
+      "date": "2026-05-14",
+      "artworkId": "daily_2026_05_14"
+    },
+    {
+      "date": "2026-05-15",
+      "artworkId": "daily_2026_05_15"
+    },
+    {
+      "date": "2026-05-16",
+      "artworkId": "daily_2026_05_16"
+    },
+    {
+      "date": "2026-05-17",
+      "artworkId": "daily_2026_05_17"
+    },
+    {
+      "date": "2026-05-18",
+      "artworkId": "daily_2026_05_18"
+    },
+    {
+      "date": "2026-05-19",
+      "artworkId": "daily_2026_05_19"
+    },
+    {
+      "date": "2026-05-20",
+      "artworkId": "daily_2026_05_20"
+    },
+    {
+      "date": "2026-05-21",
+      "artworkId": "daily_2026_05_21"
+    },
+    {
+      "date": "2026-05-22",
+      "artworkId": "daily_2026_05_22"
+    },
+    {
+      "date": "2026-05-23",
+      "artworkId": "daily_2026_05_23"
+    },
+    {
+      "date": "2026-05-24",
+      "artworkId": "daily_2026_05_24"
+    },
+    {
+      "date": "2026-05-25",
+      "artworkId": "daily_2026_05_25"
+    },
+    {
+      "date": "2026-05-26",
+      "artworkId": "daily_2026_05_26"
+    },
+    {
+      "date": "2026-05-27",
+      "artworkId": "daily_2026_05_27"
+    },
+    {
+      "date": "2026-05-28",
+      "artworkId": "daily_2026_05_28"
+    },
+    {
+      "date": "2026-05-29",
+      "artworkId": "daily_2026_05_29"
+    },
+    {
+      "date": "2026-05-30",
+      "artworkId": "daily_2026_05_30"
+    },
+    {
+      "date": "2026-05-31",
+      "artworkId": "daily_2026_05_31"
+    },
+    {
+      "date": "2026-06-01",
+      "artworkId": "daily_2026_06_01"
+    },
+    {
+      "date": "2026-06-02",
+      "artworkId": "daily_2026_06_02"
+    },
+    {
+      "date": "2026-06-03",
+      "artworkId": "daily_2026_06_03"
+    },
+    {
+      "date": "2026-06-04",
+      "artworkId": "daily_2026_06_04"
+    },
+    {
+      "date": "2026-06-05",
+      "artworkId": "daily_2026_06_05"
+    },
+    {
+      "date": "2026-06-06",
+      "artworkId": "daily_2026_06_06"
+    },
+    {
+      "date": "2026-06-07",
+      "artworkId": "daily_2026_06_07"
+    },
+    {
+      "date": "2026-06-08",
+      "artworkId": "daily_2026_06_08"
+    },
+    {
+      "date": "2026-06-09",
+      "artworkId": "daily_2026_06_09"
+    },
+    {
+      "date": "2026-06-10",
+      "artworkId": "daily_2026_06_10"
+    },
+    {
+      "date": "2026-06-11",
+      "artworkId": "daily_2026_06_11"
+    },
+    {
+      "date": "2026-06-12",
+      "artworkId": "daily_2026_06_12"
+    },
+    {
+      "date": "2026-06-13",
+      "artworkId": "daily_2026_06_13"
+    },
+    {
+      "date": "2026-06-14",
+      "artworkId": "daily_2026_06_14"
+    },
+    {
+      "date": "2026-06-15",
+      "artworkId": "daily_2026_06_15"
+    },
+    {
+      "date": "2026-06-16",
+      "artworkId": "daily_2026_06_16"
+    },
+    {
+      "date": "2026-06-17",
+      "artworkId": "daily_2026_06_17"
+    },
+    {
+      "date": "2026-06-18",
+      "artworkId": "daily_2026_06_18"
+    },
+    {
+      "date": "2026-06-19",
+      "artworkId": "daily_2026_06_19"
+    },
+    {
+      "date": "2026-06-20",
+      "artworkId": "daily_2026_06_20"
+    },
+    {
+      "date": "2026-06-21",
+      "artworkId": "daily_2026_06_21"
+    },
+    {
+      "date": "2026-06-22",
+      "artworkId": "daily_2026_06_22"
+    },
+    {
+      "date": "2026-06-23",
+      "artworkId": "daily_2026_06_23"
+    },
+    {
+      "date": "2026-06-24",
+      "artworkId": "daily_2026_06_24"
+    },
+    {
+      "date": "2026-06-25",
+      "artworkId": "daily_2026_06_25"
+    },
+    {
+      "date": "2026-06-26",
+      "artworkId": "daily_2026_06_26"
+    },
+    {
+      "date": "2026-06-27",
+      "artworkId": "daily_2026_06_27"
+    },
+    {
+      "date": "2026-06-28",
+      "artworkId": "daily_2026_06_28"
+    },
+    {
+      "date": "2026-06-29",
+      "artworkId": "daily_2026_06_29"
+    },
+    {
+      "date": "2026-06-30",
+      "artworkId": "daily_2026_06_30"
+    },
+    {
+      "date": "2026-07-01",
+      "artworkId": "daily_2026_07_01"
+    },
+    {
+      "date": "2026-07-02",
+      "artworkId": "daily_2026_07_02"
+    },
+    {
+      "date": "2026-07-03",
+      "artworkId": "daily_2026_07_03"
+    },
+    {
+      "date": "2026-07-04",
+      "artworkId": "daily_2026_07_04"
+    },
+    {
+      "date": "2026-07-05",
+      "artworkId": "daily_2026_07_05"
+    },
+    {
+      "date": "2026-07-06",
+      "artworkId": "daily_2026_07_06"
+    },
+    {
+      "date": "2026-07-07",
+      "artworkId": "daily_2026_07_07"
+    },
+    {
+      "date": "2026-07-08",
+      "artworkId": "daily_2026_07_08"
+    },
+    {
+      "date": "2026-07-09",
+      "artworkId": "daily_2026_07_09"
+    },
+    {
+      "date": "2026-07-10",
+      "artworkId": "daily_2026_07_10"
+    },
+    {
+      "date": "2026-07-11",
+      "artworkId": "daily_2026_07_11"
+    },
+    {
+      "date": "2026-07-12",
+      "artworkId": "daily_2026_07_12"
+    },
+    {
+      "date": "2026-07-13",
+      "artworkId": "daily_2026_07_13"
+    },
+    {
+      "date": "2026-07-14",
+      "artworkId": "daily_2026_07_14"
+    },
+    {
+      "date": "2026-07-15",
+      "artworkId": "daily_2026_07_15"
+    },
+    {
+      "date": "2026-07-16",
+      "artworkId": "daily_2026_07_16"
+    },
+    {
+      "date": "2026-07-17",
+      "artworkId": "daily_2026_07_17"
+    },
+    {
+      "date": "2026-07-18",
+      "artworkId": "daily_2026_07_18"
+    },
+    {
+      "date": "2026-07-19",
+      "artworkId": "daily_2026_07_19"
+    },
+    {
+      "date": "2026-07-20",
+      "artworkId": "daily_2026_07_20"
+    },
+    {
+      "date": "2026-07-21",
+      "artworkId": "daily_2026_07_21"
+    },
+    {
+      "date": "2026-07-22",
+      "artworkId": "daily_2026_07_22"
+    },
+    {
+      "date": "2026-07-23",
+      "artworkId": "daily_2026_07_23"
+    },
+    {
+      "date": "2026-07-24",
+      "artworkId": "daily_2026_07_24"
+    },
+    {
+      "date": "2026-07-25",
+      "artworkId": "daily_2026_07_25"
+    },
+    {
+      "date": "2026-07-26",
+      "artworkId": "daily_2026_07_26"
+    },
+    {
+      "date": "2026-07-27",
+      "artworkId": "daily_2026_07_27"
+    },
+    {
+      "date": "2026-07-28",
+      "artworkId": "daily_2026_07_28"
+    },
+    {
+      "date": "2026-07-29",
+      "artworkId": "daily_2026_07_29"
+    },
+    {
+      "date": "2026-07-30",
+      "artworkId": "daily_2026_07_30"
+    },
+    {
+      "date": "2026-07-31",
+      "artworkId": "daily_2026_07_31"
+    },
+    {
+      "date": "2026-08-01",
+      "artworkId": "daily_2026_08_01"
+    },
+    {
+      "date": "2026-08-02",
+      "artworkId": "daily_2026_08_02"
+    },
+    {
+      "date": "2026-08-03",
+      "artworkId": "daily_2026_08_03"
+    },
+    {
+      "date": "2026-08-04",
+      "artworkId": "daily_2026_08_04"
+    },
+    {
+      "date": "2026-08-05",
+      "artworkId": "daily_2026_08_05"
+    },
+    {
+      "date": "2026-08-06",
+      "artworkId": "daily_2026_08_06"
+    },
+    {
+      "date": "2026-08-07",
+      "artworkId": "daily_2026_08_07"
+    },
+    {
+      "date": "2026-08-08",
+      "artworkId": "daily_2026_08_08"
+    },
+    {
+      "date": "2026-08-09",
+      "artworkId": "daily_2026_08_09"
+    },
+    {
+      "date": "2026-08-10",
+      "artworkId": "daily_2026_08_10"
+    },
+    {
+      "date": "2026-08-11",
+      "artworkId": "daily_2026_08_11"
+    },
+    {
+      "date": "2026-08-12",
+      "artworkId": "daily_2026_08_12"
+    },
+    {
+      "date": "2026-08-13",
+      "artworkId": "daily_2026_08_13"
+    },
+    {
+      "date": "2026-08-14",
+      "artworkId": "daily_2026_08_14"
+    },
+    {
+      "date": "2026-08-15",
+      "artworkId": "daily_2026_08_15"
+    },
+    {
+      "date": "2026-08-16",
+      "artworkId": "daily_2026_08_16"
+    },
+    {
+      "date": "2026-08-17",
+      "artworkId": "daily_2026_08_17"
+    },
+    {
+      "date": "2026-08-18",
+      "artworkId": "daily_2026_08_18"
+    },
+    {
+      "date": "2026-08-19",
+      "artworkId": "daily_2026_08_19"
+    },
+    {
+      "date": "2026-08-20",
+      "artworkId": "daily_2026_08_20"
+    },
+    {
+      "date": "2026-08-21",
+      "artworkId": "daily_2026_08_21"
+    },
+    {
+      "date": "2026-08-22",
+      "artworkId": "daily_2026_08_22"
+    },
+    {
+      "date": "2026-08-23",
+      "artworkId": "daily_2026_08_23"
+    },
+    {
+      "date": "2026-08-24",
+      "artworkId": "daily_2026_08_24"
+    },
+    {
+      "date": "2026-08-25",
+      "artworkId": "daily_2026_08_25"
+    },
+    {
+      "date": "2026-08-26",
+      "artworkId": "daily_2026_08_26"
+    },
+    {
+      "date": "2026-08-27",
+      "artworkId": "daily_2026_08_27"
+    },
+    {
+      "date": "2026-08-28",
+      "artworkId": "daily_2026_08_28"
+    },
+    {
+      "date": "2026-08-29",
+      "artworkId": "daily_2026_08_29"
+    },
+    {
+      "date": "2026-08-30",
+      "artworkId": "daily_2026_08_30"
+    },
+    {
+      "date": "2026-08-31",
+      "artworkId": "daily_2026_08_31"
+    },
+    {
+      "date": "2026-09-01",
+      "artworkId": "daily_2026_09_01"
+    },
+    {
+      "date": "2026-09-02",
+      "artworkId": "daily_2026_09_02"
+    },
+    {
+      "date": "2026-09-03",
+      "artworkId": "daily_2026_09_03"
+    },
+    {
+      "date": "2026-09-04",
+      "artworkId": "daily_2026_09_04"
+    },
+    {
+      "date": "2026-09-05",
+      "artworkId": "daily_2026_09_05"
+    },
+    {
+      "date": "2026-09-06",
+      "artworkId": "daily_2026_09_06"
+    },
+    {
+      "date": "2026-09-07",
+      "artworkId": "daily_2026_09_07"
+    },
+    {
+      "date": "2026-09-08",
+      "artworkId": "daily_2026_09_08"
+    },
+    {
+      "date": "2026-09-09",
+      "artworkId": "daily_2026_09_09"
+    },
+    {
+      "date": "2026-09-10",
+      "artworkId": "daily_2026_09_10"
+    },
+    {
+      "date": "2026-09-11",
+      "artworkId": "daily_2026_09_11"
+    },
+    {
+      "date": "2026-09-12",
+      "artworkId": "daily_2026_09_12"
+    },
+    {
+      "date": "2026-09-13",
+      "artworkId": "daily_2026_09_13"
+    },
+    {
+      "date": "2026-09-14",
+      "artworkId": "daily_2026_09_14"
+    },
+    {
+      "date": "2026-09-15",
+      "artworkId": "daily_2026_09_15"
+    },
+    {
+      "date": "2026-09-16",
+      "artworkId": "daily_2026_09_16"
+    },
+    {
+      "date": "2026-09-17",
+      "artworkId": "daily_2026_09_17"
+    },
+    {
+      "date": "2026-09-18",
+      "artworkId": "daily_2026_09_18"
+    },
+    {
+      "date": "2026-09-19",
+      "artworkId": "daily_2026_09_19"
+    },
+    {
+      "date": "2026-09-20",
+      "artworkId": "daily_2026_09_20"
+    },
+    {
+      "date": "2026-09-21",
+      "artworkId": "daily_2026_09_21"
+    },
+    {
+      "date": "2026-09-22",
+      "artworkId": "daily_2026_09_22"
+    },
+    {
+      "date": "2026-09-23",
+      "artworkId": "daily_2026_09_23"
+    },
+    {
+      "date": "2026-09-24",
+      "artworkId": "daily_2026_09_24"
+    },
+    {
+      "date": "2026-09-25",
+      "artworkId": "daily_2026_09_25"
+    },
+    {
+      "date": "2026-09-26",
+      "artworkId": "daily_2026_09_26"
+    },
+    {
+      "date": "2026-09-27",
+      "artworkId": "daily_2026_09_27"
+    },
+    {
+      "date": "2026-09-28",
+      "artworkId": "daily_2026_09_28"
+    },
+    {
+      "date": "2026-09-29",
+      "artworkId": "daily_2026_09_29"
+    },
+    {
+      "date": "2026-09-30",
+      "artworkId": "daily_2026_09_30"
+    },
+    {
+      "date": "2026-10-01",
+      "artworkId": "daily_2026_10_01"
+    },
+    {
+      "date": "2026-10-02",
+      "artworkId": "daily_2026_10_02"
+    },
+    {
+      "date": "2026-10-03",
+      "artworkId": "daily_2026_10_03"
+    },
+    {
+      "date": "2026-10-04",
+      "artworkId": "daily_2026_10_04"
+    },
+    {
+      "date": "2026-10-05",
+      "artworkId": "daily_2026_10_05"
+    },
+    {
+      "date": "2026-10-06",
+      "artworkId": "daily_2026_10_06"
+    },
+    {
+      "date": "2026-10-07",
+      "artworkId": "daily_2026_10_07"
+    },
+    {
+      "date": "2026-10-08",
+      "artworkId": "daily_2026_10_08"
+    },
+    {
+      "date": "2026-10-09",
+      "artworkId": "daily_2026_10_09"
+    },
+    {
+      "date": "2026-10-10",
+      "artworkId": "daily_2026_10_10"
+    },
+    {
+      "date": "2026-10-11",
+      "artworkId": "daily_2026_10_11"
+    },
+    {
+      "date": "2026-10-12",
+      "artworkId": "daily_2026_10_12"
+    },
+    {
+      "date": "2026-10-13",
+      "artworkId": "daily_2026_10_13"
+    },
+    {
+      "date": "2026-10-14",
+      "artworkId": "daily_2026_10_14"
+    },
+    {
+      "date": "2026-10-15",
+      "artworkId": "daily_2026_10_15"
+    },
+    {
+      "date": "2026-10-16",
+      "artworkId": "daily_2026_10_16"
+    },
+    {
+      "date": "2026-10-17",
+      "artworkId": "daily_2026_10_17"
+    },
+    {
+      "date": "2026-10-18",
+      "artworkId": "daily_2026_10_18"
+    },
+    {
+      "date": "2026-10-19",
+      "artworkId": "daily_2026_10_19"
+    },
+    {
+      "date": "2026-10-20",
+      "artworkId": "daily_2026_10_20"
+    },
+    {
+      "date": "2026-10-21",
+      "artworkId": "daily_2026_10_21"
+    },
+    {
+      "date": "2026-10-22",
+      "artworkId": "daily_2026_10_22"
+    },
+    {
+      "date": "2026-10-23",
+      "artworkId": "daily_2026_10_23"
+    },
+    {
+      "date": "2026-10-24",
+      "artworkId": "daily_2026_10_24"
+    },
+    {
+      "date": "2026-10-25",
+      "artworkId": "daily_2026_10_25"
+    },
+    {
+      "date": "2026-10-26",
+      "artworkId": "daily_2026_10_26"
+    },
+    {
+      "date": "2026-10-27",
+      "artworkId": "daily_2026_10_27"
+    },
+    {
+      "date": "2026-10-28",
+      "artworkId": "daily_2026_10_28"
+    },
+    {
+      "date": "2026-10-29",
+      "artworkId": "daily_2026_10_29"
+    },
+    {
+      "date": "2026-10-30",
+      "artworkId": "daily_2026_10_30"
+    },
+    {
+      "date": "2026-10-31",
+      "artworkId": "daily_2026_10_31"
+    },
+    {
+      "date": "2026-11-01",
+      "artworkId": "daily_2026_11_01"
+    },
+    {
+      "date": "2026-11-02",
+      "artworkId": "daily_2026_11_02"
+    },
+    {
+      "date": "2026-11-03",
+      "artworkId": "daily_2026_11_03"
+    },
+    {
+      "date": "2026-11-04",
+      "artworkId": "daily_2026_11_04"
+    },
+    {
+      "date": "2026-11-05",
+      "artworkId": "daily_2026_11_05"
+    },
+    {
+      "date": "2026-11-06",
+      "artworkId": "daily_2026_11_06"
+    },
+    {
+      "date": "2026-11-07",
+      "artworkId": "daily_2026_11_07"
+    },
+    {
+      "date": "2026-11-08",
+      "artworkId": "daily_2026_11_08"
+    },
+    {
+      "date": "2026-11-09",
+      "artworkId": "daily_2026_11_09"
+    },
+    {
+      "date": "2026-11-10",
+      "artworkId": "daily_2026_11_10"
+    },
+    {
+      "date": "2026-11-11",
+      "artworkId": "daily_2026_11_11"
+    },
+    {
+      "date": "2026-11-12",
+      "artworkId": "daily_2026_11_12"
+    },
+    {
+      "date": "2026-11-13",
+      "artworkId": "daily_2026_11_13"
+    },
+    {
+      "date": "2026-11-14",
+      "artworkId": "daily_2026_11_14"
+    },
+    {
+      "date": "2026-11-15",
+      "artworkId": "daily_2026_11_15"
+    },
+    {
+      "date": "2026-11-16",
+      "artworkId": "daily_2026_11_16"
+    },
+    {
+      "date": "2026-11-17",
+      "artworkId": "daily_2026_11_17"
+    },
+    {
+      "date": "2026-11-18",
+      "artworkId": "daily_2026_11_18"
+    },
+    {
+      "date": "2026-11-19",
+      "artworkId": "daily_2026_11_19"
+    },
+    {
+      "date": "2026-11-20",
+      "artworkId": "daily_2026_11_20"
+    },
+    {
+      "date": "2026-11-21",
+      "artworkId": "daily_2026_11_21"
+    },
+    {
+      "date": "2026-11-22",
+      "artworkId": "daily_2026_11_22"
+    },
+    {
+      "date": "2026-11-23",
+      "artworkId": "daily_2026_11_23"
+    },
+    {
+      "date": "2026-11-24",
+      "artworkId": "daily_2026_11_24"
+    },
+    {
+      "date": "2026-11-25",
+      "artworkId": "daily_2026_11_25"
+    },
+    {
+      "date": "2026-11-26",
+      "artworkId": "daily_2026_11_26"
+    },
+    {
+      "date": "2026-11-27",
+      "artworkId": "daily_2026_11_27"
+    },
+    {
+      "date": "2026-11-28",
+      "artworkId": "daily_2026_11_28"
+    },
+    {
+      "date": "2026-11-29",
+      "artworkId": "daily_2026_11_29"
+    },
+    {
+      "date": "2026-11-30",
+      "artworkId": "daily_2026_11_30"
+    },
+    {
+      "date": "2026-12-01",
+      "artworkId": "daily_2026_12_01"
+    },
+    {
+      "date": "2026-12-02",
+      "artworkId": "daily_2026_12_02"
+    },
+    {
+      "date": "2026-12-03",
+      "artworkId": "daily_2026_12_03"
+    },
+    {
+      "date": "2026-12-04",
+      "artworkId": "daily_2026_12_04"
+    },
+    {
+      "date": "2026-12-05",
+      "artworkId": "daily_2026_12_05"
+    },
+    {
+      "date": "2026-12-06",
+      "artworkId": "daily_2026_12_06"
+    },
+    {
+      "date": "2026-12-07",
+      "artworkId": "daily_2026_12_07"
+    },
+    {
+      "date": "2026-12-08",
+      "artworkId": "daily_2026_12_08"
+    },
+    {
+      "date": "2026-12-09",
+      "artworkId": "daily_2026_12_09"
+    },
+    {
+      "date": "2026-12-10",
+      "artworkId": "daily_2026_12_10"
+    },
+    {
+      "date": "2026-12-11",
+      "artworkId": "daily_2026_12_11"
+    },
+    {
+      "date": "2026-12-12",
+      "artworkId": "daily_2026_12_12"
+    },
+    {
+      "date": "2026-12-13",
+      "artworkId": "daily_2026_12_13"
+    },
+    {
+      "date": "2026-12-14",
+      "artworkId": "daily_2026_12_14"
+    },
+    {
+      "date": "2026-12-15",
+      "artworkId": "daily_2026_12_15"
+    },
+    {
+      "date": "2026-12-16",
+      "artworkId": "daily_2026_12_16"
+    },
+    {
+      "date": "2026-12-17",
+      "artworkId": "daily_2026_12_17"
+    },
+    {
+      "date": "2026-12-18",
+      "artworkId": "daily_2026_12_18"
+    },
+    {
+      "date": "2026-12-19",
+      "artworkId": "daily_2026_12_19"
+    },
+    {
+      "date": "2026-12-20",
+      "artworkId": "daily_2026_12_20"
+    },
+    {
+      "date": "2026-12-21",
+      "artworkId": "daily_2026_12_21"
+    },
+    {
+      "date": "2026-12-22",
+      "artworkId": "daily_2026_12_22"
+    },
+    {
+      "date": "2026-12-23",
+      "artworkId": "daily_2026_12_23"
+    },
+    {
+      "date": "2026-12-24",
+      "artworkId": "daily_2026_12_24"
+    },
+    {
+      "date": "2026-12-25",
+      "artworkId": "daily_2026_12_25"
+    },
+    {
+      "date": "2026-12-26",
+      "artworkId": "daily_2026_12_26"
+    },
+    {
+      "date": "2026-12-27",
+      "artworkId": "daily_2026_12_27"
+    },
+    {
+      "date": "2026-12-28",
+      "artworkId": "daily_2026_12_28"
+    },
+    {
+      "date": "2026-12-29",
+      "artworkId": "daily_2026_12_29"
+    },
+    {
+      "date": "2026-12-30",
+      "artworkId": "daily_2026_12_30"
+    },
+    {
+      "date": "2026-12-31",
+      "artworkId": "daily_2026_12_31"
+    },
+    {
+      "date": "2027-01-01",
+      "artworkId": "daily_2027_01_01"
+    },
+    {
+      "date": "2027-01-02",
+      "artworkId": "daily_2027_01_02"
+    },
+    {
+      "date": "2027-01-03",
+      "artworkId": "daily_2027_01_03"
+    },
+    {
+      "date": "2027-01-04",
+      "artworkId": "daily_2027_01_04"
+    },
+    {
+      "date": "2027-01-05",
+      "artworkId": "daily_2027_01_05"
+    },
+    {
+      "date": "2027-01-06",
+      "artworkId": "daily_2027_01_06"
+    },
+    {
+      "date": "2027-01-07",
+      "artworkId": "daily_2027_01_07"
+    },
+    {
+      "date": "2027-01-08",
+      "artworkId": "daily_2027_01_08"
+    },
+    {
+      "date": "2027-01-09",
+      "artworkId": "daily_2027_01_09"
+    },
+    {
+      "date": "2027-01-10",
+      "artworkId": "daily_2027_01_10"
+    },
+    {
+      "date": "2027-01-11",
+      "artworkId": "daily_2027_01_11"
+    },
+    {
+      "date": "2027-01-12",
+      "artworkId": "daily_2027_01_12"
+    },
+    {
+      "date": "2027-01-13",
+      "artworkId": "daily_2027_01_13"
+    },
+    {
+      "date": "2027-01-14",
+      "artworkId": "daily_2027_01_14"
+    },
+    {
+      "date": "2027-01-15",
+      "artworkId": "daily_2027_01_15"
+    },
+    {
+      "date": "2027-01-16",
+      "artworkId": "daily_2027_01_16"
+    },
+    {
+      "date": "2027-01-17",
+      "artworkId": "daily_2027_01_17"
+    },
+    {
+      "date": "2027-01-18",
+      "artworkId": "daily_2027_01_18"
+    },
+    {
+      "date": "2027-01-19",
+      "artworkId": "daily_2027_01_19"
+    },
+    {
+      "date": "2027-01-20",
+      "artworkId": "daily_2027_01_20"
+    },
+    {
+      "date": "2027-01-21",
+      "artworkId": "daily_2027_01_21"
+    },
+    {
+      "date": "2027-01-22",
+      "artworkId": "daily_2027_01_22"
+    },
+    {
+      "date": "2027-01-23",
+      "artworkId": "daily_2027_01_23"
+    },
+    {
+      "date": "2027-01-24",
+      "artworkId": "daily_2027_01_24"
+    },
+    {
+      "date": "2027-01-25",
+      "artworkId": "daily_2027_01_25"
+    },
+    {
+      "date": "2027-01-26",
+      "artworkId": "daily_2027_01_26"
+    },
+    {
+      "date": "2027-01-27",
+      "artworkId": "daily_2027_01_27"
+    },
+    {
+      "date": "2027-01-28",
+      "artworkId": "daily_2027_01_28"
+    },
+    {
+      "date": "2027-01-29",
+      "artworkId": "daily_2027_01_29"
+    },
+    {
+      "date": "2027-01-30",
+      "artworkId": "daily_2027_01_30"
+    },
+    {
+      "date": "2027-01-31",
+      "artworkId": "daily_2027_01_31"
+    },
+    {
+      "date": "2027-02-01",
+      "artworkId": "daily_2027_02_01"
+    },
+    {
+      "date": "2027-02-02",
+      "artworkId": "daily_2027_02_02"
+    },
+    {
+      "date": "2027-02-03",
+      "artworkId": "daily_2027_02_03"
+    },
+    {
+      "date": "2027-02-04",
+      "artworkId": "daily_2027_02_04"
+    },
+    {
+      "date": "2027-02-05",
+      "artworkId": "daily_2027_02_05"
+    },
+    {
+      "date": "2027-02-06",
+      "artworkId": "daily_2027_02_06"
+    },
+    {
+      "date": "2027-02-07",
+      "artworkId": "daily_2027_02_07"
+    },
+    {
+      "date": "2027-02-08",
+      "artworkId": "daily_2027_02_08"
+    },
+    {
+      "date": "2027-02-09",
+      "artworkId": "daily_2027_02_09"
+    },
+    {
+      "date": "2027-02-10",
+      "artworkId": "daily_2027_02_10"
+    },
+    {
+      "date": "2027-02-11",
+      "artworkId": "daily_2027_02_11"
+    },
+    {
+      "date": "2027-02-12",
+      "artworkId": "daily_2027_02_12"
+    },
+    {
+      "date": "2027-02-13",
+      "artworkId": "daily_2027_02_13"
+    },
+    {
+      "date": "2027-02-14",
+      "artworkId": "daily_2027_02_14"
+    },
+    {
+      "date": "2027-02-15",
+      "artworkId": "daily_2027_02_15"
+    },
+    {
+      "date": "2027-02-16",
+      "artworkId": "daily_2027_02_16"
+    },
+    {
+      "date": "2027-02-17",
+      "artworkId": "daily_2027_02_17"
+    },
+    {
+      "date": "2027-02-18",
+      "artworkId": "daily_2027_02_18"
+    },
+    {
+      "date": "2027-02-19",
+      "artworkId": "daily_2027_02_19"
+    },
+    {
+      "date": "2027-02-20",
+      "artworkId": "daily_2027_02_20"
+    },
+    {
+      "date": "2027-02-21",
+      "artworkId": "daily_2027_02_21"
+    },
+    {
+      "date": "2027-02-22",
+      "artworkId": "daily_2027_02_22"
+    },
+    {
+      "date": "2027-02-23",
+      "artworkId": "daily_2027_02_23"
+    },
+    {
+      "date": "2027-02-24",
+      "artworkId": "daily_2027_02_24"
+    },
+    {
+      "date": "2027-02-25",
+      "artworkId": "daily_2027_02_25"
+    },
+    {
+      "date": "2027-02-26",
+      "artworkId": "daily_2027_02_26"
+    },
+    {
+      "date": "2027-02-27",
+      "artworkId": "daily_2027_02_27"
+    },
+    {
+      "date": "2027-02-28",
+      "artworkId": "daily_2027_02_28"
+    },
+    {
+      "date": "2027-03-01",
+      "artworkId": "daily_2027_03_01"
+    },
+    {
+      "date": "2027-03-02",
+      "artworkId": "daily_2027_03_02"
+    },
+    {
+      "date": "2027-03-03",
+      "artworkId": "daily_2027_03_03"
+    },
+    {
+      "date": "2027-03-04",
+      "artworkId": "daily_2027_03_04"
+    },
+    {
+      "date": "2027-03-05",
+      "artworkId": "daily_2027_03_05"
+    },
+    {
+      "date": "2027-03-06",
+      "artworkId": "daily_2027_03_06"
+    },
+    {
+      "date": "2027-03-07",
+      "artworkId": "daily_2027_03_07"
+    },
+    {
+      "date": "2027-03-08",
+      "artworkId": "daily_2027_03_08"
+    },
+    {
+      "date": "2027-03-09",
+      "artworkId": "daily_2027_03_09"
+    },
+    {
+      "date": "2027-03-10",
+      "artworkId": "daily_2027_03_10"
+    },
+    {
+      "date": "2027-03-11",
+      "artworkId": "daily_2027_03_11"
+    },
+    {
+      "date": "2027-03-12",
+      "artworkId": "daily_2027_03_12"
+    },
+    {
+      "date": "2027-03-13",
+      "artworkId": "daily_2027_03_13"
+    },
+    {
+      "date": "2027-03-14",
+      "artworkId": "daily_2027_03_14"
+    },
+    {
+      "date": "2027-03-15",
+      "artworkId": "daily_2027_03_15"
+    },
+    {
+      "date": "2027-03-16",
+      "artworkId": "daily_2027_03_16"
+    },
+    {
+      "date": "2027-03-17",
+      "artworkId": "daily_2027_03_17"
+    },
+    {
+      "date": "2027-03-18",
+      "artworkId": "daily_2027_03_18"
+    },
+    {
+      "date": "2027-03-19",
+      "artworkId": "daily_2027_03_19"
+    },
+    {
+      "date": "2027-03-20",
+      "artworkId": "daily_2027_03_20"
+    },
+    {
+      "date": "2027-03-21",
+      "artworkId": "daily_2027_03_21"
+    },
+    {
+      "date": "2027-03-22",
+      "artworkId": "daily_2027_03_22"
+    },
+    {
+      "date": "2027-03-23",
+      "artworkId": "daily_2027_03_23"
+    },
+    {
+      "date": "2027-03-24",
+      "artworkId": "daily_2027_03_24"
+    },
+    {
+      "date": "2027-03-25",
+      "artworkId": "daily_2027_03_25"
+    },
+    {
+      "date": "2027-03-26",
+      "artworkId": "daily_2027_03_26"
+    },
+    {
+      "date": "2027-03-27",
+      "artworkId": "daily_2027_03_27"
+    },
+    {
+      "date": "2027-03-28",
+      "artworkId": "daily_2027_03_28"
+    },
+    {
+      "date": "2027-03-29",
+      "artworkId": "daily_2027_03_29"
+    },
+    {
+      "date": "2027-03-30",
+      "artworkId": "daily_2027_03_30"
+    },
+    {
+      "date": "2027-03-31",
+      "artworkId": "daily_2027_03_31"
+    }
   ],
   "weekly": [
-    { "weekId": "2026-W01", "artworkId": "weekly_2026_w01", "startDate": "2025-12-29", "endDate": "2026-01-04" },
-    { "weekId": "2026-W02", "artworkId": "weekly_2026_w02", "startDate": "2026-01-05", "endDate": "2026-01-11" },
-    { "weekId": "2026-W03", "artworkId": "weekly_2026_w03", "startDate": "2026-01-12", "endDate": "2026-01-18" },
-    { "weekId": "2026-W04", "artworkId": "weekly_2026_w04", "startDate": "2026-01-19", "endDate": "2026-01-25" },
-    { "weekId": "2026-W05", "artworkId": "weekly_2026_w05", "startDate": "2026-01-26", "endDate": "2026-02-01" }
+    {
+      "weekId": "2026-W01",
+      "artworkId": "weekly_2026_w01",
+      "startDate": "2025-12-29",
+      "endDate": "2026-01-04"
+    },
+    {
+      "weekId": "2026-W02",
+      "artworkId": "weekly_2026_w02",
+      "startDate": "2026-01-05",
+      "endDate": "2026-01-11"
+    },
+    {
+      "weekId": "2026-W03",
+      "artworkId": "weekly_2026_w03",
+      "startDate": "2026-01-12",
+      "endDate": "2026-01-18"
+    },
+    {
+      "weekId": "2026-W04",
+      "artworkId": "weekly_2026_w04",
+      "startDate": "2026-01-19",
+      "endDate": "2026-01-25"
+    },
+    {
+      "weekId": "2026-W05",
+      "artworkId": "weekly_2026_w05",
+      "startDate": "2026-01-26",
+      "endDate": "2026-02-01"
+    },
+    {
+      "weekId": "2026-W06",
+      "artworkId": "weekly_2026_w06",
+      "startDate": "2026-02-02",
+      "endDate": "2026-02-08"
+    },
+    {
+      "weekId": "2026-W07",
+      "artworkId": "weekly_2026_w07",
+      "startDate": "2026-02-09",
+      "endDate": "2026-02-15"
+    },
+    {
+      "weekId": "2026-W08",
+      "artworkId": "weekly_2026_w08",
+      "startDate": "2026-02-16",
+      "endDate": "2026-02-22"
+    },
+    {
+      "weekId": "2026-W09",
+      "artworkId": "weekly_2026_w09",
+      "startDate": "2026-02-23",
+      "endDate": "2026-03-01"
+    },
+    {
+      "weekId": "2026-W10",
+      "artworkId": "weekly_2026_w10",
+      "startDate": "2026-03-02",
+      "endDate": "2026-03-08"
+    },
+    {
+      "weekId": "2026-W11",
+      "artworkId": "weekly_2026_w11",
+      "startDate": "2026-03-09",
+      "endDate": "2026-03-15"
+    },
+    {
+      "weekId": "2026-W12",
+      "artworkId": "weekly_2026_w12",
+      "startDate": "2026-03-16",
+      "endDate": "2026-03-22"
+    },
+    {
+      "weekId": "2026-W13",
+      "artworkId": "weekly_2026_w13",
+      "startDate": "2026-03-23",
+      "endDate": "2026-03-29"
+    },
+    {
+      "weekId": "2026-W14",
+      "artworkId": "weekly_2026_w14",
+      "startDate": "2026-03-30",
+      "endDate": "2026-04-05"
+    },
+    {
+      "weekId": "2026-W15",
+      "artworkId": "weekly_2026_w15",
+      "startDate": "2026-04-06",
+      "endDate": "2026-04-12"
+    },
+    {
+      "weekId": "2026-W16",
+      "artworkId": "weekly_2026_w16",
+      "startDate": "2026-04-13",
+      "endDate": "2026-04-19"
+    },
+    {
+      "weekId": "2026-W17",
+      "artworkId": "weekly_2026_w17",
+      "startDate": "2026-04-20",
+      "endDate": "2026-04-26"
+    },
+    {
+      "weekId": "2026-W18",
+      "artworkId": "weekly_2026_w18",
+      "startDate": "2026-04-27",
+      "endDate": "2026-05-03"
+    },
+    {
+      "weekId": "2026-W19",
+      "artworkId": "weekly_2026_w19",
+      "startDate": "2026-05-04",
+      "endDate": "2026-05-10"
+    },
+    {
+      "weekId": "2026-W20",
+      "artworkId": "weekly_2026_w20",
+      "startDate": "2026-05-11",
+      "endDate": "2026-05-17"
+    },
+    {
+      "weekId": "2026-W21",
+      "artworkId": "weekly_2026_w21",
+      "startDate": "2026-05-18",
+      "endDate": "2026-05-24"
+    },
+    {
+      "weekId": "2026-W22",
+      "artworkId": "weekly_2026_w22",
+      "startDate": "2026-05-25",
+      "endDate": "2026-05-31"
+    },
+    {
+      "weekId": "2026-W23",
+      "artworkId": "weekly_2026_w23",
+      "startDate": "2026-06-01",
+      "endDate": "2026-06-07"
+    },
+    {
+      "weekId": "2026-W24",
+      "artworkId": "weekly_2026_w24",
+      "startDate": "2026-06-08",
+      "endDate": "2026-06-14"
+    },
+    {
+      "weekId": "2026-W25",
+      "artworkId": "weekly_2026_w25",
+      "startDate": "2026-06-15",
+      "endDate": "2026-06-21"
+    },
+    {
+      "weekId": "2026-W26",
+      "artworkId": "weekly_2026_w26",
+      "startDate": "2026-06-22",
+      "endDate": "2026-06-28"
+    },
+    {
+      "weekId": "2026-W27",
+      "artworkId": "weekly_2026_w27",
+      "startDate": "2026-06-29",
+      "endDate": "2026-07-05"
+    },
+    {
+      "weekId": "2026-W28",
+      "artworkId": "weekly_2026_w28",
+      "startDate": "2026-07-06",
+      "endDate": "2026-07-12"
+    },
+    {
+      "weekId": "2026-W29",
+      "artworkId": "weekly_2026_w29",
+      "startDate": "2026-07-13",
+      "endDate": "2026-07-19"
+    },
+    {
+      "weekId": "2026-W30",
+      "artworkId": "weekly_2026_w30",
+      "startDate": "2026-07-20",
+      "endDate": "2026-07-26"
+    },
+    {
+      "weekId": "2026-W31",
+      "artworkId": "weekly_2026_w31",
+      "startDate": "2026-07-27",
+      "endDate": "2026-08-02"
+    },
+    {
+      "weekId": "2026-W32",
+      "artworkId": "weekly_2026_w32",
+      "startDate": "2026-08-03",
+      "endDate": "2026-08-09"
+    },
+    {
+      "weekId": "2026-W33",
+      "artworkId": "weekly_2026_w33",
+      "startDate": "2026-08-10",
+      "endDate": "2026-08-16"
+    },
+    {
+      "weekId": "2026-W34",
+      "artworkId": "weekly_2026_w34",
+      "startDate": "2026-08-17",
+      "endDate": "2026-08-23"
+    },
+    {
+      "weekId": "2026-W35",
+      "artworkId": "weekly_2026_w35",
+      "startDate": "2026-08-24",
+      "endDate": "2026-08-30"
+    },
+    {
+      "weekId": "2026-W36",
+      "artworkId": "weekly_2026_w36",
+      "startDate": "2026-08-31",
+      "endDate": "2026-09-06"
+    },
+    {
+      "weekId": "2026-W37",
+      "artworkId": "weekly_2026_w37",
+      "startDate": "2026-09-07",
+      "endDate": "2026-09-13"
+    },
+    {
+      "weekId": "2026-W38",
+      "artworkId": "weekly_2026_w38",
+      "startDate": "2026-09-14",
+      "endDate": "2026-09-20"
+    },
+    {
+      "weekId": "2026-W39",
+      "artworkId": "weekly_2026_w39",
+      "startDate": "2026-09-21",
+      "endDate": "2026-09-27"
+    },
+    {
+      "weekId": "2026-W40",
+      "artworkId": "weekly_2026_w40",
+      "startDate": "2026-09-28",
+      "endDate": "2026-10-04"
+    },
+    {
+      "weekId": "2026-W41",
+      "artworkId": "weekly_2026_w41",
+      "startDate": "2026-10-05",
+      "endDate": "2026-10-11"
+    },
+    {
+      "weekId": "2026-W42",
+      "artworkId": "weekly_2026_w42",
+      "startDate": "2026-10-12",
+      "endDate": "2026-10-18"
+    },
+    {
+      "weekId": "2026-W43",
+      "artworkId": "weekly_2026_w43",
+      "startDate": "2026-10-19",
+      "endDate": "2026-10-25"
+    },
+    {
+      "weekId": "2026-W44",
+      "artworkId": "weekly_2026_w44",
+      "startDate": "2026-10-26",
+      "endDate": "2026-11-01"
+    },
+    {
+      "weekId": "2026-W45",
+      "artworkId": "weekly_2026_w45",
+      "startDate": "2026-11-02",
+      "endDate": "2026-11-08"
+    },
+    {
+      "weekId": "2026-W46",
+      "artworkId": "weekly_2026_w46",
+      "startDate": "2026-11-09",
+      "endDate": "2026-11-15"
+    },
+    {
+      "weekId": "2026-W47",
+      "artworkId": "weekly_2026_w47",
+      "startDate": "2026-11-16",
+      "endDate": "2026-11-22"
+    },
+    {
+      "weekId": "2026-W48",
+      "artworkId": "weekly_2026_w48",
+      "startDate": "2026-11-23",
+      "endDate": "2026-11-29"
+    },
+    {
+      "weekId": "2026-W49",
+      "artworkId": "weekly_2026_w49",
+      "startDate": "2026-11-30",
+      "endDate": "2026-12-06"
+    },
+    {
+      "weekId": "2026-W50",
+      "artworkId": "weekly_2026_w50",
+      "startDate": "2026-12-07",
+      "endDate": "2026-12-13"
+    },
+    {
+      "weekId": "2026-W51",
+      "artworkId": "weekly_2026_w51",
+      "startDate": "2026-12-14",
+      "endDate": "2026-12-20"
+    },
+    {
+      "weekId": "2026-W52",
+      "artworkId": "weekly_2026_w52",
+      "startDate": "2026-12-21",
+      "endDate": "2026-12-27"
+    },
+    {
+      "weekId": "2026-W53",
+      "artworkId": "weekly_2026_w53",
+      "startDate": "2026-12-28",
+      "endDate": "2027-01-03"
+    },
+    {
+      "weekId": "2027-W01",
+      "artworkId": "weekly_2027_w01",
+      "startDate": "2027-01-04",
+      "endDate": "2027-01-10"
+    },
+    {
+      "weekId": "2027-W02",
+      "artworkId": "weekly_2027_w02",
+      "startDate": "2027-01-11",
+      "endDate": "2027-01-17"
+    },
+    {
+      "weekId": "2027-W03",
+      "artworkId": "weekly_2027_w03",
+      "startDate": "2027-01-18",
+      "endDate": "2027-01-24"
+    },
+    {
+      "weekId": "2027-W04",
+      "artworkId": "weekly_2027_w04",
+      "startDate": "2027-01-25",
+      "endDate": "2027-01-31"
+    },
+    {
+      "weekId": "2027-W05",
+      "artworkId": "weekly_2027_w05",
+      "startDate": "2027-02-01",
+      "endDate": "2027-02-07"
+    },
+    {
+      "weekId": "2027-W06",
+      "artworkId": "weekly_2027_w06",
+      "startDate": "2027-02-08",
+      "endDate": "2027-02-14"
+    },
+    {
+      "weekId": "2027-W07",
+      "artworkId": "weekly_2027_w07",
+      "startDate": "2027-02-15",
+      "endDate": "2027-02-21"
+    },
+    {
+      "weekId": "2027-W08",
+      "artworkId": "weekly_2027_w08",
+      "startDate": "2027-02-22",
+      "endDate": "2027-02-28"
+    },
+    {
+      "weekId": "2027-W09",
+      "artworkId": "weekly_2027_w09",
+      "startDate": "2027-03-01",
+      "endDate": "2027-03-07"
+    },
+    {
+      "weekId": "2027-W10",
+      "artworkId": "weekly_2027_w10",
+      "startDate": "2027-03-08",
+      "endDate": "2027-03-14"
+    },
+    {
+      "weekId": "2027-W11",
+      "artworkId": "weekly_2027_w11",
+      "startDate": "2027-03-15",
+      "endDate": "2027-03-21"
+    },
+    {
+      "weekId": "2027-W12",
+      "artworkId": "weekly_2027_w12",
+      "startDate": "2027-03-22",
+      "endDate": "2027-03-28"
+    },
+    {
+      "weekId": "2027-W13",
+      "artworkId": "weekly_2027_w13",
+      "startDate": "2027-03-29",
+      "endDate": "2027-04-04"
+    }
   ],
   "monthly": [
-    { "month": "2026-01", "artworkId": "monthly_2026_01_main", "isPremium": true }
+    {
+      "month": "2026-01",
+      "artworkId": "monthly_2026_01_main",
+      "isPremium": true
+    },
+    {
+      "month": "2026-02",
+      "artworkId": "monthly_2026_02_main",
+      "isPremium": true
+    },
+    {
+      "month": "2026-03",
+      "artworkId": "monthly_2026_03_main",
+      "isPremium": true
+    },
+    {
+      "month": "2026-04",
+      "artworkId": "monthly_2026_04_main",
+      "isPremium": true
+    },
+    {
+      "month": "2026-05",
+      "artworkId": "monthly_2026_05_main",
+      "isPremium": true
+    },
+    {
+      "month": "2026-06",
+      "artworkId": "monthly_2026_06_main",
+      "isPremium": true
+    },
+    {
+      "month": "2026-07",
+      "artworkId": "monthly_2026_07_main",
+      "isPremium": true
+    },
+    {
+      "month": "2026-08",
+      "artworkId": "monthly_2026_08_main",
+      "isPremium": true
+    },
+    {
+      "month": "2026-09",
+      "artworkId": "monthly_2026_09_main",
+      "isPremium": true
+    },
+    {
+      "month": "2026-10",
+      "artworkId": "monthly_2026_10_main",
+      "isPremium": true
+    },
+    {
+      "month": "2026-11",
+      "artworkId": "monthly_2026_11_main",
+      "isPremium": true
+    },
+    {
+      "month": "2026-12",
+      "artworkId": "monthly_2026_12_main",
+      "isPremium": true
+    },
+    {
+      "month": "2027-01",
+      "artworkId": "monthly_2027_01_main",
+      "isPremium": true
+    },
+    {
+      "month": "2027-02",
+      "artworkId": "monthly_2027_02_main",
+      "isPremium": true
+    },
+    {
+      "month": "2027-03",
+      "artworkId": "monthly_2027_03_main",
+      "isPremium": true
+    }
   ]
 }

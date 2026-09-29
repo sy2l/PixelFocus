@@ -6,7 +6,7 @@
  * Date: 15 janvier 2026
  *
  * Règles de dates:
- * - Purge daily "à finaliser" le 4 du mois suivant.
+ * - Daily jouables toute l'année; purge des daily "à finaliser" en janvier de l'année suivante.
  * - Fin de période (daily/weekly/monthly) pour le passage en "à finaliser".
  * - Les règles d'achat des monthly sont décrites dans GAME_DESIGN.md.
  *
@@ -54,54 +54,32 @@ enum DatePolicy {
 
     // MARK: - Purge Daily Finalize
 
-    /// Date de purge d'une daily d'un mois donné: le `purgeDay` du mois suivant (00:00).
+    /// Date de purge des daily d'une année: le `januaryDay` janvier de l'année suivante (00:00).
+    /// Les daily restent jouables toute l'année calendaire (voir GAME_DESIGN.md).
     static func dailyPurgeDate(
-        dailyMonth: DateComponents,
-        purgeDay: Int,
+        dailyYear: Int,
+        januaryDay: Int,
         calendar: Calendar = .current
     ) -> Date? {
-        guard let dailyYear = dailyMonth.year, let dailyMonthValue = dailyMonth.month else { return nil }
-        let firstOfDailyMonth = DateComponents(year: dailyYear, month: dailyMonthValue, day: 1)
-        guard let dailyMonthDate = calendar.date(from: firstOfDailyMonth),
-              let nextMonthDate = calendar.date(byAdding: .month, value: 1, to: dailyMonthDate) else { return nil }
-
-        var purgeComponents = calendar.dateComponents([.year, .month], from: nextMonthDate)
-        purgeComponents.day = purgeDay
-        return calendar.date(from: purgeComponents)
+        calendar.date(from: DateComponents(year: dailyYear + 1, month: 1, day: januaryDay))
     }
 
-    /// Vérifie si une daily d'un mois donné doit être purgée à la date actuelle
-    /// (à partir du `purgeDay` du mois suivant, y compris les mois d'après).
-    static func shouldPurgeDailyFinalize(
-        dailyMonth: DateComponents,
-        currentDate: Date,
-        purgeDay: Int,
-        calendar: Calendar = .current
-    ) -> Bool {
-        guard let purgeDate = dailyPurgeDate(dailyMonth: dailyMonth, purgeDay: purgeDay, calendar: calendar) else {
-            return false
-        }
-        return currentDate >= purgeDate
-    }
-
-    /// Vérifie si une daily (par sa date ISO) doit être purgée
+    /// Vérifie si une daily (par sa date ISO) doit être purgée à la date actuelle.
     static func shouldPurgeDailyFinalize(
         dailyDateISO: String,
         currentDate: Date,
-        purgeDay: Int,
+        januaryDay: Int,
         calendar: Calendar = .current
     ) -> Bool {
-        guard let dailyDate = DateParsing.dateFromISODay(dailyDateISO, calendar: calendar) else {
+        guard let dailyDate = DateParsing.dateFromISODay(dailyDateISO, calendar: calendar),
+              let purgeDate = dailyPurgeDate(
+                dailyYear: calendar.component(.year, from: dailyDate),
+                januaryDay: januaryDay,
+                calendar: calendar
+              ) else {
             return false
         }
-
-        let dailyMonth = calendar.dateComponents([.year, .month], from: dailyDate)
-        return shouldPurgeDailyFinalize(
-            dailyMonth: dailyMonth,
-            currentDate: currentDate,
-            purgeDay: purgeDay,
-            calendar: calendar
-        )
+        return currentDate >= purgeDate
     }
 
     // MARK: - Period End

@@ -152,8 +152,23 @@ final class AppCoordinator: ObservableObject {
     }
 
     /// Vrai si l'utilisateur peut jouer cette œuvre (sessions, boosters)
-    func canPlay(artworkId: String) -> Bool {
-        monthlyAccess(forArtworkId: artworkId)?.isGranted ?? true
+    /// - Daily: jouable de sa date jusqu'à la fin de son année (pas de daily future)
+    /// - Weekly: jouable dès le lundi de sa semaine (pas de weekly future)
+    /// - Monthly: selon MonthlyAccessPolicy (et pas de monthly future)
+    func canPlay(artworkId: String, now: Date = Date()) -> Bool {
+        let todayISO = DatePolicy.isoDayString(for: now)
+
+        if let dailyDate = dailyDateISO(forArtworkId: artworkId) {
+            return dailyDate <= todayISO && dailyDate.prefix(4) == todayISO.prefix(4)
+        }
+        if let weekly = catalog?.weekly.first(where: { $0.artworkId == artworkId }) {
+            return weekly.startDate <= todayISO
+        }
+        if let monthISO = monthlyMonthISO(forArtworkId: artworkId) {
+            guard monthISO <= DatePolicy.isoMonthString(for: now) else { return false }
+            return monthlyAccess(forArtworkId: artworkId, now: now)?.isGranted ?? false
+        }
+        return true
     }
 
     // MARK: - Content Selection Helpers

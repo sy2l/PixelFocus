@@ -139,7 +139,8 @@ struct FinalizeRulesDTO: Codable {
 
 struct DailyFinalizeRulesDTO: Codable {
     let moveToFinalizeIfNotCompleted: Bool
-    let purgeFinalizeOnDayOfNextMonth: Int
+    /// Daily non terminées purgées ce jour de janvier de l'année suivante
+    let purgeFinalizeOnJanuaryDayOfNextYear: Int
 }
 
 struct MonthlyFinalizeRulesDTO: Codable {

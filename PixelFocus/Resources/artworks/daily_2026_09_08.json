@@ -1,0 +1,76 @@
+{
+  "artworkId": "daily_2026_09_08",
+  "title": "Poisson du 8 septembre",
+  "mode": "daily",
+  "grid": {
+    "width": 5,
+    "height": 5
+  },
+  "reveal": {
+    "order": "custom",
+    "indexSequence": [
+      14,
+      19,
+      8,
+      24,
+      21,
+      13,
+      16,
+      18,
+      5,
+      0,
+      9,
+      17,
+      2,
+      10,
+      20,
+      1,
+      3,
+      15,
+      12,
+      11,
+      4,
+      6,
+      22,
+      7,
+      23
+    ]
+  },
+  "palette": [
+    "#1B1B1B",
+    "#A78BFA",
+    "#7C3AED",
+    "#F0ABFC",
+    "#FACC15"
+  ],
+  "pixels": {
+    "encoding": "index",
+    "data": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      1,
+      0,
+      1,
+      1,
+      1,
+      2,
+      1,
+      1,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}

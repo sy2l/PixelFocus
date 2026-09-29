@@ -13,7 +13,7 @@
  * - Défi du mois: compteur de sessions terminées par mois.
  * - Tokens: 30 min -> protection token (cap 3/jour), mode "resume remaining time".
  * - Bonus >30: dailyPixels (expire fin de journée, cap 10).
- * - Daily non finie -> toFinalize jusqu'au 4 du mois suivant.
+ * - Daily non finie -> toFinalize, jouable jusqu'à la fin de l'année.
  * - Weekly / Monthly -> toFinalize sans purge.
  */
 
@@ -266,11 +266,11 @@ final class GameEngine {
         try modelContext.save()
     }
 
-    /// Applique les politiques de purge (daily toFinalize purgées le 4 du mois suivant).
+    /// Applique les politiques de purge (daily toFinalize purgées en janvier de l'année suivante).
     /// Weekly et monthly ne sont jamais purgées.
     func enforcePurgePolicies(currentDate: Date) throws {
         guard let ruleset = rulesetProvider() else { return }
-        let purgeDay = ruleset.finalizeRules.daily.purgeFinalizeOnDayOfNextMonth
+        let januaryDay = ruleset.finalizeRules.daily.purgeFinalizeOnJanuaryDayOfNextYear
 
         let toFinalizeRaw = ProgressState.toFinalize.rawValue
         let allToFinalize = try modelContext.fetch(
@@ -285,7 +285,7 @@ final class GameEngine {
             if DatePolicy.shouldPurgeDailyFinalize(
                 dailyDateISO: dateISO,
                 currentDate: currentDate,
-                purgeDay: purgeDay
+                januaryDay: januaryDay
             ) {
                 modelContext.delete(progress)
             }
@@ -380,6 +380,9 @@ final class GameEngine {
         streak.lastCompletedDayISO = todayISO
         streak.updateLongestIfNeeded()
 
+        // Historique des jours actifs + badges
+        try recordActiveDayAndUnlockBadges(todayISO: todayISO)
+
         // Récompense en boosters (tous les 3 jours, +1 tous les 18 jours)
         let reward = BoosterPolicy.streakReward(streakDay: streak.current, rewards: ruleset.streak.boosterRewards)
         if reward > 0 {
@@ -389,6 +392,24 @@ final class GameEngine {
                 amount: reward,
                 cap: ruleset.boosters.earnedCap
             )
+        }
+    }
+
+    /// Enregistre le jour actif et débloque les nouveaux badges (voir BadgePolicy).
+    private func recordActiveDayAndUnlockBadges(todayISO: String) throws {
+        let dayDescriptor = FetchDescriptor<SDActiveDay>(
+            predicate: #Predicate { $0.dayISO == todayISO }
+        )
+        if try modelContext.fetch(dayDescriptor).isEmpty {
+            modelContext.insert(SDActiveDay(dayISO: todayISO))
+        }
+
+        var activeDays = Set(try modelContext.fetch(FetchDescriptor<SDActiveDay>()).map(\.dayISO))
+        activeDays.insert(todayISO)
+
+        let ownedBadgeIds = Set(try modelContext.fetch(FetchDescriptor<SDBadge>()).map(\.badgeId))
+        for badgeId in BadgePolicy.earnedBadgeIds(activeDays: activeDays) where !ownedBadgeIds.contains(badgeId) {
+            modelContext.insert(SDBadge(badgeId: badgeId))
         }
     }
 

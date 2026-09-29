@@ -60,6 +60,8 @@ struct MainTabView: View {
             SDStreak.self,
             SDWallet.self,
             SDDailyQuota.self,
-            SDMonthStats.self
+            SDMonthStats.self,
+            SDActiveDay.self,
+            SDBadge.self
         ], inMemory: true)
 }

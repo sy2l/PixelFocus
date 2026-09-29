@@ -1,0 +1,76 @@
+{
+  "artworkId": "daily_2026_01_18",
+  "title": "Soleil du 18 janvier",
+  "mode": "daily",
+  "grid": {
+    "width": 5,
+    "height": 5
+  },
+  "reveal": {
+    "order": "custom",
+    "indexSequence": [
+      19,
+      6,
+      2,
+      9,
+      15,
+      4,
+      24,
+      11,
+      12,
+      7,
+      3,
+      14,
+      0,
+      13,
+      23,
+      22,
+      18,
+      21,
+      10,
+      8,
+      16,
+      20,
+      1,
+      17,
+      5
+    ]
+  },
+  "palette": [
+    "#1B1B1B",
+    "#A78BFA",
+    "#7C3AED",
+    "#F0ABFC",
+    "#FACC15"
+  ],
+  "pixels": {
+    "encoding": "index",
+    "data": [
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      2,
+      2,
+      2,
+      0,
+      1,
+      2,
+      3,
+      2,
+      1,
+      0,
+      2,
+      2,
+      2,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1
+    ]
+  }
+}

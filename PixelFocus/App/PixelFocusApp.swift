@@ -27,7 +27,9 @@ struct PixelFocusApp: App {
             SDStreak.self,
             SDWallet.self,
             SDDailyQuota.self,
-            SDMonthStats.self
+            SDMonthStats.self,
+            SDActiveDay.self,
+            SDBadge.self
         ])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         do {

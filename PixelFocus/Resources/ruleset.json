@@ -50,7 +50,7 @@
   "finalizeRules": {
     "daily": {
       "moveToFinalizeIfNotCompleted": true,
-      "purgeFinalizeOnDayOfNextMonth": 4
+      "purgeFinalizeOnJanuaryDayOfNextYear": 1
     },
     "monthly": {
       "moveToFinalizeIfNotCompleted": true,

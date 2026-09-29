@@ -1,0 +1,76 @@
+{
+  "artworkId": "daily_2026_10_23",
+  "title": "Poisson du 23 octobre",
+  "mode": "daily",
+  "grid": {
+    "width": 5,
+    "height": 5
+  },
+  "reveal": {
+    "order": "custom",
+    "indexSequence": [
+      0,
+      17,
+      3,
+      20,
+      23,
+      15,
+      5,
+      12,
+      24,
+      8,
+      11,
+      1,
+      10,
+      13,
+      7,
+      2,
+      22,
+      6,
+      21,
+      19,
+      9,
+      18,
+      16,
+      4,
+      14
+    ]
+  },
+  "palette": [
+    "#1B1B1B",
+    "#A78BFA",
+    "#7C3AED",
+    "#F0ABFC",
+    "#FACC15"
+  ],
+  "pixels": {
+    "encoding": "index",
+    "data": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      1,
+      0,
+      1,
+      1,
+      1,
+      2,
+      1,
+      1,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}

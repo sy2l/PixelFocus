@@ -1,0 +1,76 @@
+{
+  "artworkId": "daily_2026_04_26",
+  "title": "Poisson du 26 avril",
+  "mode": "daily",
+  "grid": {
+    "width": 5,
+    "height": 5
+  },
+  "reveal": {
+    "order": "custom",
+    "indexSequence": [
+      7,
+      1,
+      23,
+      3,
+      13,
+      21,
+      8,
+      6,
+      18,
+      4,
+      0,
+      14,
+      11,
+      20,
+      16,
+      22,
+      15,
+      5,
+      19,
+      12,
+      17,
+      10,
+      2,
+      9,
+      24
+    ]
+  },
+  "palette": [
+    "#1B1B1B",
+    "#A78BFA",
+    "#7C3AED",
+    "#F0ABFC",
+    "#FACC15"
+  ],
+  "pixels": {
+    "encoding": "index",
+    "data": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      1,
+      0,
+      1,
+      1,
+      1,
+      2,
+      1,
+      1,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}

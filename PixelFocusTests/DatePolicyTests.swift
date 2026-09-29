@@ -5,7 +5,7 @@
  * Tests unitaires sur DatePolicy (logique de dates).
  *
  * Objectifs:
- * - Vérifier la logique de purge des daily (le 4 du mois suivant, et au-delà)
+ * - Vérifier la logique de purge des daily (fin d'année calendaire)
  * - Vérifier les fins de période (jour / mois échus)
  * - Vérifier les helpers de date
  */
@@ -37,43 +37,42 @@ final class DatePolicyTests: XCTestCase {
         XCTAssertEqual(DatePolicy.isoDayString(for: date(2026, 3, 5), calendar: calendar), "2026-03-05")
     }
 
-    // MARK: - Daily Purge Tests
+    // MARK: - Daily Purge Tests (daily jouables toute l'année, purge le 1er janvier suivant)
 
-    func testShouldPurge_beforePurgeDay() {
-        // Daily du 15 janvier, le 3 février -> pas encore purgée
+    func testShouldPurge_sameYear() {
+        // Daily du 15 janvier, encore là en décembre de la même année
         XCTAssertFalse(DatePolicy.shouldPurgeDailyFinalize(
-            dailyDateISO: "2026-01-15", currentDate: date(2026, 2, 3), purgeDay: 4, calendar: calendar))
+            dailyDateISO: "2026-01-15", currentDate: date(2026, 12, 31, hour: 23), januaryDay: 1, calendar: calendar))
     }
 
-    func testShouldPurge_onPurgeDay() {
-        // Daily du 15 janvier, le 4 février à 00:00 -> purgée
+    func testShouldPurge_onJanuaryFirst() {
         XCTAssertTrue(DatePolicy.shouldPurgeDailyFinalize(
-            dailyDateISO: "2026-01-15", currentDate: date(2026, 2, 4, hour: 0), purgeDay: 4, calendar: calendar))
+            dailyDateISO: "2026-01-15", currentDate: date(2027, 1, 1, hour: 0), januaryDay: 1, calendar: calendar))
     }
 
-    func testShouldPurge_monthsLater() {
-        // App rouverte en avril: la daily de janvier doit quand même être purgée
-        XCTAssertTrue(DatePolicy.shouldPurgeDailyFinalize(
-            dailyDateISO: "2026-01-15", currentDate: date(2026, 4, 2), purgeDay: 4, calendar: calendar))
-    }
-
-    func testShouldPurge_sameMonth() {
-        // Daily du 15 janvier, le 20 janvier -> pas purgée
+    func testShouldPurge_decemberDaily() {
+        // Daily du 20 décembre: purgée dès le 1er janvier
         XCTAssertFalse(DatePolicy.shouldPurgeDailyFinalize(
-            dailyDateISO: "2026-01-15", currentDate: date(2026, 1, 20), purgeDay: 4, calendar: calendar))
+            dailyDateISO: "2026-12-20", currentDate: date(2026, 12, 31), januaryDay: 1, calendar: calendar))
+        XCTAssertTrue(DatePolicy.shouldPurgeDailyFinalize(
+            dailyDateISO: "2026-12-20", currentDate: date(2027, 1, 1), januaryDay: 1, calendar: calendar))
     }
 
-    func testShouldPurge_acrossYear() {
-        // Daily du 20 décembre 2026 -> purge le 4 janvier 2027
+    func testShouldPurge_customJanuaryDay() {
         XCTAssertFalse(DatePolicy.shouldPurgeDailyFinalize(
-            dailyDateISO: "2026-12-20", currentDate: date(2027, 1, 3), purgeDay: 4, calendar: calendar))
+            dailyDateISO: "2026-06-10", currentDate: date(2027, 1, 3), januaryDay: 4, calendar: calendar))
         XCTAssertTrue(DatePolicy.shouldPurgeDailyFinalize(
-            dailyDateISO: "2026-12-20", currentDate: date(2027, 1, 4), purgeDay: 4, calendar: calendar))
+            dailyDateISO: "2026-06-10", currentDate: date(2027, 1, 4), januaryDay: 4, calendar: calendar))
+    }
+
+    func testShouldPurge_yearsLater() {
+        XCTAssertTrue(DatePolicy.shouldPurgeDailyFinalize(
+            dailyDateISO: "2026-01-15", currentDate: date(2028, 6, 1), januaryDay: 1, calendar: calendar))
     }
 
     func testShouldPurge_invalidISO() {
         XCTAssertFalse(DatePolicy.shouldPurgeDailyFinalize(
-            dailyDateISO: "invalid", currentDate: date(2026, 4, 2), purgeDay: 4, calendar: calendar))
+            dailyDateISO: "invalid", currentDate: date(2026, 4, 2), januaryDay: 1, calendar: calendar))
     }
 
     // MARK: - Period End Tests
