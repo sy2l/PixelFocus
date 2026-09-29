@@ -48,31 +48,28 @@ final class JSONContentLoader {
         }
     }
     
-    /// Charge un fichier JSON depuis un sous-dossier du bundle
+    /// Charge un fichier JSON depuis un sous-dossier du bundle.
+    ///
+    /// Le projet utilise des dossiers synchronisés Xcode: selon la configuration, les fichiers de
+    /// `Resources/artworks/` sont copiés soit dans `artworks/`, soit à la racine du bundle.
+    /// On cherche donc dans le sous-dossier, puis à la racine.
     func loadFromBundle<T: Decodable>(subfolder: String, filename: String, as type: T.Type) throws -> T {
         let fullPath = "\(subfolder)/\(filename)"
-        
-        // Essayer d'abord avec le chemin complet
-        if let url = Bundle.main.url(forResource: filename, withExtension: nil, subdirectory: subfolder) {
-            let data = try Data(contentsOf: url)
-            do {
-                return try JSONDecoder().decode(T.self, from: data)
-            } catch {
-                throw LoaderError.decodeFailed("\(fullPath): \(error)")
-            }
+        let name = (filename as NSString).deletingPathExtension
+        let ext = (filename as NSString).pathExtension.isEmpty ? "json" : (filename as NSString).pathExtension
+
+        let url = Bundle.main.url(forResource: name, withExtension: ext, subdirectory: subfolder)
+            ?? Bundle.main.url(forResource: name, withExtension: ext)
+
+        guard let url else {
+            throw LoaderError.fileNotFound(fullPath)
         }
-        
-        // Fallback: essayer sans extension
-        let nameWithoutExtension = (filename as NSString).deletingPathExtension
-        if let url = Bundle.main.url(forResource: nameWithoutExtension, withExtension: "json", subdirectory: subfolder) {
-            let data = try Data(contentsOf: url)
-            do {
-                return try JSONDecoder().decode(T.self, from: data)
-            } catch {
-                throw LoaderError.decodeFailed("\(fullPath): \(error)")
-            }
+
+        let data = try Data(contentsOf: url)
+        do {
+            return try JSONDecoder().decode(T.self, from: data)
+        } catch {
+            throw LoaderError.decodeFailed("\(fullPath): \(error)")
         }
-        
-        throw LoaderError.fileNotFound(fullPath)
     }
 }

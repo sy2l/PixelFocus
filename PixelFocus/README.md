@@ -79,23 +79,22 @@ PixelFocus/
 │   ├── ruleset.json                 # Règles du jeu
 │   ├── catalog.json                 # Catalogue mensuel
 │   └── artworks/                    # Fichiers d'œuvres
-├── Tests/
-│   └── PixelFocusTests/
-│       ├── SessionTimingTests.swift
-│       └── DatePolicyTests.swift
-└── Documentation/
-    ├── Architecture_Fonctionnelle.md
-    └── Architecture_Technique_iOS.md
+
+PixelFocusTests/                     # Cible de tests unitaires (à la racine du dépôt)
+├── SessionTimingTests.swift
+└── DatePolicyTests.swift
 ```
+
+Les règles du jeu et de la monétisation sont décrites dans [`GAME_DESIGN.md`](../GAME_DESIGN.md) (à la racine du dépôt), qui fait foi en cas de conflit avec ce README.
 
 ---
 
 ## Prérequis
 
-- **Xcode 15.0+**
-- **iOS 17.0+**
-- **Swift 5.9+**
-- **SwiftData** (intégré à iOS 17)
+- **Xcode 16.0+** (le projet utilise les dossiers synchronisés d'Xcode 16)
+- **iOS 18.2+** (cible de déploiement du projet)
+- **Swift 5**
+- **SwiftData**
 
 ---
 
@@ -152,13 +151,13 @@ Exécuter les tests unitaires :
 ⌘U
 
 # Via ligne de commande
-xcodebuild test -scheme PixelFocus -destination 'platform=iOS Simulator,name=iPhone 15'
+xcodebuild test -scheme PixelFocus -destination 'platform=iOS Simulator,name=iPhone 16'
 ```
 
 ### Tests disponibles
 
 - `SessionTimingTests` : Logique de timing des sessions
-- `DatePolicyTests` : Règles de dates et purge
+- `DatePolicyTests` : Règles de dates, fin de période et purge
 
 ---
 

@@ -69,7 +69,7 @@ final class AppCoordinator: ObservableObject {
 
     /// Charge le contenu initial si nécessaire
     func loadInitialContentIfNeeded() {
-        guard let contentStore, let engine else { return }
+        guard let contentStore, engine != nil else { return }
         guard !isReady else { return }
 
         do {
@@ -77,14 +77,26 @@ final class AppCoordinator: ObservableObject {
             self.ruleset = contentStore.ruleset
             self.catalog = contentStore.catalog
 
-            // Politiques de purge (daily toFinalize purge le 4, etc.)
-            try engine.enforcePurgePolicies(currentDate: Date())
-
             self.isReady = true
             self.loadingErrorMessage = nil
         } catch {
             self.loadingErrorMessage = "Erreur chargement contenu: \(error)"
             self.isReady = false
+            return
+        }
+
+        applyDatePolicies()
+    }
+
+    /// Œuvres échues -> "à finaliser", puis purge (daily toFinalize purgées le 4).
+    /// Appelé au lancement et à chaque retour au premier plan (l'app peut rester ouverte après minuit).
+    func applyDatePolicies(now: Date = Date()) {
+        guard isReady, let engine, let catalog else { return }
+        do {
+            try engine.finalizeEndedArtworks(catalog: catalog, currentDate: now)
+            try engine.enforcePurgePolicies(currentDate: now)
+        } catch {
+            self.loadingErrorMessage = "Erreur mise à jour des œuvres: \(error)"
         }
     }
 

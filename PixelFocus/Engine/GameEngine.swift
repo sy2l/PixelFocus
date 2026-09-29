@@ -12,7 +12,7 @@
  * - Tokens: 30 min -> protection token (cap 3/jour), mode "resume remaining time".
  * - Bonus >30: dailyPixels (expire fin de journée, cap 10).
  * - Daily non finie -> toFinalize jusqu'au 4 du mois suivant.
- * - Monthly -> toFinalize sans purge; achat jusqu'à février N+1.
+ * - Weekly / Monthly -> toFinalize sans purge.
  */
 
 import Foundation
@@ -131,58 +131,79 @@ final class GameEngine {
         try modelContext.save()
     }
 
-    // MARK: - Purge Policies
-    
-    /// Applique les politiques de purge (daily toFinalize le 4 du mois suivant)
+    // MARK: - Finalize & Purge Policies
+
+    /// Passe en "toFinalize" les œuvres commencées mais non terminées dont la période est échue:
+    /// - daily: le jour est passé
+    /// - weekly: la semaine est terminée
+    /// - monthly: le mois est terminé
+    /// Renseigne aussi la date/mois de l'œuvre sur la progression (utilisé par la purge et l'UI).
+    func finalizeEndedArtworks(catalog: CatalogDTO, currentDate: Date) throws {
+        for entry in catalog.daily where DatePolicy.isDayISO(entry.date, before: currentDate) {
+            try moveToFinalizeIfUnfinished(artworkId: entry.artworkId) { progress in
+                progress.artworkDateISO = entry.date
+            }
+        }
+
+        for entry in catalog.weekly where DatePolicy.isDayISO(entry.endDate, before: currentDate) {
+            try moveToFinalizeIfUnfinished(artworkId: entry.artworkId) { progress in
+                progress.artworkDateISO = entry.startDate
+            }
+        }
+
+        for entry in catalog.monthly where DatePolicy.isMonthISO(entry.month, before: currentDate) {
+            try moveToFinalizeIfUnfinished(artworkId: entry.artworkId) { progress in
+                progress.artworkMonthISO = entry.month
+            }
+        }
+
+        try modelContext.save()
+    }
+
+    /// Applique les politiques de purge (daily toFinalize purgées le 4 du mois suivant).
+    /// Weekly et monthly ne sont jamais purgées.
     func enforcePurgePolicies(currentDate: Date) throws {
         guard let ruleset = rulesetProvider() else { return }
         let purgeDay = ruleset.finalizeRules.daily.purgeFinalizeOnDayOfNextMonth
 
-        let nowComponents = Calendar.current.dateComponents([.year, .month, .day], from: currentDate)
-        guard (nowComponents.day ?? 0) >= purgeDay else { return }
-
-        // Récupère toutes les progressions "toFinalize"
         let toFinalizeRaw = ProgressState.toFinalize.rawValue
         let allToFinalize = try modelContext.fetch(
             FetchDescriptor<SDProgress>(predicate: #Predicate { $0.stateRaw == toFinalizeRaw })
         )
-        
+
         for progress in allToFinalize {
-            // Vérifie si c'est une daily et si elle doit être purgée
-            if let artwork = try fetchArtwork(artworkId: progress.artworkId) {
-                if artwork.mode == "daily" {
-                    // Vérifie la date de la daily pour la purge
-                    if let dateISO = progress.artworkDateISO {
-                        if DatePolicy.shouldPurgeDailyFinalize(
-                            dailyDateISO: dateISO,
-                            currentDate: currentDate,
-                            purgeDay: purgeDay
-                        ) {
-                            modelContext.delete(progress)
-                        }
-                    } else {
-                        // Fallback: purge toutes les daily toFinalize si pas de date
-                        modelContext.delete(progress)
-                    }
-                }
+            guard let artwork = try fetchArtwork(artworkId: progress.artworkId),
+                  artwork.mode == "daily",
+                  let dateISO = progress.artworkDateISO else { continue }
+
+            if DatePolicy.shouldPurgeDailyFinalize(
+                dailyDateISO: dateISO,
+                currentDate: currentDate,
+                purgeDay: purgeDay
+            ) {
+                modelContext.delete(progress)
             }
         }
         try modelContext.save()
     }
-    
-    /// Marque les œuvres non terminées comme "toFinalize" en fin de journée/semaine/mois
-    func markUnfinishedAsToFinalize(artworkId: String, mode: String) throws {
-        let progress = try fetchOrCreateProgress(artworkId: artworkId)
-        
-        if progress.state == .active {
-            if let totalPixels = try fetchArtworkTotalPixels(artworkId: artworkId) {
-                if progress.revealedCount < totalPixels {
-                    progress.state = .toFinalize
-                    progress.updatedAt = Date()
-                    try modelContext.save()
-                }
-            }
-        }
+
+    /// Passe une progression existante "active" et incomplète en "toFinalize".
+    /// Une œuvre jamais commencée n'a pas de progression: rien à faire.
+    private func moveToFinalizeIfUnfinished(
+        artworkId: String,
+        annotate: (SDProgress) -> Void
+    ) throws {
+        let descriptor = FetchDescriptor<SDProgress>(
+            predicate: #Predicate { $0.artworkId == artworkId }
+        )
+        guard let progress = try modelContext.fetch(descriptor).first,
+              progress.state == .active,
+              let totalPixels = try fetchArtworkTotalPixels(artworkId: artworkId),
+              progress.revealedCount < totalPixels else { return }
+
+        annotate(progress)
+        progress.state = .toFinalize
+        progress.updatedAt = Date()
     }
 
     // MARK: - Protection Token Helpers

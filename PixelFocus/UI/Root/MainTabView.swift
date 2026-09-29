@@ -19,6 +19,7 @@ import SwiftData
 // MARK: - MainTabView
 struct MainTabView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
 
     @StateObject private var appCoordinator: AppCoordinator = AppCoordinator()
 
@@ -40,6 +41,11 @@ struct MainTabView: View {
         .task {
             appCoordinator.configure(modelContext: modelContext)
             appCoordinator.loadInitialContentIfNeeded()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                appCoordinator.applyDatePolicies()
+            }
         }
     }
 }

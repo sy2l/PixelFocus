@@ -11,7 +11,7 @@
  * - Vérifier remaining/overtime
  * - Vérifier extraMinutesOver30
  * - Vérifier le formatage du temps
- 
+ */
 
 import XCTest
 @testable import PixelFocus
@@ -132,4 +132,3 @@ final class SessionTimingTests: XCTestCase {
         XCTAssertEqual(SessionTiming.formatTimeLong(seconds: 754), "12:34")
     }
 }
-*/

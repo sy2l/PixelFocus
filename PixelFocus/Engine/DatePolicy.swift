@@ -7,7 +7,8 @@
  *
  * Règles de dates:
  * - Purge daily "à finaliser" le 4 du mois suivant.
- * - Monthly achetable jusqu'à février de l'année suivante.
+ * - Fin de période (daily/weekly/monthly) pour le passage en "à finaliser".
+ * - Les règles d'achat des monthly sont décrites dans GAME_DESIGN.md.
  *
  * Objectifs:
  * - Encapsuler la logique temporelle (scalable, testable).
@@ -38,32 +39,37 @@ enum DatePolicy {
     }
 
     // MARK: - Purge Daily Finalize
-    
+
+    /// Date de purge d'une daily d'un mois donné: le `purgeDay` du mois suivant (00:00).
+    static func dailyPurgeDate(
+        dailyMonth: DateComponents,
+        purgeDay: Int,
+        calendar: Calendar = .current
+    ) -> Date? {
+        guard let dailyYear = dailyMonth.year, let dailyMonthValue = dailyMonth.month else { return nil }
+        let firstOfDailyMonth = DateComponents(year: dailyYear, month: dailyMonthValue, day: 1)
+        guard let dailyMonthDate = calendar.date(from: firstOfDailyMonth),
+              let nextMonthDate = calendar.date(byAdding: .month, value: 1, to: dailyMonthDate) else { return nil }
+
+        var purgeComponents = calendar.dateComponents([.year, .month], from: nextMonthDate)
+        purgeComponents.day = purgeDay
+        return calendar.date(from: purgeComponents)
+    }
+
     /// Vérifie si une daily d'un mois donné doit être purgée à la date actuelle
-    /// (purge le 4 du mois suivant)
+    /// (à partir du `purgeDay` du mois suivant, y compris les mois d'après).
     static func shouldPurgeDailyFinalize(
         dailyMonth: DateComponents,
         currentDate: Date,
         purgeDay: Int,
         calendar: Calendar = .current
     ) -> Bool {
-        let now = calendar.dateComponents([.year, .month, .day], from: currentDate)
-        guard let nowYear = now.year, let nowMonth = now.month, let nowDay = now.day else { return false }
-        guard nowDay >= purgeDay else { return false }
-
-        guard let dailyYear = dailyMonth.year, let dailyMonthValue = dailyMonth.month else { return false }
-
-        // Calcul du mois de purge (mois suivant le mois de la daily)
-        var nextMonthComponents = DateComponents(year: dailyYear, month: dailyMonthValue, day: 1)
-        guard let dailyMonthDate = calendar.date(from: nextMonthComponents) else { return false }
-
-        guard let purgeMonthDate = calendar.date(byAdding: .month, value: 1, to: dailyMonthDate) else { return false }
-        let purgeMonth = calendar.component(.month, from: purgeMonthDate)
-        let purgeYear = calendar.component(.year, from: purgeMonthDate)
-
-        return (nowYear == purgeYear && nowMonth == purgeMonth && nowDay >= purgeDay)
+        guard let purgeDate = dailyPurgeDate(dailyMonth: dailyMonth, purgeDay: purgeDay, calendar: calendar) else {
+            return false
+        }
+        return currentDate >= purgeDate
     }
-    
+
     /// Vérifie si une daily (par sa date ISO) doit être purgée
     static func shouldPurgeDailyFinalize(
         dailyDateISO: String,
@@ -74,7 +80,7 @@ enum DatePolicy {
         guard let dailyDate = DateParsing.dateFromISODay(dailyDateISO, calendar: calendar) else {
             return false
         }
-        
+
         let dailyMonth = calendar.dateComponents([.year, .month], from: dailyDate)
         return shouldPurgeDailyFinalize(
             dailyMonth: dailyMonth,
@@ -84,24 +90,19 @@ enum DatePolicy {
         )
     }
 
-    // MARK: - Monthly Purchase Window
-    
-    /// Vérifie si une œuvre mensuelle est encore achetable
-    /// (Monthly de l'année Y est achetable jusqu'à fin février Y+1)
-    static func isMonthlyPurchasable(monthISO: String, on date: Date, calendar: Calendar = .current) -> Bool {
-        let parts = monthISO.split(separator: "-")
-        guard parts.count == 2,
-              let year = Int(parts[0]),
-              let _ = Int(parts[1]) else { return false }
+    // MARK: - Period End
 
-        // Fin février de l'année suivante = 1er mars de l'année suivante
-        let cutoffComponents = DateComponents(year: year + 1, month: 3, day: 1)
-        guard let cutoff = calendar.date(from: cutoffComponents) else { return false }
-
-        // Achetable strictement avant le 1er mars de l'année suivante
-        return date < cutoff
+    /// Vrai si le jour ISO "YYYY-MM-DD" est strictement avant le jour de `date`.
+    /// (Comparaison lexicographique valide pour le format ISO.)
+    static func isDayISO(_ dayISO: String, before date: Date, calendar: Calendar = .current) -> Bool {
+        return dayISO < isoDayString(for: date, calendar: calendar)
     }
-    
+
+    /// Vrai si le mois ISO "YYYY-MM" est strictement avant le mois de `date`.
+    static func isMonthISO(_ monthISO: String, before date: Date, calendar: Calendar = .current) -> Bool {
+        return monthISO < isoMonthString(for: date, calendar: calendar)
+    }
+
     // MARK: - Day Comparison
     
     /// Vérifie si deux dates sont le même jour
