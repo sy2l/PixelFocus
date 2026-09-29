@@ -23,9 +23,10 @@ Le Premium donne :
 - Sessions 15 et 20 min illimitées.
 - Toutes les images du mois pendant la période d'abonnement.
 - Les packs thématiques de l'année en cours.
-- 1 booster offert par jour et jusqu'à 5 boosters gagnés utilisables par jour (voir §3).
+- 2 boosters offerts au début de chaque mois, et plus de boosters gagnés utilisables par jour (voir §3).
+- Accès exclusif aux packs thématiques et géographiques (voir §4.5).
 
-Principe : **le jeu est finissable en gratuit**. Payer fait aller plus vite, jamais plus loin.
+Principe : **le jeu de base (daily, weekly, monthly) est finissable en gratuit**. Payer fait aller plus vite. Les packs thématiques restent un bonus Premium.
 
 ---
 
@@ -35,7 +36,11 @@ Principe : **le jeu est finissable en gratuit**. Payer fait aller plus vite, jam
 - **Une seule image du mois offerte** (cadeau de bienvenue) :
   - premier lancement **avant le 25** → image du mois en cours ;
   - premier lancement **le 25 ou après** → image du mois suivant.
-- Les autres images du mois sont visibles en **vitrine** (« le mois dernier, les membres Premium ont débloqué… ») mais non jouables.
+- Les autres images du mois sont visibles en **vitrine** (« le mois dernier, les membres Premium ont débloqué… ») mais non jouables, sauf si le gratuit réussit le **défi du mois**.
+
+### 2.1 bis Défi du mois (gratuit)
+- Réussir le défi débloque l'image du mois en cours.
+- ❓ Défi proposé : 20 sessions terminées dans le mois.
 
 ### 2.2 Passage Premium
 - Accès à l'image du mois en cours.
@@ -67,26 +72,30 @@ Notes techniques :
 
 Remplacent l'ancien système de « pixels stockés » (streak 5 jours → +5 pixels, cap 5), qui est supprimé.
 
-- **1 booster = 5 pixels révélés** sur une image au choix, parmi celles auxquelles l'utilisateur a accès.
+- **1 booster = 5 pixels révélés** sur une image au choix, **uniquement parmi celles auxquelles l'utilisateur a déjà accès** (un booster ne débloque jamais une image verrouillée).
 
 ### 3.1 Gagner des boosters (streak)
 - **Tous les 3 jours consécutifs** → +1 booster.
-- **18 jours consécutifs** → +1 booster supplémentaire (❓ à chaque multiple de 18 : 18, 36, 54… ?).
-- Premium : **+1 booster offert chaque jour** (❓ perdu s'il n'est pas utilisé dans la journée ?).
-- ❓ Stock maximum de boosters gagnés (proposition : 10).
+- **Tous les 18 jours consécutifs** (18, 36, 54…) → +1 booster supplémentaire.
+- Premium : **+2 boosters au début de chaque mois**.
+- Stock maximum de boosters gagnés : **12**.
 
 ### 3.2 Utiliser des boosters
 
 | | Gratuit | Premium |
 |---|---|---|
-| Boosters **gagnés** utilisables par jour | 1 | 5 (❓ ou 3 ?) |
+| Boosters **gagnés** utilisables par jour | 1 | ❓ 3 ou 5 |
 | Boosters **achetés** | sans limite | sans limite |
 
 - Deux stocks séparés : **gagnés** (soumis à la limite du jour) et **achetés** (aucune limite, aucune expiration).
-- ❓ Ordre de consommation proposé : les gagnés d'abord tant que la limite du jour le permet, puis les achetés.
+- Ordre de consommation : les gagnés d'abord tant que la limite du jour le permet, puis les achetés.
 
 ### 3.3 Achat de boosters (consommables)
-❓ Proposition : 1 booster 0,99 € · 5 boosters 2,99 € · 15 boosters 6,99 €.
+| Lot | Prix |
+|---|---|
+| 1 booster | 0,99 € |
+| 5 boosters | 3,99 € |
+| 15 boosters | 9,99 € |
 
 Note technique : un consommable n'est pas restauré par Apple → le stock acheté est sauvegardé par l'app (iCloud), puis sur le compte utilisateur quand Android et le web arriveront.
 
@@ -123,9 +132,9 @@ Le cycle recommence ensuite avec de nouvelles images.
 - Pas de politique, conflits ou catastrophes.
 
 ### 4.5 Accès aux packs
+- Les packs (thématiques, continents, capitales) sont **réservés au Premium** : pas de défi gratuit pour les débloquer.
 - Packs de l'**année en cours** : inclus dans le Premium.
 - Packs des **années précédentes** : achat à l'unité, **2,99 € par pack**.
-- Tous les packs doivent aussi pouvoir **se gagner en jouant** (❓ mécanique : défi du type « 15 sessions pendant la période du pack » ?).
 - ❓ Un gratuit peut-il acheter à l'unité un pack de l'année en cours ?
 - Un pack acheté est définitif (règle Apple).
 
