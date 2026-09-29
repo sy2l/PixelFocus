@@ -92,7 +92,8 @@ Le cycle recommence ensuite avec de nouvelles images.
 
 ### 3.5 Accès aux packs
 - Packs de l'**année en cours** : inclus dans le Premium.
-- Packs des **années précédentes** : achat à l'unité (❓ prix à fixer, 1,99–2,99 €).
+- Packs des **années précédentes** : achat à l'unité, **2,99 € par pack**.
+- ❓ Un gratuit peut-il acheter à l'unité un pack de l'année en cours ?
 - Un pack acheté est définitif (règle Apple).
 
 ---
