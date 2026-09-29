@@ -23,7 +23,7 @@ Le Premium donne :
 - Sessions 15 et 20 min illimitées.
 - Toutes les images du mois pendant la période d'abonnement.
 - Les packs thématiques de l'année en cours.
-- 2 boosters offerts au début de chaque mois, et plus de boosters gagnés utilisables par jour (voir §3).
+- 2 boosters offerts au début de chaque mois, et jusqu'à 3 boosters gagnés utilisables par jour (voir §3).
 - Accès exclusif aux packs thématiques et géographiques (voir §4.5).
 
 Principe : **le jeu de base (daily, weekly, monthly) est finissable en gratuit**. Payer fait aller plus vite. Les packs thématiques restent un bonus Premium.
@@ -40,7 +40,7 @@ Principe : **le jeu de base (daily, weekly, monthly) est finissable en gratuit**
 
 ### 2.1 bis Défi du mois (gratuit)
 - Réussir le défi débloque l'image du mois en cours.
-- ❓ Défi proposé : 20 sessions terminées dans le mois.
+- Défi : **20 sessions terminées dans le mois**.
 
 ### 2.2 Passage Premium
 - Accès à l'image du mois en cours.
@@ -83,7 +83,7 @@ Remplacent l'ancien système de « pixels stockés » (streak 5 jours → +5 pix
 
 | | Gratuit | Premium |
 |---|---|---|
-| Boosters **gagnés** utilisables par jour | 1 | ❓ 3 ou 5 |
+| Boosters **gagnés** utilisables par jour | 1 | 3 |
 | Boosters **achetés** | sans limite | sans limite |
 
 - Deux stocks séparés : **gagnés** (soumis à la limite du jour) et **achetés** (aucune limite, aucune expiration).
