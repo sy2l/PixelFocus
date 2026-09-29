@@ -2,7 +2,7 @@
 
 Document de référence des règles métier. En cas de conflit avec le README, **ce document fait foi**.
 
-Statut : brouillon v0.1 — les points marqués ❓ sont à confirmer.
+Statut : v1.0 — règles validées.
 
 ---
 
@@ -133,8 +133,14 @@ Le cycle recommence ensuite avec de nouvelles images.
 ### 4.5 Accès aux packs
 - Les packs (thématiques, continents, capitales) sont **réservés au Premium** : pas de défi gratuit pour les débloquer.
 - Packs de l'**année en cours** : inclus dans le Premium.
-- Packs des **années précédentes** : achat à l'unité, **2,99 € par pack**.
-- ❓ Un gratuit peut-il acheter à l'unité un pack de l'année en cours ?
+
+| Pack | Premium | Gratuit (achat à l'unité) |
+|---|---|---|
+| Année en cours | inclus | 3,99 € |
+| Années précédentes | 2,99 € | 2,99 € |
+
+- Fin du Premium en cours d'année : les images de pack terminées restent dans la collection ; les packs en cours se bloquent mais restent rachetables.
+- Côté Apple : 2 produits par pack (`pack_<id>` à 3,99 € pendant l'année, `pack_<id>_archive` à 2,99 € ensuite).
 - Un pack acheté est définitif (règle Apple).
 
 ---
