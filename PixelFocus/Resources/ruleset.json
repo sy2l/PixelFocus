@@ -1,0 +1,55 @@
+{
+  "contentVersion": 1,
+  "sessions": {
+    "defaultMinutes": 25,
+    "allowedMinutes": [15, 20, 25, 30],
+    "pixelsPerCompletedSession": 5,
+    "over30": {
+      "enabled": true,
+      "dailyBonus": {
+        "extraMinutesStep": 5,
+        "grantPerStep": { "type": "dailyPixels", "pixels": 1 },
+        "dailyCap": { "type": "dailyPixels", "maxPixels": 10 },
+        "expires": "end_of_day"
+      }
+    }
+  },
+  "quotas": {
+    "free": { "dailyMaxByMinutes": { "15": 1, "20": 1, "25": -1, "30": -1 } },
+    "premium": { "dailyMaxByMinutes": { "15": -1, "20": -1, "25": -1, "30": -1 } }
+  },
+  "tokens": {
+    "protection": {
+      "grantOnCompletedMinutes": 30,
+      "grantAmount": 1,
+      "dailyCap": 3,
+      "useMode": "resume_remaining_time"
+    }
+  },
+  "streak": {
+    "enabled": true,
+    "dailyCompletionRule": { "type": "completeDailyArtwork" },
+    "rewardEveryConsecutiveDays": 5,
+    "reward": { "type": "bankedPixels", "pixels": 5 },
+    "bankCap": 5
+  },
+  "banks": {
+    "bankedPixels": {
+      "enabled": true,
+      "cap": 5,
+      "spendEffect": { "type": "revealPixels", "pixels": 1 },
+      "canSpendOnModes": ["daily", "weekly", "monthly"]
+    }
+  },
+  "finalizeRules": {
+    "daily": {
+      "moveToFinalizeIfNotCompleted": true,
+      "purgeFinalizeOnDayOfNextMonth": 4
+    },
+    "monthly": {
+      "moveToFinalizeIfNotCompleted": true,
+      "purgePolicy": "never",
+      "purchaseAvailableUntilMonth": 2
+    }
+  }
+}
