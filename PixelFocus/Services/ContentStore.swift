@@ -2,7 +2,7 @@
  * ContentStore.swift
  * PixelFocus
  *
- * Version: 1.0
+ * Version: 1.00
  * Date: 15 janvier 2026
  *
  * Store de contenu: ruleset + catalog + artworks.
