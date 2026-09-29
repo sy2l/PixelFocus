@@ -9,7 +9,7 @@
  *
  * Objectifs:
  * - Afficher Daily / Weekly / Monthly actuels
- * - Montrer quotas + streak + banked pixels
+ * - Montrer quotas + streak + boosters
  * - Navigation vers ArtworkDetailView
  *
  * Technique:
@@ -28,6 +28,8 @@ struct TodayView: View {
     @Query private var wallets: [SDWallet]
     @Query private var streaks: [SDStreak]
     @Query private var dailyQuotas: [SDDailyQuota]
+    /// Observé pour rafraîchir l'état du défi du mois après une session
+    @Query private var monthStats: [SDMonthStats]
 
     @State private var errorMessage: String?
 
@@ -73,7 +75,8 @@ struct TodayView: View {
     private var streakSection: some View {
         let streakValue = streaks.first?.current ?? 0
         let longestStreak = streaks.first?.longestStreak ?? 0
-        let banked = wallets.first?.bankedPixels ?? 0
+        let earnedBoosters = wallets.first?.earnedBoosters ?? 0
+        let purchasedBoosters = wallets.first?.purchasedBoosters ?? 0
         let tokens = wallets.first?.protectionTokensAvailable ?? 0
 
         return VStack(alignment: .leading, spacing: 12) {
@@ -86,7 +89,13 @@ struct TodayView: View {
             }
             
             HStack(spacing: 16) {
-                StatCard(title: "Pixels stockés", value: "\(banked)/5", subtitle: "", icon: "square.grid.3x3.fill", color: .purple)
+                StatCard(
+                    title: "Boosters",
+                    value: "\(earnedBoosters + purchasedBoosters)",
+                    subtitle: "\(earnedBoosters) gagnés · \(purchasedBoosters) achetés",
+                    icon: "bolt.fill",
+                    color: .purple
+                )
                 StatCard(title: "Tokens", value: "\(tokens)", subtitle: "protection", icon: "shield.fill", color: .blue)
             }
         }
@@ -171,16 +180,16 @@ struct TodayView: View {
 
             // Monthly
             if let monthlyId = appCoordinator.currentMonthlyArtworkId() {
-                let isPremiumContent = appCoordinator.isMonthlyPremium()
-                
+                let isUnlocked = appCoordinator.canPlay(artworkId: monthlyId)
+
                 NavigationLink {
                     ArtworkDetailView(artworkId: monthlyId)
                 } label: {
                     ContentCard(
                         title: "Image du mois",
-                        subtitle: isPremiumContent ? "Monthly • Premium ⭐" : "Monthly • Grande œuvre",
-                        icon: "star.fill",
-                        color: isPremiumContent ? .yellow : .purple
+                        subtitle: isUnlocked ? "Monthly • Grande œuvre" : monthlyLockedSubtitle,
+                        icon: isUnlocked ? "star.fill" : "lock.fill",
+                        color: isUnlocked ? .purple : .yellow
                     )
                 }
             } else {
@@ -192,6 +201,15 @@ struct TodayView: View {
                 )
             }
         }
+    }
+
+    /// Sous-titre de l'image du mois verrouillée: progression du défi
+    private var monthlyLockedSubtitle: String {
+        let monthISO = DatePolicy.isoMonthString(for: Date())
+        let target = appCoordinator.ruleset?.monthlyAccess.challengeSessions ?? 20
+        let completed = monthStats.first(where: { $0.monthISO == monthISO })?.completedSessions ?? 0
+        let done = min(completed, target)
+        return "Verrouillée • Défi \(done)/\(target) sessions"
     }
 }
 
@@ -300,5 +318,6 @@ struct ContentCard: View {
 #Preview {
     TodayView()
         .environmentObject(AppCoordinator())
-        .modelContainer(for: [SDWallet.self, SDStreak.self, SDDailyQuota.self], inMemory: true)
+        .environmentObject(EntitlementStore())
+        .modelContainer(for: [SDWallet.self, SDStreak.self, SDDailyQuota.self, SDMonthStats.self], inMemory: true)
 }

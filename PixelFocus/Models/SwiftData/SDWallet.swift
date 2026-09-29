@@ -2,15 +2,16 @@
  * SDWallet.swift
  * PixelFocus
  *
- * Version: 1.0
- * Date: 15 janvier 2026
- *
- * Portefeuille de bonus: bankedPixels + tokens.
+ * Portefeuille de bonus: boosters + tokens.
  *
  * Objectifs:
- * - Stocker les pixels bankés (cap 5).
+ * - Stocker les boosters gagnés (cap, limite d'usage/jour) et achetés (sans limite).
  * - Stocker les protection tokens (cap journalier appliqué côté engine).
  * - Gérer les bonus journaliers (>30 min).
+ *
+ * Note:
+ * - Remplace l'ancien système de "pixels stockés" (bankedPixels), supprimé (voir GAME_DESIGN.md §3).
+ * - Les nouvelles propriétés ont une valeur par défaut pour la migration SwiftData automatique.
  */
 
 import Foundation
@@ -19,42 +20,46 @@ import SwiftData
 // MARK: - SDWallet
 @Model
 final class SDWallet {
-    /// Pixels stockables (gagnés via streak, utilisables sur n'importe quelle œuvre)
-    var bankedPixels: Int
+    /// Boosters gagnés en jouant (série, octroi Premium) — plafonnés, limite d'usage par jour
+    var earnedBoosters: Int = 0
+
+    /// Boosters achetés — ni plafond, ni limite d'usage, ni expiration
+    var purchasedBoosters: Int = 0
+
+    /// Jour ISO du compteur d'usage des boosters gagnés
+    var earnedBoostersUsedDayISO: String?
+
+    /// Boosters gagnés utilisés ce jour-là
+    var earnedBoostersUsedToday: Int = 0
+
+    /// Dernier mois ISO où l'octroi mensuel Premium a été fait
+    var premiumGrantMonthISO: String?
 
     /// Tokens de protection disponibles
-    var protectionTokensAvailable: Int
-    
+    var protectionTokensAvailable: Int = 0
+
     /// Jour ISO où les tokens ont été gagnés (pour le cap journalier)
     var protectionTokensEarnedDayISO: String?
-    
+
     /// Nombre de tokens gagnés aujourd'hui (cap 3/jour)
-    var protectionTokensEarnedToday: Int
+    var protectionTokensEarnedToday: Int = 0
 
     /// Pixels bonus journaliers (gagnés via sessions >30 min)
-    var dailyBonusPixelsAvailable: Int
-    
+    var dailyBonusPixelsAvailable: Int = 0
+
     /// Jour ISO des bonus (expire fin de journée)
     var dailyBonusPixelsDayISO: String?
 
-    init(
-        bankedPixels: Int = 0,
-        protectionTokensAvailable: Int = 0,
-        protectionTokensEarnedDayISO: String? = nil,
-        protectionTokensEarnedToday: Int = 0,
-        dailyBonusPixelsAvailable: Int = 0,
-        dailyBonusPixelsDayISO: String? = nil
-    ) {
-        self.bankedPixels = bankedPixels
-        self.protectionTokensAvailable = protectionTokensAvailable
-        self.protectionTokensEarnedDayISO = protectionTokensEarnedDayISO
-        self.protectionTokensEarnedToday = protectionTokensEarnedToday
-        self.dailyBonusPixelsAvailable = dailyBonusPixelsAvailable
-        self.dailyBonusPixelsDayISO = dailyBonusPixelsDayISO
+    init() {}
+
+    // MARK: - Computed
+
+    var totalBoosters: Int {
+        earnedBoosters + purchasedBoosters
     }
-    
+
     // MARK: - Methods
-    
+
     /// Réinitialise les compteurs journaliers si le jour a changé
     func resetDailyIfNeeded(todayISO: String) {
         // Reset protection tokens earned today
@@ -62,11 +67,17 @@ final class SDWallet {
             protectionTokensEarnedDayISO = todayISO
             protectionTokensEarnedToday = 0
         }
-        
+
         // Reset daily bonus pixels (ils expirent fin de journée)
         if dailyBonusPixelsDayISO != todayISO {
             dailyBonusPixelsDayISO = todayISO
             dailyBonusPixelsAvailable = 0
+        }
+
+        // Reset usage quotidien des boosters gagnés
+        if earnedBoostersUsedDayISO != todayISO {
+            earnedBoostersUsedDayISO = todayISO
+            earnedBoostersUsedToday = 0
         }
     }
 }

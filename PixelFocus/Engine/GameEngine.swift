@@ -8,7 +8,9 @@
  * Moteur de règles:
  * - Appliquer quotas 15/20 (gratuit) et premium illimité.
  * - Gérer reward: 1 session = 5 pixels.
- * - Streak: tous les 5 jours -> +5 bankedPixels (cap 5).
+ * - Streak (daily du jour terminée): boosters tous les 3 jours, +1 tous les 18 jours (cap 12).
+ * - Boosters: 1 booster = 5 pixels; gagnés (limite/jour) puis achetés (sans limite).
+ * - Défi du mois: compteur de sessions terminées par mois.
  * - Tokens: 30 min -> protection token (cap 3/jour), mode "resume remaining time".
  * - Bonus >30: dailyPixels (expire fin de journée, cap 10).
  * - Daily non finie -> toFinalize jusqu'au 4 du mois suivant.
@@ -65,19 +67,25 @@ final class GameEngine {
     // MARK: - Session Completion
     
     /// Applique les récompenses d'une session terminée
+    /// - dailyDateISO: date de la daily si l'œuvre est une daily (nil sinon). La série ne compte
+    ///   que si c'est la daily du jour qui est terminée.
     func applyCompletedSession(
         artworkId: String,
         minutes: Int,
         todayISO: String,
-        isDaily: Bool,
+        dailyDateISO: String?,
         didExceed30By extraMinutes: Int
     ) throws {
         guard let ruleset = rulesetProvider() else { return }
 
-        // 1) Progress: +5 pixels
-        let progress = try fetchOrCreateProgress(artworkId: artworkId)
-        progress.revealedCount += ruleset.sessions.pixelsPerCompletedSession
-        progress.updatedAt = Date()
+        // 1) Progress: +5 pixels (+ complétion + série)
+        try revealPixels(
+            artworkId: artworkId,
+            count: ruleset.sessions.pixelsPerCompletedSession,
+            todayISO: todayISO,
+            dailyDateISO: dailyDateISO,
+            ruleset: ruleset
+        )
 
         // 2) Token protection si 30min
         if minutes == ruleset.tokens.protection.grantOnCompletedMinutes {
@@ -89,46 +97,144 @@ final class GameEngine {
             try applyOver30DailyBonus(extraMinutes: extraMinutes, todayISO: todayISO, ruleset: ruleset)
         }
 
-        // 4) Vérification de complétion (basée sur le total de pixels de l'œuvre)
-        if let totalPixels = try fetchArtworkTotalPixels(artworkId: artworkId) {
-            if progress.revealedCount >= totalPixels {
-                progress.state = .completed
-            }
-        }
-
-        // 5) Streak: uniquement quand une Daily est complétée
-        if isDaily, progress.state == .completed {
-            try updateStreakOnDailyCompleted(todayISO: todayISO, ruleset: ruleset)
-        }
+        // 4) Défi du mois: compteur de sessions terminées dans le mois
+        let stats = try fetchOrCreateMonthStats(monthISO: DateParsing.monthFromISODay(todayISO) ?? todayISO)
+        stats.completedSessions += 1
 
         try modelContext.save()
     }
 
-    // MARK: - Banked Pixels
-    
-    /// Dépense des pixels stockés sur une œuvre
-    func spendBankedPixels(artworkId: String, amount: Int) throws {
-        guard let ruleset = rulesetProvider() else { return }
-        guard ruleset.banks.bankedPixels.enabled else { return }
-        
-        let wallet = try fetchOrCreateWallet()
-        let toSpend = min(amount, wallet.bankedPixels)
-        guard toSpend > 0 else { return }
-        
-        wallet.bankedPixels -= toSpend
-        
-        let progress = try fetchOrCreateProgress(artworkId: artworkId)
-        progress.revealedCount += toSpend * ruleset.banks.bankedPixels.spendEffect.pixels
-        progress.updatedAt = Date()
-        
-        // Vérification de complétion
-        if let totalPixels = try fetchArtworkTotalPixels(artworkId: artworkId) {
-            if progress.revealedCount >= totalPixels {
-                progress.state = .completed
+    // MARK: - Boosters
+
+    enum BoosterError: LocalizedError {
+        case noneAvailable
+        case artworkAlreadyCompleted
+
+        var errorDescription: String? {
+            switch self {
+            case .noneAvailable:
+                return "Aucun booster utilisable aujourd'hui."
+            case .artworkAlreadyCompleted:
+                return "Cette œuvre est déjà terminée."
             }
         }
-        
+    }
+
+    /// Nombre de boosters utilisables maintenant (gagnés dans la limite du jour + achetés).
+    /// Lecture seule: peut être appelé pendant le rendu d'une vue.
+    func usableBoosters(isPremium: Bool, todayISO: String) throws -> Int {
+        guard let ruleset = rulesetProvider(),
+              let wallet = try modelContext.fetch(FetchDescriptor<SDWallet>()).first else { return 0 }
+
+        let limit = BoosterPolicy.dailyEarnedLimit(isPremium: isPremium, rules: ruleset.boosters)
+        let usedToday = wallet.earnedBoostersUsedDayISO == todayISO ? wallet.earnedBoostersUsedToday : 0
+        let earnedUsable = max(0, min(wallet.earnedBoosters, limit - usedToday))
+        return earnedUsable + wallet.purchasedBoosters
+    }
+
+    /// Utilise un booster sur une œuvre (l'accès à l'œuvre est vérifié par l'appelant).
+    /// - Returns: le stock consommé (gagné ou acheté)
+    @discardableResult
+    func useBooster(
+        artworkId: String,
+        isPremium: Bool,
+        todayISO: String,
+        dailyDateISO: String?
+    ) throws -> BoosterSource {
+        guard let ruleset = rulesetProvider() else { throw BoosterError.noneAvailable }
+
+        let progress = try fetchOrCreateProgress(artworkId: artworkId)
+        guard progress.state != .completed else { throw BoosterError.artworkAlreadyCompleted }
+
+        let wallet = try fetchOrCreateWallet()
+        wallet.resetDailyIfNeeded(todayISO: todayISO)
+
+        guard let source = BoosterPolicy.nextSource(
+            earned: wallet.earnedBoosters,
+            purchased: wallet.purchasedBoosters,
+            earnedUsedToday: wallet.earnedBoostersUsedToday,
+            dailyEarnedLimit: BoosterPolicy.dailyEarnedLimit(isPremium: isPremium, rules: ruleset.boosters)
+        ) else {
+            throw BoosterError.noneAvailable
+        }
+
+        switch source {
+        case .earned:
+            wallet.earnedBoosters -= 1
+            wallet.earnedBoostersUsedToday += 1
+        case .purchased:
+            wallet.purchasedBoosters -= 1
+        }
+
+        try revealPixels(
+            artworkId: artworkId,
+            count: ruleset.boosters.pixelsPerBooster,
+            todayISO: todayISO,
+            dailyDateISO: dailyDateISO,
+            ruleset: ruleset
+        )
+
         try modelContext.save()
+        return source
+    }
+
+    /// Premium: +N boosters gagnés au début de chaque mois (une fois par mois).
+    func grantPremiumMonthlyBoostersIfNeeded(isPremium: Bool, currentMonthISO: String) throws {
+        guard isPremium, let ruleset = rulesetProvider() else { return }
+        let wallet = try fetchOrCreateWallet()
+        guard BoosterPolicy.shouldGrantPremiumMonthly(
+            lastGrantMonthISO: wallet.premiumGrantMonthISO,
+            currentMonthISO: currentMonthISO
+        ) else { return }
+
+        wallet.earnedBoosters = BoosterPolicy.addingEarned(
+            current: wallet.earnedBoosters,
+            amount: ruleset.boosters.premiumMonthlyGrant,
+            cap: ruleset.boosters.earnedCap
+        )
+        wallet.premiumGrantMonthISO = currentMonthISO
+        try modelContext.save()
+    }
+
+    // MARK: - Month Stats
+
+    /// Sessions terminées dans le mois (défi du mois)
+    func completedSessions(monthISO: String) throws -> Int {
+        let descriptor = FetchDescriptor<SDMonthStats>(
+            predicate: #Predicate { $0.monthISO == monthISO }
+        )
+        return try modelContext.fetch(descriptor).first?.completedSessions ?? 0
+    }
+
+    // MARK: - Reveal
+
+    /// Révèle des pixels sur une œuvre, marque la complétion et met à jour la série
+    /// si la daily du jour vient d'être terminée. Ne sauvegarde pas (l'appelant sauvegarde).
+    private func revealPixels(
+        artworkId: String,
+        count: Int,
+        todayISO: String,
+        dailyDateISO: String?,
+        ruleset: RulesetDTO
+    ) throws {
+        let progress = try fetchOrCreateProgress(artworkId: artworkId)
+        let wasCompleted = progress.state == .completed
+
+        progress.revealedCount += count
+        progress.updatedAt = Date()
+
+        if let totalPixels = try fetchArtworkTotalPixels(artworkId: artworkId),
+           progress.revealedCount >= totalPixels {
+            progress.state = .completed
+        }
+
+        // Série: uniquement quand la daily DU JOUR passe à "terminée"
+        if !wasCompleted,
+           progress.state == .completed,
+           let dailyDateISO,
+           dailyDateISO == todayISO {
+            try updateStreakOnDailyCompleted(todayISO: todayISO, ruleset: ruleset)
+        }
     }
 
     // MARK: - Finalize & Purge Policies
@@ -256,41 +362,46 @@ final class GameEngine {
         guard ruleset.streak.enabled else { return }
         
         let streak = try fetchOrCreateStreak()
-        
+
+        // Déjà compté aujourd'hui: pas de double incrément ni de double récompense
+        if streak.lastCompletedDayISO == todayISO { return }
+
         // Vérifie si c'est un jour consécutif
-        if let lastDay = streak.lastCompletedDayISO {
-            if let lastDate = DateParsing.dateFromISODay(lastDay),
-               let todayDate = DateParsing.dateFromISODay(todayISO) {
-                if DatePolicy.isYesterday(lastDate, relativeTo: todayDate) {
-                    // Jour consécutif
-                    streak.current += 1
-                } else if !DatePolicy.isSameDay(lastDate, todayDate) {
-                    // Pas consécutif, reset
-                    streak.current = 1
-                }
-                // Si même jour, on ne fait rien
-            }
+        if let lastDay = streak.lastCompletedDayISO,
+           let lastDate = DateParsing.dateFromISODay(lastDay),
+           let todayDate = DateParsing.dateFromISODay(todayISO),
+           DatePolicy.isYesterday(lastDate, relativeTo: todayDate) {
+            streak.current += 1
         } else {
-            // Premier jour
+            // Premier jour ou série cassée
             streak.current = 1
         }
-        
+
         streak.lastCompletedDayISO = todayISO
         streak.updateLongestIfNeeded()
-        
-        // Récompense tous les X jours consécutifs
-        let rewardEvery = ruleset.streak.rewardEveryConsecutiveDays
-        if streak.current > 0 && streak.current % rewardEvery == 0 {
-            try grantStreakReward(ruleset: ruleset)
+
+        // Récompense en boosters (tous les 3 jours, +1 tous les 18 jours)
+        let reward = BoosterPolicy.streakReward(streakDay: streak.current, rewards: ruleset.streak.boosterRewards)
+        if reward > 0 {
+            let wallet = try fetchOrCreateWallet()
+            wallet.earnedBoosters = BoosterPolicy.addingEarned(
+                current: wallet.earnedBoosters,
+                amount: reward,
+                cap: ruleset.boosters.earnedCap
+            )
         }
     }
-    
-    private func grantStreakReward(ruleset: RulesetDTO) throws {
-        let wallet = try fetchOrCreateWallet()
-        let reward = ruleset.streak.reward.pixels
-        let cap = ruleset.banks.bankedPixels.cap
-        
-        wallet.bankedPixels = min(wallet.bankedPixels + reward, cap)
+
+    private func fetchOrCreateMonthStats(monthISO: String) throws -> SDMonthStats {
+        let descriptor = FetchDescriptor<SDMonthStats>(
+            predicate: #Predicate { $0.monthISO == monthISO }
+        )
+        if let existing = try modelContext.fetch(descriptor).first {
+            return existing
+        }
+        let created = SDMonthStats(monthISO: monthISO)
+        modelContext.insert(created)
+        return created
     }
 
     // MARK: - Fetch/Create Helpers

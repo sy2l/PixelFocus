@@ -97,7 +97,7 @@ struct FocusSessionHostView: View {
                 artworkId: artworkId,
                 minutes: result.minutesSelected,
                 todayISO: todayISO,
-                isDaily: isDaily(artworkId: artworkId),
+                dailyDateISO: appCoordinator.dailyDateISO(forArtworkId: artworkId),
                 didExceed30By: result.extraMinutesOver30
             )
         } catch {
@@ -135,12 +135,6 @@ struct FocusSessionHostView: View {
         } catch {
             // Ignorer l'erreur pour le MVP
         }
-    }
-
-    // MARK: - Helpers
-    
-    private func isDaily(artworkId: String) -> Bool {
-        return artworkId.hasPrefix("daily_")
     }
 }
 

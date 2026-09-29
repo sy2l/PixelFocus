@@ -1,5 +1,5 @@
 {
-  "contentVersion": 1,
+  "contentVersion": 2,
   "sessions": {
     "defaultMinutes": 25,
     "allowedMinutes": [15, 20, 25, 30],
@@ -29,17 +29,23 @@
   "streak": {
     "enabled": true,
     "dailyCompletionRule": { "type": "completeDailyArtwork" },
-    "rewardEveryConsecutiveDays": 5,
-    "reward": { "type": "bankedPixels", "pixels": 5 },
-    "bankCap": 5
+    "boosterRewards": [
+      { "everyConsecutiveDays": 3, "boosters": 1 },
+      { "everyConsecutiveDays": 18, "boosters": 1 }
+    ]
   },
-  "banks": {
-    "bankedPixels": {
-      "enabled": true,
-      "cap": 5,
-      "spendEffect": { "type": "revealPixels", "pixels": 1 },
-      "canSpendOnModes": ["daily", "weekly", "monthly"]
-    }
+  "boosters": {
+    "pixelsPerBooster": 5,
+    "earnedCap": 12,
+    "dailyEarnedUseLimit": { "free": 1, "premium": 3 },
+    "premiumMonthlyGrant": 2
+  },
+  "monthlyAccess": {
+    "welcomeCutoffDay": 25,
+    "challengeSessions": 20,
+    "premiumPreviousMonthGraceDay": 7,
+    "reducedPriceProgressThreshold": 0.5,
+    "reducedPriceUntilDayOfNextMonth": 7
   },
   "finalizeRules": {
     "daily": {
@@ -48,8 +54,7 @@
     },
     "monthly": {
       "moveToFinalizeIfNotCompleted": true,
-      "purgePolicy": "never",
-      "purchaseAvailableUntilMonth": 2
+      "purgePolicy": "never"
     }
   }
 }

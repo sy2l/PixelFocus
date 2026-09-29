@@ -38,6 +38,20 @@ enum DatePolicy {
         return String(format: "%04d-%02d", year, month)
     }
 
+    /// Premier jour (00:00) d'un mois ISO "YYYY-MM"
+    static func firstDayOfMonth(_ monthISO: String, calendar: Calendar = .current) -> Date? {
+        let parts = monthISO.split(separator: "-")
+        guard parts.count == 2, let year = Int(parts[0]), let month = Int(parts[1]) else { return nil }
+        return calendar.date(from: DateComponents(year: year, month: month, day: 1))
+    }
+
+    /// Mois ISO décalé de `offset` mois (ex: "2026-01" + 1 -> "2026-02")
+    static func monthISO(_ monthISO: String, offsetBy offset: Int, calendar: Calendar = .current) -> String? {
+        guard let first = firstDayOfMonth(monthISO, calendar: calendar),
+              let shifted = calendar.date(byAdding: .month, value: offset, to: first) else { return nil }
+        return isoMonthString(for: shifted, calendar: calendar)
+    }
+
     // MARK: - Purge Daily Finalize
 
     /// Date de purge d'une daily d'un mois donné: le `purgeDay` du mois suivant (00:00).

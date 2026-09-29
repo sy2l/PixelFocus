@@ -42,6 +42,15 @@ final class AppCoordinator: ObservableObject {
     private var engine: GameEngine?
     private var sessionManager: SessionManager?
 
+    /// Droits d'accès (Premium, achats, image offerte). Injecté aussi en EnvironmentObject.
+    let entitlements: EntitlementStore
+
+    // MARK: - Init
+
+    init(entitlements: EntitlementStore? = nil) {
+        self.entitlements = entitlements ?? EntitlementStore()
+    }
+
     // MARK: - Public Accessors
     
     func getEngine() -> GameEngine? { engine }
@@ -95,9 +104,56 @@ final class AppCoordinator: ObservableObject {
         do {
             try engine.finalizeEndedArtworks(catalog: catalog, currentDate: now)
             try engine.enforcePurgePolicies(currentDate: now)
+            try engine.grantPremiumMonthlyBoostersIfNeeded(
+                isPremium: entitlements.isPremium,
+                currentMonthISO: DatePolicy.isoMonthString(for: now)
+            )
         } catch {
             self.loadingErrorMessage = "Erreur mise à jour des œuvres: \(error)"
         }
+    }
+
+    // MARK: - Premium
+
+    /// Change le statut Premium (V1: simulé depuis Réglages; étape 3: StoreKit).
+    func setPremium(_ isActive: Bool) {
+        entitlements.setPremium(isActive)
+        applyDatePolicies()
+        objectWillChange.send()
+    }
+
+    // MARK: - Monthly Access
+
+    /// Mois ISO d'une œuvre monthly du catalogue (nil si ce n'est pas une monthly)
+    func monthlyMonthISO(forArtworkId artworkId: String) -> String? {
+        catalog?.monthly.first(where: { $0.artworkId == artworkId })?.month
+    }
+
+    /// Date ISO d'une daily du catalogue (nil si ce n'est pas une daily)
+    func dailyDateISO(forArtworkId artworkId: String) -> String? {
+        catalog?.daily.first(where: { $0.artworkId == artworkId })?.date
+    }
+
+    /// Sessions terminées dans un mois (défi du mois)
+    func completedSessions(monthISO: String) -> Int {
+        (try? engine?.completedSessions(monthISO: monthISO)) ?? 0
+    }
+
+    /// Accès à une œuvre. Daily et weekly sont toujours accessibles; nil = pas une monthly.
+    func monthlyAccess(forArtworkId artworkId: String, now: Date = Date()) -> MonthlyAccess? {
+        guard let ruleset, let monthISO = monthlyMonthISO(forArtworkId: artworkId) else { return nil }
+        return entitlements.monthlyAccess(
+            artworkId: artworkId,
+            monthISO: monthISO,
+            completedSessionsInMonth: completedSessions(monthISO: monthISO),
+            rules: ruleset.monthlyAccess,
+            now: now
+        )
+    }
+
+    /// Vrai si l'utilisateur peut jouer cette œuvre (sessions, boosters)
+    func canPlay(artworkId: String) -> Bool {
+        monthlyAccess(forArtworkId: artworkId)?.isGranted ?? true
     }
 
     // MARK: - Content Selection Helpers
@@ -127,13 +183,6 @@ final class AppCoordinator: ObservableObject {
         guard let catalog else { return nil }
         let monthISO = DateParsing.currentMonthISO(date: Date())
         return catalog.monthly.first(where: { $0.month == monthISO })?.artworkId
-    }
-    
-    /// Vérifie si l'œuvre monthly est premium
-    func isMonthlyPremium() -> Bool {
-        guard let catalog else { return false }
-        let monthISO = DateParsing.currentMonthISO(date: Date())
-        return catalog.monthly.first(where: { $0.month == monthISO })?.isPremium ?? false
     }
 
     // MARK: - Import Helpers

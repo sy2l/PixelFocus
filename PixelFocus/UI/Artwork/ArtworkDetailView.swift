@@ -12,7 +12,8 @@
  * - Afficher une preview de la grille (pixel-art)
  * - Sélecteur de durée de session (15/20/25/30)
  * - Démarrer une session focus
- * - Utiliser les pixels stockés (banked pixels)
+ * - Utiliser un booster (voir GAME_DESIGN.md §3)
+ * - Image du mois verrouillée: défi du mois, Premium, achat à l'unité (étape 3)
  *
  * Technique:
  * - AppCoordinator via EnvironmentObject
@@ -33,8 +34,8 @@ struct ArtworkDetailView: View {
 
     // MARK: - Dependencies
     @EnvironmentObject private var appCoordinator: AppCoordinator
+    @EnvironmentObject private var entitlements: EntitlementStore
     @Environment(\.modelContext) private var modelContext
-    @AppStorage("isPremiumUser") private var isPremiumUser: Bool = false
 
     // MARK: - Input
     let artworkId: String
@@ -50,7 +51,9 @@ struct ArtworkDetailView: View {
     @State private var errorMessage: String?
 
     @State private var isFocusSessionPresented: Bool = false
-    @State private var isSpendPixelsSheetPresented: Bool = false
+    @State private var isBoosterSheetPresented: Bool = false
+
+    private var isPremiumUser: Bool { entitlements.isPremium }
 
     // MARK: - Body
     var body: some View {
@@ -62,8 +65,15 @@ struct ArtworkDetailView: View {
                     headerSection(for: artwork)
                     pixelGridPreview(for: artwork)
                     progressSection(for: artwork)
-                    sessionPickerSection
-                    actionsSection
+
+                    if progress?.state == .completed {
+                        completedSection
+                    } else if appCoordinator.canPlay(artworkId: artworkId) {
+                        sessionPickerSection
+                        actionsSection
+                    } else {
+                        lockedMonthlySection(for: artwork)
+                    }
                 } else {
                     ProgressView("Chargement…")
                         .padding()
@@ -89,15 +99,31 @@ struct ArtworkDetailView: View {
                 }
             )
         }
-        .sheet(isPresented: $isSpendPixelsSheetPresented) {
-            SpendBankedPixelsSheet(
-                maxAvailable: wallets.first?.bankedPixels ?? 0,
-                onSpend: { amount in
-                    spendBankedPixels(amount: amount)
+        .sheet(isPresented: $isBoosterSheetPresented) {
+            UseBoosterSheet(
+                earnedBoosters: wallets.first?.earnedBoosters ?? 0,
+                purchasedBoosters: wallets.first?.purchasedBoosters ?? 0,
+                usableNow: usableBoosters,
+                pixelsPerBooster: appCoordinator.ruleset?.boosters.pixelsPerBooster ?? 5,
+                dailyEarnedLimit: dailyEarnedLimit,
+                onUse: {
+                    useBooster()
                 }
             )
-            .presentationDetents([.medium])
+            .presentationDetents([.large])
         }
+    }
+
+    // MARK: - Booster Helpers
+
+    private var dailyEarnedLimit: Int {
+        guard let rules = appCoordinator.ruleset?.boosters else { return 0 }
+        return BoosterPolicy.dailyEarnedLimit(isPremium: isPremiumUser, rules: rules)
+    }
+
+    private var usableBoosters: Int {
+        let todayISO = DatePolicy.isoDayString(for: Date())
+        return (try? appCoordinator.getEngine()?.usableBoosters(isPremium: isPremiumUser, todayISO: todayISO)) ?? 0
     }
 
     // MARK: - UI Components
@@ -158,7 +184,8 @@ struct ArtworkDetailView: View {
         let clampedRevealedCount = min(revealedCount, totalPixelsCount)
         let completionRatio = totalPixelsCount > 0 ? Double(clampedRevealedCount) / Double(totalPixelsCount) : 0
 
-        let availableBankedPixels = wallets.first?.bankedPixels ?? 0
+        let totalBoosters = wallets.first?.totalBoosters ?? 0
+        let canUseBooster = progress?.state != .completed && appCoordinator.canPlay(artworkId: artworkId)
 
         return VStack(alignment: .leading, spacing: 10) {
             Text("Progression")
@@ -176,11 +203,11 @@ struct ArtworkDetailView: View {
             .font(.subheadline)
             .foregroundStyle(.secondary)
 
-            if availableBankedPixels > 0 {
+            if canUseBooster && totalBoosters > 0 {
                 Button {
-                    isSpendPixelsSheetPresented = true
+                    isBoosterSheetPresented = true
                 } label: {
-                    Label("Utiliser pixels stockés (\(availableBankedPixels))", systemImage: "sparkles")
+                    Label("Utiliser un booster (\(usableBoosters) dispo.)", systemImage: "bolt.fill")
                 }
                 .buttonStyle(.bordered)
             }
@@ -305,18 +332,87 @@ struct ArtworkDetailView: View {
         }
     }
 
-    private func spendBankedPixels(amount: Int) {
+    private func useBooster() {
         guard let engine = appCoordinator.getEngine() else {
             errorMessage = "Moteur non disponible."
             return
         }
+        guard appCoordinator.canPlay(artworkId: artworkId) else {
+            errorMessage = "Cette œuvre est verrouillée."
+            return
+        }
 
         do {
-            try engine.spendBankedPixels(artworkId: artworkId, amount: amount)
+            try engine.useBooster(
+                artworkId: artworkId,
+                isPremium: isPremiumUser,
+                todayISO: DatePolicy.isoDayString(for: Date()),
+                dailyDateISO: appCoordinator.dailyDateISO(forArtworkId: artworkId)
+            )
             self.progress = try fetchProgress(artworkId: artworkId)
+            self.errorMessage = nil
         } catch {
-            errorMessage = "Erreur utilisation pixels: \(error.localizedDescription)"
+            errorMessage = error.localizedDescription
         }
+    }
+
+    // MARK: - Completed / Locked Sections
+
+    private var completedSection: some View {
+        Label("Œuvre terminée — elle est dans ta collection.", systemImage: "checkmark.seal.fill")
+            .font(.subheadline)
+            .foregroundStyle(.green)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+            .background(.thinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    private func lockedMonthlySection(for artwork: SDArtwork) -> some View {
+        let rules = appCoordinator.ruleset?.monthlyAccess
+        let monthISO = appCoordinator.monthlyMonthISO(forArtworkId: artworkId) ?? ""
+        let isCurrentMonth = monthISO == DatePolicy.isoMonthString(for: Date())
+        let challengeTarget = rules?.challengeSessions ?? 20
+        let challengeDone = min(appCoordinator.completedSessions(monthISO: monthISO), challengeTarget)
+
+        let total = artwork.totalPixels
+        let ratio = total > 0 ? Double(progress?.revealedCount ?? 0) / Double(total) : 0
+        let priceTier: MonthlyPriceTier = rules.map {
+            MonthlyAccessPolicy.unitPriceTier(monthISO: monthISO, now: Date(), revealedRatio: ratio, rules: $0)
+        } ?? .full
+        let priceText = priceTier == .reduced ? "0,99 €" : "1,99 €"
+
+        return VStack(alignment: .leading, spacing: 14) {
+            Label("Image du mois verrouillée", systemImage: "lock.fill")
+                .font(.headline)
+
+            if isCurrentMonth {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Défi du mois : termine \(challengeTarget) sessions ce mois-ci pour la débloquer gratuitement.")
+                        .font(.subheadline)
+                    ProgressView(value: Double(challengeDone), total: Double(challengeTarget))
+                    Text("\(challengeDone)/\(challengeTarget) sessions")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Text("Incluse avec Premium.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            Button {
+                // Achat à l'unité: branché à l'étape 3 (StoreKit)
+            } label: {
+                Text("Acheter cette image — \(priceText) (bientôt)")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .disabled(true)
+        }
+        .padding()
+        .background(.thinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }
 
@@ -407,13 +503,15 @@ extension Color {
         ArtworkDetailView(artworkId: "daily_2026_01_15")
     }
     .environmentObject(AppCoordinator())
+    .environmentObject(EntitlementStore())
     .modelContainer(
         for: [
             SDArtwork.self,
             SDProgress.self,
             SDWallet.self,
             SDStreak.self,
-            SDDailyQuota.self
+            SDDailyQuota.self,
+            SDMonthStats.self
         ],
         inMemory: true
     )

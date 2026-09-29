@@ -38,6 +38,7 @@ struct MainTabView: View {
                 .tabItem { Label("Réglages", systemImage: "gear") }
         }
         .environmentObject(appCoordinator)
+        .environmentObject(appCoordinator.entitlements)
         .task {
             appCoordinator.configure(modelContext: modelContext)
             appCoordinator.loadInitialContentIfNeeded()
@@ -58,6 +59,7 @@ struct MainTabView: View {
             SDProgress.self,
             SDStreak.self,
             SDWallet.self,
-            SDDailyQuota.self
+            SDDailyQuota.self,
+            SDMonthStats.self
         ], inMemory: true)
 }

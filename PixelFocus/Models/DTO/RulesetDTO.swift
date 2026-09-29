@@ -8,7 +8,7 @@
  * Modèles DTO pour décoder ruleset.json.
  *
  * Objectifs:
- * - Décoder les règles globales (sessions, quotas, tokens, streak, purge).
+ * - Décoder les règles globales (sessions, quotas, tokens, streak, boosters, accès monthly, purge).
  * - Garder une séparation nette entre JSON (DTO) et persistance SwiftData.
  *
  * Notes:
@@ -25,7 +25,8 @@ struct RulesetDTO: Codable {
     let quotas: QuotasRulesDTO
     let tokens: TokensRulesDTO
     let streak: StreakRulesDTO
-    let banks: BanksRulesDTO
+    let boosters: BoostersRulesDTO
+    let monthlyAccess: MonthlyAccessRulesDTO
     let finalizeRules: FinalizeRulesDTO
 }
 
@@ -86,35 +87,48 @@ struct ProtectionTokenRulesDTO: Codable {
 struct StreakRulesDTO: Codable {
     let enabled: Bool
     let dailyCompletionRule: DailyCompletionRuleDTO
-    let rewardEveryConsecutiveDays: Int
-    let reward: BankedPixelsRewardDTO
-    let bankCap: Int
+    let boosterRewards: [StreakBoosterRewardDTO]
 }
 
 struct DailyCompletionRuleDTO: Codable {
     let type: String
 }
 
-struct BankedPixelsRewardDTO: Codable {
-    let type: String
-    let pixels: Int
+/// Tous les `everyConsecutiveDays` jours de série -> +`boosters`
+struct StreakBoosterRewardDTO: Codable {
+    let everyConsecutiveDays: Int
+    let boosters: Int
 }
 
-// MARK: - BanksRulesDTO
-struct BanksRulesDTO: Codable {
-    let bankedPixels: BankedPixelsBankDTO
+// MARK: - BoostersRulesDTO
+struct BoostersRulesDTO: Codable {
+    /// Pixels révélés par booster
+    let pixelsPerBooster: Int
+    /// Stock maximum de boosters gagnés (les achetés ne sont pas plafonnés)
+    let earnedCap: Int
+    /// Boosters gagnés utilisables par jour (les achetés ne sont pas limités)
+    let dailyEarnedUseLimit: BoosterUseLimitDTO
+    /// Boosters offerts aux Premium au début de chaque mois
+    let premiumMonthlyGrant: Int
 }
 
-struct BankedPixelsBankDTO: Codable {
-    let enabled: Bool
-    let cap: Int
-    let spendEffect: SpendEffectDTO
-    let canSpendOnModes: [String]
+struct BoosterUseLimitDTO: Codable {
+    let free: Int
+    let premium: Int
 }
 
-struct SpendEffectDTO: Codable {
-    let type: String
-    let pixels: Int
+// MARK: - MonthlyAccessRulesDTO
+struct MonthlyAccessRulesDTO: Codable {
+    /// 1er lancement avant ce jour -> image du mois en cours offerte, sinon celle du mois suivant
+    let welcomeCutoffDay: Int
+    /// Sessions terminées dans le mois pour réussir le défi (gratuit)
+    let challengeSessions: Int
+    /// Premium: image du mois précédent jouable jusqu'à ce jour inclus
+    let premiumPreviousMonthGraceDay: Int
+    /// Progression au-delà de laquelle le prix réduit s'applique
+    let reducedPriceProgressThreshold: Double
+    /// Prix réduit jusqu'à ce jour inclus du mois suivant
+    let reducedPriceUntilDayOfNextMonth: Int
 }
 
 // MARK: - FinalizeRulesDTO
@@ -131,5 +145,4 @@ struct DailyFinalizeRulesDTO: Codable {
 struct MonthlyFinalizeRulesDTO: Codable {
     let moveToFinalizeIfNotCompleted: Bool
     let purgePolicy: String
-    let purchaseAvailableUntilMonth: Int
 }

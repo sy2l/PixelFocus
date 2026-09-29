@@ -8,7 +8,7 @@
  * Réglages (V1).
  *
  * Objectifs:
- * - Toggle Premium (MVP) via AppStorage
+ * - Toggle Premium (simulé) via AppCoordinator / EntitlementStore
  * - Infos sur quotas et règles
  * - Stats utilisateur
  *
@@ -21,8 +21,9 @@ import SwiftData
 
 // MARK: - SettingsView
 struct SettingsView: View {
-    @AppStorage("isPremiumUser") private var isPremiumUser: Bool = false
-    
+    @EnvironmentObject private var appCoordinator: AppCoordinator
+    @EnvironmentObject private var entitlements: EntitlementStore
+
     @Query private var wallets: [SDWallet]
     @Query private var streaks: [SDStreak]
     @Query private var progresses: [SDProgress]
@@ -50,7 +51,11 @@ struct SettingsView: View {
     
     private var accountSection: some View {
         Section {
-            Toggle(isOn: $isPremiumUser) {
+            // Passe par AppCoordinator: mémorise la fin d'abonnement et l'octroi mensuel de boosters
+            Toggle(isOn: Binding(
+                get: { entitlements.isPremium },
+                set: { appCoordinator.setPremium($0) }
+            )) {
                 HStack {
                     Image(systemName: "crown.fill")
                         .foregroundStyle(.yellow)
@@ -64,27 +69,16 @@ struct SettingsView: View {
                 }
             }
             
-            if isPremiumUser {
-                HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
-                    Text("15 & 20 min illimités")
-                }
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                
-                HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
-                    Text("Accès aux œuvres mensuelles")
-                }
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            if entitlements.isPremium {
+                PremiumPerkRow(text: "15 & 20 min illimités")
+                PremiumPerkRow(text: "Toutes les images du mois")
+                PremiumPerkRow(text: "2 boosters offerts chaque mois")
+                PremiumPerkRow(text: "3 boosters gagnés utilisables par jour")
             }
         } header: {
             Text("Compte")
         } footer: {
-            Text("En V1.1, l'abonnement sera géré via StoreKit.")
+            Text("L'abonnement sera géré via l'App Store (StoreKit) dans une prochaine version.")
         }
     }
     
@@ -99,7 +93,8 @@ struct SettingsView: View {
             
             StatRow(icon: "flame.fill", color: .orange, title: "Streak actuel", value: "\(streak?.current ?? 0) jour(s)")
             StatRow(icon: "trophy.fill", color: .yellow, title: "Record streak", value: "\(streak?.longestStreak ?? 0) jour(s)")
-            StatRow(icon: "square.grid.3x3.fill", color: .purple, title: "Pixels stockés", value: "\(wallet?.bankedPixels ?? 0)/5")
+            StatRow(icon: "bolt.fill", color: .purple, title: "Boosters gagnés", value: "\(wallet?.earnedBoosters ?? 0)/12")
+            StatRow(icon: "bolt.circle.fill", color: .purple, title: "Boosters achetés", value: "\(wallet?.purchasedBoosters ?? 0)")
             StatRow(icon: "shield.fill", color: .blue, title: "Tokens protection", value: "\(wallet?.protectionTokensAvailable ?? 0)")
             StatRow(icon: "checkmark.circle.fill", color: .green, title: "Œuvres terminées", value: "\(completedCount)")
             StatRow(icon: "sparkles", color: .pink, title: "Pixels révélés", value: "\(totalPixelsRevealed)")
@@ -116,9 +111,10 @@ struct SettingsView: View {
             RuleRow(icon: "25.circle.fill", text: "25 min : illimité (recommandé)")
             RuleRow(icon: "30.circle.fill", text: "30 min : illimité + 1 token protection")
             RuleRow(icon: "shield.fill", text: "Token : reprendre au temps restant si interruption")
-            RuleRow(icon: "flame.fill", text: "Streak : tous les 5 jours → +5 pixels stockables")
+            RuleRow(icon: "flame.fill", text: "Série : daily du jour terminée chaque jour → 1 booster tous les 3 jours, +1 tous les 18 jours")
+            RuleRow(icon: "bolt.fill", text: "Booster : révèle 5 pixels. Gagnés : 1/jour (3 en Premium). Achetés : sans limite")
             RuleRow(icon: "clock.badge.exclamationmark", text: "Daily non finie : purgée le 4 du mois suivant")
-            RuleRow(icon: "star.fill", text: "Monthly : jamais purgée, achetable jusqu'à février N+1")
+            RuleRow(icon: "gift.fill", text: "Image du mois : la première est offerte, puis Premium, défi (20 sessions) ou achat")
         }
     }
     
@@ -206,8 +202,25 @@ struct RuleRow: View {
     }
 }
 
+// MARK: - PremiumPerkRow
+private struct PremiumPerkRow: View {
+    let text: String
+
+    var body: some View {
+        HStack {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(.green)
+            Text(text)
+        }
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
+    }
+}
+
 // MARK: - Preview
 #Preview {
     SettingsView()
+        .environmentObject(AppCoordinator())
+        .environmentObject(EntitlementStore())
         .modelContainer(for: [SDWallet.self, SDStreak.self, SDProgress.self], inMemory: true)
 }

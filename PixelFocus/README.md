@@ -16,7 +16,7 @@ PixelFocus transforme le temps de concentration en récompenses visuelles. Chaqu
 |------|--------|---------------|----------------|
 | **Daily** | 5×5 (25 px) | 1 par jour | Purgée le 4 du mois suivant |
 | **Weekly** | 7×7 (49 px) | 1 par semaine | À finaliser sans purge |
-| **Monthly** | 10×10 (100 px) | 1 par mois | Jamais purgée, achetable jusqu'à février N+1 |
+| **Monthly** | 10×10 (100 px) | 1 par mois | Jamais purgée. Accès : 1ère offerte, Premium, défi du mois ou achat (voir GAME_DESIGN.md) |
 
 ### Système de Sessions
 
@@ -28,8 +28,9 @@ PixelFocus transforme le temps de concentration en récompenses visuelles. Chaqu
 
 ### Streak et Bonus
 
-- **Streak** : Compléter une daily chaque jour consécutif
-- **Récompense streak** : Tous les 5 jours → +5 pixels stockables (cap 5)
+- **Streak** : Compléter la daily du jour, chaque jour consécutif
+- **Récompense streak** : 1 booster tous les 3 jours, +1 tous les 18 jours (stock max 12)
+- **Booster** : révèle 5 pixels ; gagnés utilisables 1/jour (3 en Premium), achetés sans limite
 - **Bonus >30 min** : +1 pixel bonus par tranche de 5 min au-delà de 30 min (cap 10/jour)
 
 ---
@@ -66,7 +67,7 @@ PixelFocus/
 │   ├── Today/TodayView.swift        # Écran "Aujourd'hui"
 │   ├── Artwork/
 │   │   ├── ArtworkDetailView.swift  # Détail d'une œuvre
-│   │   └── SpendBankedPixelsSheet.swift
+│   │   └── UseBoosterSheet.swift
 │   ├── Focus/
 │   │   ├── FocusSessionHostView.swift
 │   │   └── FocusSessionView.swift   # Timer de session
