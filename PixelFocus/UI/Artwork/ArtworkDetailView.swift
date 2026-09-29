@@ -409,11 +409,13 @@ extension Color {
     }
     .environmentObject(AppCoordinator())
     .modelContainer(
-        for: SDArtwork.self,
-        SDProgress.self,
-        SDWallet.self,
-        SDStreak.self,
-        SDDailyQuota.self,
+        for: [
+            SDArtwork.self,
+            SDProgress.self,
+            SDWallet.self,
+            SDStreak.self,
+            SDDailyQuota.self
+        ],
         inMemory: true
     )
 }
