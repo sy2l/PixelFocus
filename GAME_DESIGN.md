@@ -60,7 +60,6 @@ Toujours disponible, y compris pour les **anciennes** images du mois.
 | Image du mois M, achetée entre le 1er de M et le 7 de M+1, progression ≤ 50 % | 1,99 € |
 | Image du mois M, achetée **après le 7 de M+1** (archive) | 1,99 € |
 
-❓ À confirmer : lecture de « fin du mois / mois prochain / après le 7 → 1,99 € ».
 
 Notes techniques :
 - Un achat à l'unité est **définitif** (restaurable).
