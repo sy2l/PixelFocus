@@ -14,7 +14,7 @@ PixelFocus transforme le temps de concentration en récompenses visuelles. Chaqu
 
 | Type | Grille | Disponibilité | Règle de Purge |
 |------|--------|---------------|----------------|
-| **Daily** | 5×5 (25 px) | 1 par jour | Purgée le 4 du mois suivant |
+| **Daily** | 5×5 (25 px) | 1 par jour | Jouable toute l'année, purgée le 1er janvier suivant |
 | **Weekly** | 7×7 (49 px) | 1 par semaine | À finaliser sans purge |
 | **Monthly** | 10×10 (100 px) | 1 par mois | Jamais purgée. Accès : 1ère offerte, Premium, défi du mois ou achat (voir GAME_DESIGN.md) |
 
@@ -52,18 +52,27 @@ PixelFocus/
 │       ├── SDProgress.swift         # Progression utilisateur
 │       ├── SDStreak.swift           # Streak consécutif
 │       ├── SDWallet.swift           # Tokens et pixels stockés
-│       └── SDDailyQuota.swift       # Quotas journaliers
+│       ├── SDDailyQuota.swift       # Quotas journaliers
+│       ├── SDMonthStats.swift       # Sessions par mois (défi du mois)
+│       ├── SDActiveDay.swift        # Jours actifs (badges)
+│       └── SDBadge.swift            # Badges débloqués
 ├── Services/
 │   ├── JSONContentLoader.swift      # Chargeur JSON
-│   └── ContentStore.swift           # Store de contenu
+│   ├── ContentStore.swift           # Store de contenu
+│   ├── EntitlementStore.swift       # Droits d'accès (Premium, achats)
+│   └── FirstLaunchStore.swift       # Date du 1er lancement (trousseau)
 ├── Engine/
 │   ├── GameEngine.swift             # Moteur de règles
 │   ├── SessionManager.swift         # Gestion des sessions
 │   ├── SessionTiming.swift          # Logique de timing
 │   ├── DatePolicy.swift             # Règles de dates
-│   └── DateParsing.swift            # Parsing ISO
+│   ├── DateParsing.swift            # Parsing ISO
+│   ├── BoosterPolicy.swift          # Règles des boosters
+│   ├── MonthlyAccessPolicy.swift    # Accès et prix de l'image du mois
+│   └── BadgePolicy.swift            # Badges de régularité
 ├── UI/
-│   ├── Root/MainTabView.swift       # TabView principal
+│   ├── Theme/                       # Thèmes Minuit / Soleil / Braise + composants
+│   ├── Root/MainTabView.swift       # TabView principal + thème
 │   ├── Today/TodayView.swift        # Écran "Aujourd'hui"
 │   ├── Artwork/
 │   │   ├── ArtworkDetailView.swift  # Détail d'une œuvre
@@ -72,8 +81,7 @@ PixelFocus/
 │   │   ├── FocusSessionHostView.swift
 │   │   └── FocusSessionView.swift   # Timer de session
 │   ├── Calendar/
-│   │   ├── CalendarView.swift       # Calendrier des daily
-│   │   └── DailyFinalizeListView.swift
+│   │   └── CalendarView.swift       # Calendrier de l'année (vignettes des daily)
 │   ├── Collection/CollectionView.swift
 │   └── Settings/SettingsView.swift
 ├── Resources/

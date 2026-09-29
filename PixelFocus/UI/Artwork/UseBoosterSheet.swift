@@ -21,6 +21,7 @@ struct UseBoosterSheet: View {
     let onUse: () -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.theme) private var theme
 
     var body: some View {
         NavigationStack {
@@ -29,14 +30,15 @@ struct UseBoosterSheet: View {
                 VStack(spacing: 8) {
                     Image(systemName: "bolt.fill")
                         .font(.system(size: 48))
-                        .foregroundStyle(.purple)
+                        .foregroundStyle(theme.booster)
 
                     Text("Utiliser un booster")
                         .font(.title2)
                         .bold()
+                        .foregroundStyle(theme.textPrimary)
 
                     Text("1 booster = \(pixelsPerBooster) pixels révélés")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(theme.textSecondary)
                 }
                 .padding(.top)
 
@@ -47,13 +49,11 @@ struct UseBoosterSheet: View {
                     Divider()
                     BoosterStockRow(title: "Utilisables maintenant", value: usableNow, caption: nil)
                 }
-                .padding()
-                .background(.thinMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .themedCard()
 
                 Text("Les boosters gagnés sont utilisés en premier, dans la limite du jour.")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(theme.textSecondary)
                     .multilineTextAlignment(.center)
 
                 Spacer()
@@ -65,19 +65,18 @@ struct UseBoosterSheet: View {
                         dismiss()
                     } label: {
                         Text("Utiliser 1 booster (+\(pixelsPerBooster) pixels)")
-                            .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
+                    .buttonStyle(PrimaryButtonStyle())
                     .disabled(usableNow <= 0)
 
                     Button("Annuler") {
                         dismiss()
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(SecondaryButtonStyle())
                 }
             }
             .padding()
+            .themedScreenBackground()
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -85,7 +84,7 @@ struct UseBoosterSheet: View {
                         dismiss()
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(theme.textSecondary)
                     }
                 }
             }
@@ -99,20 +98,24 @@ private struct BoosterStockRow: View {
     let value: Int
     let caption: String?
 
+    @Environment(\.theme) private var theme
+
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
+                    .foregroundStyle(theme.textPrimary)
                 if let caption {
                     Text(caption)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(theme.textSecondary)
                 }
             }
             Spacer()
             Text("\(value)")
                 .font(.title3)
                 .bold()
+                .foregroundStyle(theme.textPrimary)
         }
     }
 }

@@ -149,7 +149,7 @@ enum BadgePolicy {
         for date in dates {
             let key = DatePolicy.isoMonthString(for: date, calendar: calendar)
             let entry = counts[key]
-            counts[key] = ((entry?.count ?? 0) + 1, entry?.sample ?? date)
+            counts[key] = (count: (entry?.count ?? 0) + 1, sample: entry?.sample ?? date)
         }
         return counts.values.contains { entry in
             guard let daysInMonth = calendar.range(of: .day, in: .month, for: entry.sample)?.count else { return false }

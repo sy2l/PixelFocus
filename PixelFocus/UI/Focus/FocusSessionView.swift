@@ -23,6 +23,7 @@ import SwiftUI
 // MARK: - FocusSessionView
 struct FocusSessionView: View {
     @ObservedObject var sessionManager: SessionManager
+    @Environment(\.theme) private var theme
     
     let onClose: () -> Void
     let onSessionCompleted: (FocusSessionResult) -> Void
@@ -58,41 +59,25 @@ struct FocusSessionView: View {
     // MARK: - Background
     
     private var backgroundGradient: some View {
-        Group {
-            switch sessionManager.state {
-            case .running:
-                LinearGradient(
-                    colors: [.blue.opacity(0.8), .purple.opacity(0.6)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            case .pausedRemainingTime:
-                LinearGradient(
-                    colors: [.orange.opacity(0.8), .yellow.opacity(0.6)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            case .finishedWaitingUserConfirmation:
-                LinearGradient(
-                    colors: [.green.opacity(0.8), .teal.opacity(0.6)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            case .failed:
-                LinearGradient(
-                    colors: [.red.opacity(0.8), .orange.opacity(0.6)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            default:
-                LinearGradient(
-                    colors: [.gray.opacity(0.8), .gray.opacity(0.6)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            }
-        }
+        LinearGradient(
+            colors: [stateColor.opacity(0.45), theme.background],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .background(theme.background)
         .ignoresSafeArea()
+        .animation(.easeInOut, value: sessionManager.state)
+    }
+
+    /// Couleur d'ambiance selon l'état de la session (issue du thème)
+    private var stateColor: Color {
+        switch sessionManager.state {
+        case .running: return theme.primary
+        case .pausedRemainingTime: return theme.record
+        case .finishedWaitingUserConfirmation: return theme.success
+        case .failed: return theme.danger
+        default: return theme.surfaceHighlight
+        }
     }
 
     // MARK: - Timer Display
@@ -104,46 +89,46 @@ struct FocusSessionView: View {
                 // Affiche le temps restant
                 Text(SessionTiming.formatTime(seconds: sessionManager.remainingSeconds))
                     .font(.system(size: 80, weight: .bold, design: .monospaced))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(theme.textPrimary)
                 
                 Text("restant")
                     .font(.title3)
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(theme.textSecondary)
                 
             case .finishedWaitingUserConfirmation:
                 // Affiche l'overtime
                 if sessionManager.overtimeSeconds > 0 {
                     Text("+\(SessionTiming.formatTime(seconds: sessionManager.overtimeSeconds))")
                         .font(.system(size: 60, weight: .bold, design: .monospaced))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(theme.textPrimary)
                     
                     Text("overtime bonus")
                         .font(.title3)
-                        .foregroundStyle(.white.opacity(0.8))
+                        .foregroundStyle(theme.textSecondary)
                 } else {
                     Text("00:00")
                         .font(.system(size: 80, weight: .bold, design: .monospaced))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(theme.textPrimary)
                     
                     Text("terminé!")
                         .font(.title3)
-                        .foregroundStyle(.white.opacity(0.8))
+                        .foregroundStyle(theme.textSecondary)
                 }
                 
             case .failed(let reason):
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 80))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(theme.textPrimary)
                 
                 Text(reason)
                     .font(.title3)
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(theme.textSecondary)
                     .multilineTextAlignment(.center)
                 
             default:
                 Text("--:--")
                     .font(.system(size: 80, weight: .bold, design: .monospaced))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(theme.textPrimary)
             }
         }
     }
@@ -159,7 +144,7 @@ struct FocusSessionView: View {
                     Text("Concentre-toi...")
                 }
                 .font(.headline)
-                .foregroundStyle(.white.opacity(0.9))
+                .foregroundStyle(theme.textPrimary)
                 
             case .pausedRemainingTime:
                 HStack {
@@ -167,11 +152,11 @@ struct FocusSessionView: View {
                     Text("Session en pause")
                 }
                 .font(.headline)
-                .foregroundStyle(.white.opacity(0.9))
+                .foregroundStyle(theme.textPrimary)
                 
                 Text("Token de protection utilisé")
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(theme.textSecondary)
                 
             case .finishedWaitingUserConfirmation:
                 HStack {
@@ -179,12 +164,12 @@ struct FocusSessionView: View {
                     Text("Bravo!")
                 }
                 .font(.headline)
-                .foregroundStyle(.white.opacity(0.9))
+                .foregroundStyle(theme.textPrimary)
                 
                 if sessionManager.minutesSelected >= 30 {
                     Text("Continue pour le bonus >30 min")
                         .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(theme.textSecondary)
                 }
                 
             case .failed:
@@ -193,7 +178,7 @@ struct FocusSessionView: View {
                     Text("Session échouée")
                 }
                 .font(.headline)
-                .foregroundStyle(.white.opacity(0.9))
+                .foregroundStyle(theme.textPrimary)
                 
             default:
                 EmptyView()
@@ -233,7 +218,7 @@ struct FocusSessionView: View {
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.bordered)
-        .tint(.white)
+        .tint(theme.primary)
     }
     
     private var pausedButtons: some View {
@@ -245,8 +230,8 @@ struct FocusSessionView: View {
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
-            .tint(.white)
-            .foregroundStyle(.orange)
+            .tint(theme.primary)
+            .foregroundStyle(theme.onPrimary)
             
             Button {
                 sessionManager.cancel()
@@ -256,7 +241,7 @@ struct FocusSessionView: View {
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.bordered)
-            .tint(.white)
+            .tint(theme.primary)
         }
     }
     
@@ -269,8 +254,8 @@ struct FocusSessionView: View {
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
-            .tint(.white)
-            .foregroundStyle(.green)
+            .tint(theme.primary)
+            .foregroundStyle(theme.onPrimary)
             
             Button {
                 sessionManager.cancel()
@@ -280,12 +265,12 @@ struct FocusSessionView: View {
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.bordered)
-            .tint(.white)
+            .tint(theme.primary)
             
             if sessionManager.minutesSelected >= 30 {
                 Text("Astuce: reste après 30 min pour le bonus du jour (cap 10 pixels)")
                     .font(.caption)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(theme.textSecondary)
                     .multilineTextAlignment(.center)
             }
         }
@@ -300,8 +285,8 @@ struct FocusSessionView: View {
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.borderedProminent)
-        .tint(.white)
-        .foregroundStyle(.red)
+        .tint(theme.primary)
+        .foregroundStyle(theme.onPrimary)
     }
 }
 

@@ -122,6 +122,39 @@ final class AppCoordinator: ObservableObject {
         objectWillChange.send()
     }
 
+    // MARK: - Session Start
+
+    enum SessionStartError: LocalizedError {
+        case engineUnavailable
+        case locked
+        case quotaReached(minutes: Int)
+
+        var errorDescription: String? {
+            switch self {
+            case .engineUnavailable:
+                return "Moteur non disponible."
+            case .locked:
+                return "Cette œuvre n'est pas encore disponible."
+            case .quotaReached(let minutes):
+                return "Quota du jour atteint pour \(minutes) min. Essaie 25 ou 30 min."
+            }
+        }
+    }
+
+    /// Vérifie l'accès et le quota, puis enregistre le début de session.
+    /// En cas de succès, l'appelant présente FocusSessionHostView.
+    func startSession(artworkId: String, minutes: Int, now: Date = Date()) throws {
+        guard let engine else { throw SessionStartError.engineUnavailable }
+        guard canPlay(artworkId: artworkId, now: now) else { throw SessionStartError.locked }
+
+        let todayISO = DatePolicy.isoDayString(for: now)
+        let isPremium = entitlements.isPremium
+        guard try engine.canStartSession(minutes: minutes, isPremium: isPremium, todayISO: todayISO) else {
+            throw SessionStartError.quotaReached(minutes: minutes)
+        }
+        try engine.registerSessionStart(minutes: minutes, isPremium: isPremium, todayISO: todayISO)
+    }
+
     // MARK: - Monthly Access
 
     /// Mois ISO d'une œuvre monthly du catalogue (nil si ce n'est pas une monthly)

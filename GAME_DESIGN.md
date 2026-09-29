@@ -2,7 +2,7 @@
 
 Document de référence des règles métier. En cas de conflit avec le README, **ce document fait foi**.
 
-Statut : v1.0 — règles validées.
+Statut : v1.1 — règles validées (ajouts : daily toute l'année, badges, thèmes).
 
 ---
 
@@ -27,6 +27,15 @@ Le Premium donne :
 - Les packs thématiques et géographiques de l'année en cours (voir §4.5).
 
 Principe : **le jeu de base (daily, weekly, monthly) est finissable en gratuit**. Payer fait aller plus vite. Les packs thématiques restent un bonus Premium.
+
+---
+
+## 1 bis. Images du jour et de la semaine
+
+- **Daily** : une par jour. Elle reste **jouable toute l'année calendaire** (calendrier de l'année). Les daily non terminées sont purgées le **1er janvier** de l'année suivante (réglable dans `ruleset.json`).
+- **Weekly** : une par semaine (lundi → dimanche), jamais purgée.
+- On ne peut jamais jouer une image **future**.
+- **Jour actif** : un jour où la daily **de ce jour** est terminée **le jour même**. C'est la seule chose qui compte pour la série et les badges (rattraper une daily passée ne compte pas).
 
 ---
 
@@ -100,6 +109,23 @@ Note technique : un consommable n'est pas restauré par Apple → le stock achet
 
 ---
 
+## 3 bis. Badges
+
+Débloqués une seule fois, à partir des jours actifs (semaines du lundi au dimanche).
+
+| Badge | Condition |
+|---|---|
+| Premiers pas | 3 jours actifs d'affilée |
+| Sur la lancée | 5 jours actifs d'affilée |
+| Inarrêtable | 18 jours actifs d'affilée |
+| Semaine parfaite | les 7 jours d'une semaine actifs |
+| Quinzaine parfaite | 2 semaines parfaites d'affilée |
+| Mois parfait | tous les jours d'un mois actifs |
+| Régulier | 13 semaines d'affilée (≈ 3 mois) avec au moins 1 jour actif |
+| Assidu | 13 semaines d'affilée avec au moins 3 jours actifs |
+
+---
+
 ## 4. Packs thématiques
 
 6 à 8 packs par an, **thèmes neutres et universels** : aucune fête religieuse ou semi-religieuse (pas de Noël, Halloween, Pâques…), pas de « Bonne année ».
@@ -149,7 +175,7 @@ Le cycle recommence ensuite avec de nouvelles images.
 
 - **V1 (iOS)** : pas de compte. La date du premier lancement est stockée dans le **trousseau iCloud** (résiste à la réinstallation) pour la règle du cadeau de bienvenue.
 - **Cible (Android, web)** : il faudra un compte utilisateur et un backend pour partager achats et progression entre plateformes.
-  - Le code isole les droits d'accès derrière un service unique (`EntitlementService`) pour pouvoir brancher ensuite un fournisseur multiplateforme (ex. RevenueCat) sans réécrire le jeu.
+  - Le code isole les droits d'accès derrière un service unique (`EntitlementStore`) pour pouvoir brancher ensuite un fournisseur multiplateforme (ex. RevenueCat) sans réécrire le jeu.
 
 ---
 
@@ -158,3 +184,19 @@ Le cycle recommence ensuite avec de nouvelles images.
 Environ 500 images par an (365 daily, 52 weekly, 12 monthly, et les packs).
 - Le catalogue et les images sont **téléchargés depuis un hébergement statique** (ex. GitHub Pages), ce qui permet de publier sans mise à jour App Store.
 - Un contenu minimal est embarqué dans l'app pour le mode hors ligne et le premier lancement.
+
+- **Contenu de test** : `tools/generate_test_content.py` génère un catalogue provisoire (janvier 2026 → mars 2027) pour développer et tester l'app.
+
+---
+
+## 7. Thèmes
+
+| Thème | Style | Accès |
+|---|---|---|
+| Minuit (par défaut) | sombre noir/gris, accent violet | gratuit |
+| Soleil | clair : Rich Cerulean `#2274A5`, Lime Cream `#E7EB90`, Royal Gold `#FADF63`, Sunflower `#E6AF2E`, Wine Plum `#632B30` | Premium |
+| Braise | sombre bleu nuit : Prussian Blue `#001427`, Deep Teal `#708D81`, Jasmine `#F4D58D`, Brick Ember `#BF0603`, Blood Red `#8D0801` | Premium |
+
+- Choix manuel dans Réglages (pas de bascule automatique jour/nuit).
+- Sans Premium, un thème Premium retombe sur Minuit.
+- Les œuvres pixel art gardent toujours leurs propres couleurs.

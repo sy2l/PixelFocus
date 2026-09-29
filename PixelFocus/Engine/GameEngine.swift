@@ -404,10 +404,12 @@ final class GameEngine {
             modelContext.insert(SDActiveDay(dayISO: todayISO))
         }
 
-        var activeDays = Set(try modelContext.fetch(FetchDescriptor<SDActiveDay>()).map(\.dayISO))
+        let storedDays = try modelContext.fetch(FetchDescriptor<SDActiveDay>()).map(\.dayISO)
+        var activeDays = Set(storedDays)
         activeDays.insert(todayISO)
 
-        let ownedBadgeIds = Set(try modelContext.fetch(FetchDescriptor<SDBadge>()).map(\.badgeId))
+        let storedBadgeIds = try modelContext.fetch(FetchDescriptor<SDBadge>()).map(\.badgeId)
+        let ownedBadgeIds = Set(storedBadgeIds)
         for badgeId in BadgePolicy.earnedBadgeIds(activeDays: activeDays) where !ownedBadgeIds.contains(badgeId) {
             modelContext.insert(SDBadge(badgeId: badgeId))
         }

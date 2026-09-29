@@ -2,28 +2,18 @@
  * ArtworkDetailView.swift
  * PixelFocus
  *
- * Version: 1.0
- * Date: 15 janvier 2026
- *
- * Détail d'une œuvre (V1).
+ * Détail d'une œuvre (maquette v2).
  *
  * Objectifs:
- * - Afficher l'œuvre + progression
- * - Afficher une preview de la grille (pixel-art)
- * - Sélecteur de durée de session (15/20/25/30)
- * - Démarrer une session focus
+ * - Afficher l'œuvre (pixel art) + progression
+ * - Sélecteur de durée de session (15/20/25/30) et démarrage
  * - Utiliser un booster (voir GAME_DESIGN.md §3)
  * - Image du mois verrouillée: défi du mois, Premium, achat à l'unité (étape 3)
  *
  * Technique:
- * - AppCoordinator via EnvironmentObject
+ * - AppCoordinator / EntitlementStore via EnvironmentObject
  * - SwiftData pour artwork/progress/wallet
- * - @Query pour les wallets (SwiftData)
- *
- * Notes:
  * - Preview-safe: si AppCoordinator n'est pas prêt (preview), on évite l'import JSON.
- * - PixelGridView (V1) est adapté aux grilles modestes (ex 5x5 à 50x50).
- *   Pour des grilles plus grosses, prévoir un rendu tuilé / Canvas.
  */
 
 import SwiftUI
@@ -36,6 +26,7 @@ struct ArtworkDetailView: View {
     @EnvironmentObject private var appCoordinator: AppCoordinator
     @EnvironmentObject private var entitlements: EntitlementStore
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.theme) private var theme
 
     // MARK: - Input
     let artworkId: String
@@ -59,23 +50,26 @@ struct ArtworkDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                errorBanner
+                if let errorMessage {
+                    MessageBanner(text: errorMessage, color: theme.danger)
+                }
 
                 if let artwork {
-                    headerSection(for: artwork)
-                    pixelGridPreview(for: artwork)
-                    progressSection(for: artwork)
+                    artworkSection(for: artwork)
 
                     if progress?.state == .completed {
                         completedSection
                     } else if appCoordinator.canPlay(artworkId: artworkId) {
-                        sessionPickerSection
-                        actionsSection
-                    } else {
+                        sessionSection
+                    } else if appCoordinator.monthlyMonthISO(forArtworkId: artworkId) != nil {
                         lockedMonthlySection(for: artwork)
+                    } else {
+                        notYetAvailableSection
                     }
                 } else {
                     ProgressView("Chargement…")
+                        .tint(theme.primary)
+                        .foregroundStyle(theme.textSecondary)
                         .padding()
                 }
 
@@ -83,8 +77,10 @@ struct ArtworkDetailView: View {
             }
             .padding()
         }
+        .themedScreenBackground()
         .navigationTitle(artwork?.title ?? "Œuvre")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(theme.background, for: .navigationBar)
         .task {
             await loadArtworkAndProgress()
         }
@@ -98,6 +94,7 @@ struct ArtworkDetailView: View {
                     Task { await loadArtworkAndProgress() }
                 }
             )
+            .environment(\.theme, theme)
         }
         .sheet(isPresented: $isBoosterSheetPresented) {
             UseBoosterSheet(
@@ -110,6 +107,7 @@ struct ArtworkDetailView: View {
                     useBooster()
                 }
             )
+            .environment(\.theme, theme)
             .presentationDetents([.large])
         }
     }
@@ -126,82 +124,40 @@ struct ArtworkDetailView: View {
         return (try? appCoordinator.getEngine()?.usableBoosters(isPremium: isPremiumUser, todayISO: todayISO)) ?? 0
     }
 
-    // MARK: - UI Components
+    // MARK: - Artwork
 
-    private var errorBanner: some View {
-        Group {
-            if let errorMessage {
-                Text(errorMessage)
-                    .foregroundStyle(.red)
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.red.opacity(0.10))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-            }
-        }
-    }
-
-    private func headerSection(for artwork: SDArtwork) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(artwork.title)
-                .font(.title2)
-                .bold()
-
-            Text("Mode: \(artwork.mode.uppercased()) • Grille: \(artwork.gridWidth)×\(artwork.gridHeight)")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(.thinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-
-    private func pixelGridPreview(for artwork: SDArtwork) -> some View {
-        let revealedCount = progress?.revealedCount ?? 0
-
-        let decodedPalette = artwork.decodePalette()
-        let decodedPixels = artwork.decodePixels()
-        let decodedRevealSequence = artwork.decodeRevealSequence()
-
-        return PixelGridView(
-            gridWidth: artwork.gridWidth,
-            gridHeight: artwork.gridHeight,
-            paletteHexColors: decodedPalette,
-            pixelPaletteIndexes: decodedPixels,
-            revealSequence: decodedRevealSequence,
-            revealedCount: revealedCount
-        )
-        .frame(height: 220)
-        .padding()
-        .background(.thinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-
-    private func progressSection(for artwork: SDArtwork) -> some View {
-        let totalPixelsCount = artwork.totalPixels
-        let revealedCount = progress?.revealedCount ?? 0
-        let clampedRevealedCount = min(revealedCount, totalPixelsCount)
-        let completionRatio = totalPixelsCount > 0 ? Double(clampedRevealedCount) / Double(totalPixelsCount) : 0
-
+    private func artworkSection(for artwork: SDArtwork) -> some View {
+        let total = artwork.totalPixels
+        let revealed = min(progress?.revealedCount ?? 0, total)
+        let ratio = total > 0 ? Double(revealed) / Double(total) : 0
         let totalBoosters = wallets.first?.totalBoosters ?? 0
         let canUseBooster = progress?.state != .completed && appCoordinator.canPlay(artworkId: artworkId)
 
-        return VStack(alignment: .leading, spacing: 10) {
-            Text("Progression")
-                .font(.headline)
+        return VStack(alignment: .leading, spacing: 14) {
+            PixelArtView(artwork: artwork, revealedCount: revealed, emptyColor: theme.emptyPixel, spacing: 2, cornerRadius: 3)
+                .frame(maxWidth: .infinity)
+                .frame(height: 300)
 
-            ProgressView(value: completionRatio)
-                .tint(completionRatio >= 1.0 ? .green : .blue)
-
-            HStack {
-                Text("\(clampedRevealedCount)/\(totalPixelsCount) pixels")
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(artwork.title)
+                        .font(.title3.bold())
+                        .foregroundStyle(theme.textPrimary)
+                    Text("\(modeLabel(artwork.mode)) • \(artwork.gridWidth)×\(artwork.gridHeight)")
+                        .font(.caption)
+                        .foregroundStyle(theme.textSecondary)
+                }
                 Spacer()
-                Text("\(Int(completionRatio * 100))%")
-                    .bold()
+                Text("\(Int(ratio * 100))%")
+                    .font(.title3.bold().monospacedDigit())
+                    .foregroundStyle(ratio >= 1 ? theme.success : theme.textPrimary)
             }
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
+
+            ThemedProgressBar(value: ratio, color: ratio >= 1 ? theme.success : theme.primary)
+
+            Text("\(revealed)/\(total) pixels")
+                .font(.caption)
+                .foregroundStyle(theme.textSecondary)
 
             if canUseBooster && totalBoosters > 0 {
                 Button {
@@ -209,77 +165,134 @@ struct ArtworkDetailView: View {
                 } label: {
                     Label("Utiliser un booster (\(usableBoosters) dispo.)", systemImage: "bolt.fill")
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(SecondaryButtonStyle())
             }
         }
-        .padding()
-        .background(.thinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .themedCard()
     }
 
-    private var sessionPickerSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
+    private func modeLabel(_ mode: String) -> String {
+        switch mode {
+        case "daily": return "Image du jour"
+        case "weekly": return "Image de la semaine"
+        case "monthly": return "Image du mois"
+        default: return mode.capitalized
+        }
+    }
+
+    // MARK: - Session
+
+    private var sessionSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
             Text("Durée de session")
                 .font(.headline)
+                .foregroundStyle(theme.textPrimary)
 
-            Picker("Durée", selection: $selectedMinutes) {
-                Text("15 min").tag(15)
-                Text("20 min").tag(20)
-                Text("25 min ⭐").tag(25)
-                Text("30 min 🛡️").tag(30)
-            }
-            .pickerStyle(.segmented)
+            PillPicker(options: [15, 20, 25, 30], selection: $selectedMinutes) { "\($0) min" }
 
             quotaHintText
+
+            Button {
+                startSession()
+            } label: {
+                Label("Démarrer la session", systemImage: "play.fill")
+            }
+            .buttonStyle(PrimaryButtonStyle())
+
+            Text("Récompense : +\(appCoordinator.ruleset?.sessions.pixelsPerCompletedSession ?? 5) pixels par session réussie")
+                .font(.footnote)
+                .foregroundStyle(theme.textSecondary)
         }
-        .padding()
-        .background(.thinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .themedCard()
     }
 
     @ViewBuilder
     private var quotaHintText: some View {
         if isPremiumUser {
-            Text("Premium : 15 & 20 illimités.")
+            Text("Premium : 15 & 20 min illimités.")
                 .font(.footnote)
-                .foregroundStyle(.green)
+                .foregroundStyle(theme.success)
 
         } else if selectedMinutes == 15 || selectedMinutes == 20 {
             let remainingSessions = appCoordinator.remainingQuota(for: selectedMinutes, isPremium: false) ?? 0
-            Text("Gratuit : \(selectedMinutes) min limité à 1/jour. Restant: \(remainingSessions)")
+            Text("Gratuit : \(selectedMinutes) min limité à 1/jour. Restant : \(remainingSessions)")
                 .font(.footnote)
-                .foregroundStyle(remainingSessions > 0 ? Color.secondary : Color.red)
+                .foregroundStyle(remainingSessions > 0 ? theme.textSecondary : theme.danger)
 
         } else if selectedMinutes == 30 {
-            Text("30 min : illimité + 1 token protection (cap 3/jour).")
+            Text("30 min : illimité + 1 token de protection (3 max/jour).")
                 .font(.footnote)
-                .foregroundStyle(.blue)
+                .foregroundStyle(theme.token)
 
         } else {
             Text("25 min : illimité (recommandé).")
                 .font(.footnote)
-                .foregroundStyle(.green)
+                .foregroundStyle(theme.success)
         }
     }
 
-    private var actionsSection: some View {
-        VStack(spacing: 10) {
-            Button {
-                startSession()
-            } label: {
-                Label("Démarrer la session", systemImage: "play.fill")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+    // MARK: - Completed / Locked / Not yet
 
-            Text("Récompense : +5 pixels par session réussie")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+    private var completedSection: some View {
+        Label("Œuvre terminée — elle est dans ta collection.", systemImage: "checkmark.seal.fill")
+            .font(.subheadline)
+            .foregroundStyle(theme.success)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .themedCard()
+    }
+
+    private var notYetAvailableSection: some View {
+        Label("Cette œuvre n'est pas encore disponible.", systemImage: "clock")
+            .font(.subheadline)
+            .foregroundStyle(theme.textSecondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .themedCard()
+    }
+
+    private func lockedMonthlySection(for artwork: SDArtwork) -> some View {
+        let rules = appCoordinator.ruleset?.monthlyAccess
+        let monthISO = appCoordinator.monthlyMonthISO(forArtworkId: artworkId) ?? ""
+        let isCurrentMonth = monthISO == DatePolicy.isoMonthString(for: Date())
+        let challengeTarget = rules?.challengeSessions ?? 20
+        let challengeDone = min(appCoordinator.completedSessions(monthISO: monthISO), challengeTarget)
+
+        let total = artwork.totalPixels
+        let ratio = total > 0 ? Double(progress?.revealedCount ?? 0) / Double(total) : 0
+        let priceTier: MonthlyPriceTier = rules.map {
+            MonthlyAccessPolicy.unitPriceTier(monthISO: monthISO, now: Date(), revealedRatio: ratio, rules: $0)
+        } ?? .full
+        let priceText = priceTier == .reduced ? "0,99 €" : "1,99 €"
+
+        return VStack(alignment: .leading, spacing: 14) {
+            Label("Image du mois verrouillée", systemImage: "lock.fill")
+                .font(.headline)
+                .foregroundStyle(theme.textPrimary)
+
+            if isCurrentMonth {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Défi du mois : termine \(challengeTarget) sessions ce mois-ci pour la débloquer gratuitement.")
+                        .font(.subheadline)
+                        .foregroundStyle(theme.textPrimary)
+                    ThemedProgressBar(value: Double(challengeDone) / Double(max(challengeTarget, 1)))
+                    Text("\(challengeDone)/\(challengeTarget) sessions")
+                        .font(.caption)
+                        .foregroundStyle(theme.textSecondary)
+                }
+            }
+
+            Text("Incluse avec Premium.")
+                .font(.subheadline)
+                .foregroundStyle(theme.textSecondary)
+
+            Button {
+                // Achat à l'unité: branché à l'étape 3 (StoreKit)
+            } label: {
+                Text("Acheter cette image — \(priceText) (bientôt)")
+            }
+            .buttonStyle(SecondaryButtonStyle())
+            .disabled(true)
         }
-        .padding()
-        .background(.thinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .themedCard()
     }
 
     // MARK: - Data Loading
@@ -311,24 +324,12 @@ struct ArtworkDetailView: View {
     // MARK: - Actions
 
     private func startSession() {
-        let todayISO = DatePolicy.isoDayString(for: Date())
-        guard let engine = appCoordinator.getEngine() else {
-            errorMessage = "Moteur non disponible."
-            return
-        }
-
         do {
-            let canStart = try engine.canStartSession(minutes: selectedMinutes, isPremium: isPremiumUser, todayISO: todayISO)
-            guard canStart else {
-                errorMessage = "Quota atteint pour \(selectedMinutes) min."
-                return
-            }
-
-            try engine.registerSessionStart(minutes: selectedMinutes, isPremium: isPremiumUser, todayISO: todayISO)
+            try appCoordinator.startSession(artworkId: artworkId, minutes: selectedMinutes)
+            errorMessage = nil
             isFocusSessionPresented = true
-
         } catch {
-            errorMessage = "Erreur démarrage session: \(error.localizedDescription)"
+            errorMessage = error.localizedDescription
         }
     }
 
@@ -354,146 +355,6 @@ struct ArtworkDetailView: View {
         } catch {
             errorMessage = error.localizedDescription
         }
-    }
-
-    // MARK: - Completed / Locked Sections
-
-    private var completedSection: some View {
-        Label("Œuvre terminée — elle est dans ta collection.", systemImage: "checkmark.seal.fill")
-            .font(.subheadline)
-            .foregroundStyle(.green)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding()
-            .background(.thinMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-
-    private func lockedMonthlySection(for artwork: SDArtwork) -> some View {
-        let rules = appCoordinator.ruleset?.monthlyAccess
-        let monthISO = appCoordinator.monthlyMonthISO(forArtworkId: artworkId) ?? ""
-        let isCurrentMonth = monthISO == DatePolicy.isoMonthString(for: Date())
-        let challengeTarget = rules?.challengeSessions ?? 20
-        let challengeDone = min(appCoordinator.completedSessions(monthISO: monthISO), challengeTarget)
-
-        let total = artwork.totalPixels
-        let ratio = total > 0 ? Double(progress?.revealedCount ?? 0) / Double(total) : 0
-        let priceTier: MonthlyPriceTier = rules.map {
-            MonthlyAccessPolicy.unitPriceTier(monthISO: monthISO, now: Date(), revealedRatio: ratio, rules: $0)
-        } ?? .full
-        let priceText = priceTier == .reduced ? "0,99 €" : "1,99 €"
-
-        return VStack(alignment: .leading, spacing: 14) {
-            Label("Image du mois verrouillée", systemImage: "lock.fill")
-                .font(.headline)
-
-            if isCurrentMonth {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Défi du mois : termine \(challengeTarget) sessions ce mois-ci pour la débloquer gratuitement.")
-                        .font(.subheadline)
-                    ProgressView(value: Double(challengeDone), total: Double(challengeTarget))
-                    Text("\(challengeDone)/\(challengeTarget) sessions")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-
-            Text("Incluse avec Premium.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-
-            Button {
-                // Achat à l'unité: branché à l'étape 3 (StoreKit)
-            } label: {
-                Text("Acheter cette image — \(priceText) (bientôt)")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.bordered)
-            .disabled(true)
-        }
-        .padding()
-        .background(.thinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-}
-
-// MARK: - PixelGridView (V1)
-struct PixelGridView: View {
-
-    // MARK: - Inputs
-    let gridWidth: Int
-    let gridHeight: Int
-    let paletteHexColors: [String]
-    let pixelPaletteIndexes: [Int]
-    let revealSequence: [Int]
-    let revealedCount: Int
-
-    // MARK: - Body
-    var body: some View {
-        GeometryReader { geometry in
-            let cellSize = min(
-                geometry.size.width / CGFloat(max(1, gridWidth)),
-                geometry.size.height / CGFloat(max(1, gridHeight))
-            )
-
-            VStack(spacing: 1) {
-                ForEach(0..<gridHeight, id: \.self) { rowIndex in
-                    HStack(spacing: 1) {
-                        ForEach(0..<gridWidth, id: \.self) { colIndex in
-                            let pixelIndex = rowIndex * gridWidth + colIndex
-                            let revealed = isPixelRevealed(pixelIndex: pixelIndex)
-
-                            Rectangle()
-                                .fill(revealed ? colorForPixel(pixelIndex: pixelIndex) : Color.gray.opacity(0.30))
-                                .frame(width: max(1, cellSize - 1), height: max(1, cellSize - 1))
-                        }
-                    }
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-    }
-
-    // MARK: - Reveal Logic
-    private func isPixelRevealed(pixelIndex: Int) -> Bool {
-        guard pixelIndex >= 0 else { return false }
-
-        // Si pas de séquence, révélation dans l'ordre
-        guard !revealSequence.isEmpty else {
-            return pixelIndex < revealedCount
-        }
-
-        // Si séquence, on regarde la position de pixelIndex dans la séquence
-        if let positionInSequence = revealSequence.firstIndex(of: pixelIndex) {
-            return positionInSequence < revealedCount
-        }
-        return false
-    }
-
-    // MARK: - Color
-    private func colorForPixel(pixelIndex: Int) -> Color {
-        guard pixelIndex < pixelPaletteIndexes.count else { return .gray }
-
-        let paletteIndex = pixelPaletteIndexes[pixelIndex]
-        guard paletteIndex >= 0, paletteIndex < paletteHexColors.count else { return .gray }
-
-        return Color(hex: paletteHexColors[paletteIndex]) ?? .gray
-    }
-}
-
-// MARK: - Color Hex Utility
-extension Color {
-    init?(hex: String) {
-        var sanitizedHexString = hex.trimmingCharacters(in: .whitespacesAndNewlines)
-        sanitizedHexString = sanitizedHexString.replacingOccurrences(of: "#", with: "")
-
-        var rgbValue: UInt64 = 0
-        guard Scanner(string: sanitizedHexString).scanHexInt64(&rgbValue) else { return nil }
-
-        let red = Double((rgbValue & 0xFF0000) >> 16) / 255.0
-        let green = Double((rgbValue & 0x00FF00) >> 8) / 255.0
-        let blue = Double(rgbValue & 0x0000FF) / 255.0
-
-        self.init(red: red, green: green, blue: blue)
     }
 }
 
