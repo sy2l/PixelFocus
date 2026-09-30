@@ -173,9 +173,13 @@ Le cycle recommence ensuite avec de nouvelles images.
 
 ## 5. Identité utilisateur & multiplateforme
 
-- **V1 (iOS)** : pas de compte. La date du premier lancement est stockée dans le **trousseau iCloud** (résiste à la réinstallation) pour la règle du cadeau de bienvenue.
-- **Cible (Android, web)** : il faudra un compte utilisateur et un backend pour partager achats et progression entre plateformes.
-  - Le code isole les droits d'accès derrière un service unique (`EntitlementStore`) pour pouvoir brancher ensuite un fournisseur multiplateforme (ex. RevenueCat) sans réécrire le jeu.
+- **Serveur maison** : API PHP + MySQL hébergée chez **o2switch** (dossier `server/`), sans plateforme tierce.
+- **Compte anonyme** créé automatiquement au premier lancement (jeton dans le trousseau / Keystore). L'utilisateur ne voit rien.
+- **Rattachement facultatif** à Apple ou Google pour retrouver sa progression sur un autre appareil (iOS, Android, web).
+- **Historique d'événements** = source de vérité, synchronisé sans conflit entre appareils. L'app reste utilisable hors ligne.
+- **Achats** validés par notre serveur directement auprès d'Apple et Google (pas d'intermédiaire). Les boosters achetés sont stockés côté serveur.
+- **Obligations** : suppression du compte dans l'app ; « Se connecter avec Apple » si une autre connexion sociale est proposée ; données hébergées en France (RGPD).
+- Dans l'app, les droits d'accès passent par un service unique (`EntitlementStore`), qui sera alimenté par le serveur.
 
 ---
 

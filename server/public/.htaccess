@@ -1,0 +1,19 @@
+# PixelFocus API — réécriture vers index.php (Apache / LiteSpeed, o2switch)
+
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # HTTPS obligatoire
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Transmet l'en-tête Authorization à PHP (souvent retiré en mode CGI/FPM)
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Toute requête vers le point d'entrée unique
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
