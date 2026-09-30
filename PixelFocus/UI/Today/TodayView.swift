@@ -6,7 +6,8 @@
  *
  * Objectifs:
  * - Grande carte: la daily du jour (pixel art + progression)
- * - Barre de session: durée + lancement direct
+ * - Barre de session: tâche à accomplir (intention) + durée + lancement direct
+ * - Temps de concentration du jour et de la semaine
  * - Tuiles: série, record, boosters, tokens
  * - Cartes weekly / monthly (verrou + défi du mois)
  *
@@ -31,10 +32,12 @@ struct TodayView: View {
     @Query private var artworks: [SDArtwork]
     @Query private var monthStats: [SDMonthStats]
     @Query(sort: \SDBadge.unlockedAt, order: .reverse) private var badges: [SDBadge]
+    @Query(filter: #Predicate<SDEvent> { $0.type == "session_completed" }) private var sessionEvents: [SDEvent]
 
     @State private var selectedMinutes: Int = 25
     @State private var errorMessage: String?
     @State private var sessionArtworkId: String?
+    @State private var intention: String = ""
 
     private var todayISO: String { DatePolicy.isoDayString(for: Date()) }
 
@@ -56,6 +59,7 @@ struct TodayView: View {
 
                     heroSection
                     sessionBar
+                    focusSummary
                     statsGrid
                     otherArtworksSection
 
@@ -81,7 +85,11 @@ struct TodayView: View {
                     artworkId: target.id,
                     minutesSelected: selectedMinutes,
                     isPremiumUser: entitlements.isPremium,
-                    onClose: { sessionArtworkId = nil }
+                    intention: intention.trimmingCharacters(in: .whitespacesAndNewlines),
+                    onClose: {
+                        sessionArtworkId = nil
+                        intention = ""
+                    }
                 )
                 .environment(\.theme, theme)
             }
@@ -139,36 +147,53 @@ struct TodayView: View {
     @ViewBuilder
     private var sessionBar: some View {
         let target = sessionTargetId
-        HStack(spacing: 12) {
-            Menu {
-                ForEach([15, 20, 25, 30], id: \.self) { minutes in
-                    Button {
-                        selectedMinutes = minutes
-                    } label: {
-                        Text(durationLabel(minutes))
-                    }
-                }
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "clock")
-                    Text("\(selectedMinutes) min")
-                        .monospacedDigit()
-                }
-                .font(.headline)
+        VStack(spacing: 10) {
+            HStack(spacing: 10) {
+                Image(systemName: "scope")
+                    .foregroundStyle(theme.primary)
+                TextField(
+                    "",
+                    text: $intention,
+                    prompt: Text("Sur quoi vas-tu te concentrer ?").foregroundStyle(theme.textSecondary)
+                )
                 .foregroundStyle(theme.textPrimary)
-                .padding(.horizontal, 16)
-                .frame(height: 52)
-                .background(theme.surfaceHighlight, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .submitLabel(.done)
             }
+            .padding(.horizontal, 14)
+            .frame(height: 48)
+            .background(theme.surfaceHighlight, in: RoundedRectangle(cornerRadius: ThemeTokens.Radius.control, style: .continuous))
 
-            Button {
-                startSession(artworkId: target)
-            } label: {
-                Image(systemName: "play.fill")
-                    .font(.title2)
+            HStack(spacing: 12) {
+                Menu {
+                    ForEach([15, 20, 25, 30], id: \.self) { minutes in
+                        Button {
+                            selectedMinutes = minutes
+                        } label: {
+                            Text(durationLabel(minutes))
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "clock")
+                        Text("\(selectedMinutes) min")
+                            .monospacedDigit()
+                    }
+                    .font(.headline)
+                    .foregroundStyle(theme.textPrimary)
+                    .padding(.horizontal, 16)
+                    .frame(height: 52)
+                    .background(theme.surfaceHighlight, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
+
+                Button {
+                    startSession(artworkId: target)
+                } label: {
+                    Image(systemName: "play.fill")
+                        .font(.title2)
+                }
+                .buttonStyle(PrimaryButtonStyle())
+                .disabled(target == nil)
             }
-            .buttonStyle(PrimaryButtonStyle())
-            .disabled(target == nil)
         }
         .themedCard(padding: 10)
 
@@ -178,6 +203,45 @@ struct TodayView: View {
                 .foregroundStyle(theme.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+
+    // MARK: - Focus Summary
+
+    /// Temps de concentration: c'est le cœur de l'app, les pixels n'en sont que la récompense
+    private var focusSummary: some View {
+        let calendar = Calendar.current
+        let startOfToday = calendar.startOfDay(for: Date())
+        let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: Date())?.start ?? startOfToday
+        let todayMinutes = focusMinutes(since: startOfToday)
+        let weekMinutes = focusMinutes(since: startOfWeek)
+        let weekTasksDone = sessionEvents.filter { $0.occurredAt >= startOfWeek && $0.payload?["taskDone"]?.boolValue == true }.count
+
+        return HStack(spacing: 14) {
+            Image(systemName: "brain.head.profile")
+                .font(.title)
+                .foregroundStyle(theme.primary)
+                .frame(width: 44)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(todayMinutes) min de concentration aujourd'hui")
+                    .font(.headline)
+                    .foregroundStyle(theme.textPrimary)
+                Text("Cette semaine : \(formattedDuration(weekMinutes)) • \(weekTasksDone) tâche(s) terminée(s)")
+                    .font(.caption)
+                    .foregroundStyle(theme.textSecondary)
+            }
+            Spacer()
+        }
+        .themedCard(padding: 14)
+    }
+
+    private func focusMinutes(since start: Date) -> Int {
+        sessionEvents
+            .filter { $0.occurredAt >= start }
+            .reduce(0) { $0 + ($1.payload?["minutes"]?.intValue ?? 0) }
+    }
+
+    private func formattedDuration(_ minutes: Int) -> String {
+        minutes >= 60 ? "\(minutes / 60) h \(String(format: "%02d", minutes % 60))" : "\(minutes) min"
     }
 
     /// Œuvre ciblée par le bouton lecture: la daily du jour, sinon la weekly en cours
@@ -420,10 +484,5 @@ struct MessageBanner: View {
 // MARK: - Preview
 #Preview {
     TodayView()
-        .environmentObject(AppCoordinator())
-        .environmentObject(EntitlementStore())
-        .modelContainer(for: [
-            SDWallet.self, SDStreak.self, SDDailyQuota.self, SDProgress.self,
-            SDArtwork.self, SDMonthStats.self, SDBadge.self
-        ], inMemory: true)
+        .withAppEnvironment(AppCoordinator())
 }

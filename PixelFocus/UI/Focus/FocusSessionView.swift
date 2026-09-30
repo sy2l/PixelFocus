@@ -25,8 +25,13 @@ struct FocusSessionView: View {
     @ObservedObject var sessionManager: SessionManager
     @Environment(\.theme) private var theme
     
+    /// Tâche choisie avant la session ("Sur quoi vas-tu te concentrer ?")
+    var intention: String = ""
     let onClose: () -> Void
-    let onSessionCompleted: (FocusSessionResult) -> Void
+    /// Résultat de la session + réponse au bilan ("Tâche terminée ?"), nil si non répondu
+    let onSessionCompleted: (FocusSessionResult, Bool?) -> Void
+
+    @State private var taskDone: Bool?
 
     var body: some View {
         ZStack {
@@ -34,8 +39,10 @@ struct FocusSessionView: View {
             backgroundGradient
             
             VStack(spacing: 32) {
+                intentionHeader
+
                 Spacer()
-                
+
                 // Timer display
                 timerDisplay
                 
@@ -51,8 +58,27 @@ struct FocusSessionView: View {
         }
         .onChange(of: sessionManager.state) { _, newState in
             if case .completed(let result) = newState {
-                onSessionCompleted(result)
+                onSessionCompleted(result, taskDone)
             }
+        }
+    }
+
+    // MARK: - Intention
+
+    @ViewBuilder
+    private var intentionHeader: some View {
+        if !intention.isEmpty {
+            VStack(spacing: 4) {
+                Text("Objectif de la session")
+                    .font(.caption)
+                    .foregroundStyle(theme.textSecondary)
+                Text(intention)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(theme.textPrimary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+            }
+            .padding(.top, 24)
         }
     }
 
@@ -141,10 +167,16 @@ struct FocusSessionView: View {
             case .running:
                 HStack {
                     Image(systemName: "brain.head.profile")
-                    Text("Concentre-toi...")
+                    Text("Reste sur ta tâche, le reste peut attendre.")
                 }
                 .font(.headline)
                 .foregroundStyle(theme.textPrimary)
+                .multilineTextAlignment(.center)
+
+                Text("Astuce : active le mode Concentration (Ne pas déranger) et pose ton téléphone face contre la table.")
+                    .font(.caption)
+                    .foregroundStyle(theme.textSecondary)
+                    .multilineTextAlignment(.center)
                 
             case .pausedRemainingTime:
                 HStack {
@@ -247,15 +279,32 @@ struct FocusSessionView: View {
     
     private var finishedButtons: some View {
         VStack(spacing: 12) {
-            Button {
-                sessionManager.confirmCompletion()
-            } label: {
-                Label("Valider (+5 pixels)", systemImage: "checkmark.circle.fill")
-                    .frame(maxWidth: .infinity)
+            Text(intention.isEmpty ? "As-tu avancé sur ta tâche ?" : "As-tu terminé « \(intention) » ?")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(theme.textPrimary)
+                .multilineTextAlignment(.center)
+
+            HStack(spacing: 12) {
+                Button {
+                    taskDone = true
+                    sessionManager.confirmCompletion()
+                } label: {
+                    Label("Terminée", systemImage: "checkmark.circle.fill")
+                }
+                .buttonStyle(PrimaryButtonStyle())
+
+                Button {
+                    taskDone = false
+                    sessionManager.confirmCompletion()
+                } label: {
+                    Text("Pas encore")
+                }
+                .buttonStyle(SecondaryButtonStyle())
             }
-            .buttonStyle(.borderedProminent)
-            .tint(theme.primary)
-            .foregroundStyle(theme.onPrimary)
+
+            Text("Dans les deux cas, ta session compte : +5 pixels révélés.")
+                .font(.caption)
+                .foregroundStyle(theme.textSecondary)
             
             Button {
                 sessionManager.cancel()
@@ -294,7 +343,8 @@ struct FocusSessionView: View {
 #Preview {
     FocusSessionView(
         sessionManager: SessionManager(),
+        intention: "Réviser le chapitre 3",
         onClose: {},
-        onSessionCompleted: { _ in }
+        onSessionCompleted: { _, _ in }
     )
 }

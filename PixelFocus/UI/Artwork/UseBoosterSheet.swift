@@ -19,6 +19,7 @@ struct UseBoosterSheet: View {
     let pixelsPerBooster: Int
     let dailyEarnedLimit: Int
     let onUse: () -> Void
+    var onBuyMore: (() -> Void)? = nil
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.theme) private var theme
@@ -68,6 +69,15 @@ struct UseBoosterSheet: View {
                     }
                     .buttonStyle(PrimaryButtonStyle())
                     .disabled(usableNow <= 0)
+
+                    if let onBuyMore {
+                        Button {
+                            onBuyMore()
+                        } label: {
+                            Label("Acheter des boosters", systemImage: "cart.fill")
+                        }
+                        .buttonStyle(SecondaryButtonStyle())
+                    }
 
                     Button("Annuler") {
                         dismiss()

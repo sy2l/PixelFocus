@@ -5,8 +5,7 @@
  * Root UI: TabView + thème.
  *
  * Objectifs:
- * - Injecter AppCoordinator et EntitlementStore
- * - Configurer SwiftData ModelContext
+ * - Les objets partagés sont injectés par PixelFocusApp (withAppEnvironment)
  * - Charger le contenu JSON au lancement, réappliquer les règles de dates au retour au premier plan
  * - Appliquer le thème choisi (Minuit par défaut; Soleil/Braise réservés au Premium)
  */
@@ -16,22 +15,19 @@ import SwiftData
 
 // MARK: - MainTabView
 struct MainTabView: View {
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
-
-    @StateObject private var appCoordinator: AppCoordinator = AppCoordinator()
+    @EnvironmentObject private var appCoordinator: AppCoordinator
+    @AppStorage(OnboardingView.storageKey) private var hasSeenOnboarding = false
 
     var body: some View {
-        ThemedTabView()
-            .environmentObject(appCoordinator)
-            .environmentObject(appCoordinator.entitlements)
+        ThemedTabView(showOnboarding: !hasSeenOnboarding, onFinishOnboarding: { hasSeenOnboarding = true })
             .task {
-                appCoordinator.configure(modelContext: modelContext)
                 appCoordinator.loadInitialContentIfNeeded()
             }
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .active {
                     appCoordinator.applyDatePolicies()
+                    appCoordinator.requestSync()
                 }
             }
     }
@@ -39,6 +35,9 @@ struct MainTabView: View {
 
 // MARK: - ThemedTabView
 private struct ThemedTabView: View {
+    let showOnboarding: Bool
+    let onFinishOnboarding: () -> Void
+
     @EnvironmentObject private var entitlements: EntitlementStore
     @AppStorage(AppTheme.storageKey) private var storedTheme: String = AppTheme.minuit.rawValue
 
@@ -60,6 +59,10 @@ private struct ThemedTabView: View {
                 .tabItem { Label("Réglages", systemImage: "gearshape") }
         }
         .tint(palette.primary)
+        .fullScreenCover(isPresented: .constant(showOnboarding)) {
+            OnboardingView(onFinish: onFinishOnboarding)
+                .environment(\.theme, palette)
+        }
         .environment(\.theme, palette)
         .preferredColorScheme(palette.colorScheme)
     }
@@ -68,14 +71,5 @@ private struct ThemedTabView: View {
 // MARK: - Preview
 #Preview {
     MainTabView()
-        .modelContainer(for: [
-            SDArtwork.self,
-            SDProgress.self,
-            SDStreak.self,
-            SDWallet.self,
-            SDDailyQuota.self,
-            SDMonthStats.self,
-            SDActiveDay.self,
-            SDBadge.self
-        ], inMemory: true)
+        .withAppEnvironment(AppCoordinator())
 }

@@ -28,6 +28,8 @@ struct FocusSessionHostView: View {
     let artworkId: String
     let minutesSelected: Int
     let isPremiumUser: Bool
+    /// Tâche choisie avant la session (facultatif)
+    var intention: String = ""
     let onClose: () -> Void
 
     @State private var errorMessage: String?
@@ -38,9 +40,10 @@ struct FocusSessionHostView: View {
             if let sessionManager = appCoordinator.getSessionManager() {
                 FocusSessionView(
                     sessionManager: sessionManager,
+                    intention: intention,
                     onClose: onClose,
-                    onSessionCompleted: { result in
-                        applyCompletion(result: result)
+                    onSessionCompleted: { result, taskDone in
+                        applyCompletion(result: result, taskDone: taskDone)
                         onClose()
                     }
                 )
@@ -88,7 +91,7 @@ struct FocusSessionHostView: View {
 
     // MARK: - Completion
     
-    private func applyCompletion(result: FocusSessionResult) {
+    private func applyCompletion(result: FocusSessionResult, taskDone: Bool?) {
         guard let engine = appCoordinator.getEngine() else { return }
         let todayISO = DatePolicy.isoDayString(for: Date())
 
@@ -98,8 +101,11 @@ struct FocusSessionHostView: View {
                 minutes: result.minutesSelected,
                 todayISO: todayISO,
                 dailyDateISO: appCoordinator.dailyDateISO(forArtworkId: artworkId),
-                didExceed30By: result.extraMinutesOver30
+                didExceed30By: result.extraMinutesOver30,
+                intention: intention,
+                taskDone: taskDone
             )
+            appCoordinator.requestSync()
         } catch {
             errorMessage = "Erreur completion: \(error.localizedDescription)"
         }
@@ -122,19 +128,8 @@ struct FocusSessionHostView: View {
     }
 
     private func consumeProtectionTokenInWallet() {
-        let todayISO = DatePolicy.isoDayString(for: Date())
-        do {
-            let descriptor = FetchDescriptor<SDWallet>()
-            if let wallet = try modelContext.fetch(descriptor).first {
-                wallet.resetDailyIfNeeded(todayISO: todayISO)
-                if wallet.protectionTokensAvailable > 0 {
-                    wallet.protectionTokensAvailable -= 1
-                    try modelContext.save()
-                }
-            }
-        } catch {
-            // Ignorer l'erreur pour le MVP
-        }
+        // Passe par le moteur: le token utilisé est enregistré dans l'historique (synchronisation)
+        try? appCoordinator.getEngine()?.consumeProtectionToken(todayISO: DatePolicy.isoDayString(for: Date()))
     }
 }
 
@@ -144,8 +139,8 @@ struct FocusSessionHostView: View {
         artworkId: "daily_2026_01_15",
         minutesSelected: 25,
         isPremiumUser: false,
+        intention: "Réviser le chapitre 3",
         onClose: {}
     )
-    .environmentObject(AppCoordinator())
-    .modelContainer(for: [SDWallet.self], inMemory: true)
+    .withAppEnvironment(AppCoordinator())
 }

@@ -2,15 +2,11 @@
  * PixelFocusApp.swift
  * PixelFocus
  *
- * Version: 1.0
- * Date: 15 janvier 2026
- *
  * Entrée principale de l'application.
  *
  * Objectifs:
- * - Configurer SwiftData container.
- * - Charger ruleset + catalog au lancement.
- * - Mettre en place le MainTabView.
+ * - Créer la base SwiftData et le coordinateur (moteur, synchronisation, achats)
+ * - Injecter les objets partagés dans toute l'interface
  */
 
 import SwiftUI
@@ -19,30 +15,33 @@ import SwiftData
 @main
 struct PixelFocusApp: App {
 
-    // MARK: - SwiftData Container
-    private var modelContainer: ModelContainer = {
-        let schema = Schema([
-            SDArtwork.self,
-            SDProgress.self,
-            SDStreak.self,
-            SDWallet.self,
-            SDDailyQuota.self,
-            SDMonthStats.self,
-            SDActiveDay.self,
-            SDBadge.self
-        ])
-        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        do {
-            return try ModelContainer(for: schema, configurations: [config])
-        } catch {
-            fatalError("Impossible de créer le ModelContainer: \(error)")
-        }
-    }()
+    private let modelContainer: ModelContainer
+    @StateObject private var appCoordinator: AppCoordinator
+
+    init() {
+        let container = AppSchema.makeContainer()
+        modelContainer = container
+        _appCoordinator = StateObject(wrappedValue: AppCoordinator(modelContext: container.mainContext))
+    }
 
     var body: some Scene {
         WindowGroup {
             MainTabView()
+                .withAppEnvironment(appCoordinator)
         }
         .modelContainer(modelContainer)
+    }
+}
+
+// MARK: - Environnement partagé
+extension View {
+    /// Injecte le coordinateur et ses services (utilisé par l'app et les aperçus Xcode)
+    func withAppEnvironment(_ coordinator: AppCoordinator) -> some View {
+        self
+            .environmentObject(coordinator)
+            .environmentObject(coordinator.entitlements)
+            .environmentObject(coordinator.syncService)
+            .environmentObject(coordinator.purchaseManager)
+            .modelContext(coordinator.modelContext)
     }
 }

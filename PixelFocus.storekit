@@ -1,0 +1,357 @@
+{
+  "identifier": "8F3C1A2B",
+  "nonRenewingSubscriptions": [],
+  "products": [
+    {
+      "displayPrice": "69.99",
+      "familyShareable": false,
+      "internalID": "6500000001",
+      "localizations": [
+        {
+          "description": "Tous les avantages Premium, pour toujours",
+          "displayName": "Premium à vie",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.lifetime",
+      "referenceName": "Premium à vie",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "49.99",
+      "familyShareable": false,
+      "internalID": "6500000002",
+      "localizations": [
+        {
+          "description": "Premium pour toujours, tarif réservé aux abonnés",
+          "displayName": "Premium à vie — tarif abonné",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.lifetime.member",
+      "referenceName": "Premium à vie (abonnés)",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "6500000003",
+      "localizations": [
+        {
+          "description": "1 booster(s) : 5 pixels révélés chacun",
+          "displayName": "1 booster(s)",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.boosters.1",
+      "referenceName": "Boosters x1",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "3.99",
+      "familyShareable": false,
+      "internalID": "6500000004",
+      "localizations": [
+        {
+          "description": "5 booster(s) : 5 pixels révélés chacun",
+          "displayName": "5 booster(s)",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.boosters.5",
+      "referenceName": "Boosters x5",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "9.99",
+      "familyShareable": false,
+      "internalID": "6500000005",
+      "localizations": [
+        {
+          "description": "15 booster(s) : 5 pixels révélés chacun",
+          "displayName": "15 booster(s)",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.boosters.15",
+      "referenceName": "Boosters x15",
+      "type": "Consumable"
+    },
+    {
+      "displayPrice": "1.99",
+      "familyShareable": false,
+      "internalID": "6500000006",
+      "localizations": [
+        {
+          "description": "Débloque l'image du mois",
+          "displayName": "Image du mois 09/2026",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.monthly.2026_09",
+      "referenceName": "Image du mois 09/2026",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "6500000007",
+      "localizations": [
+        {
+          "description": "Débloque l'image du mois (prix réduit)",
+          "displayName": "Image du mois 09/2026",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.monthly.2026_09.reduced",
+      "referenceName": "Image du mois 09/2026 (réduit)",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "1.99",
+      "familyShareable": false,
+      "internalID": "6500000008",
+      "localizations": [
+        {
+          "description": "Débloque l'image du mois",
+          "displayName": "Image du mois 10/2026",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.monthly.2026_10",
+      "referenceName": "Image du mois 10/2026",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "6500000009",
+      "localizations": [
+        {
+          "description": "Débloque l'image du mois (prix réduit)",
+          "displayName": "Image du mois 10/2026",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.monthly.2026_10.reduced",
+      "referenceName": "Image du mois 10/2026 (réduit)",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "1.99",
+      "familyShareable": false,
+      "internalID": "6500000010",
+      "localizations": [
+        {
+          "description": "Débloque l'image du mois",
+          "displayName": "Image du mois 11/2026",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.monthly.2026_11",
+      "referenceName": "Image du mois 11/2026",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "6500000011",
+      "localizations": [
+        {
+          "description": "Débloque l'image du mois (prix réduit)",
+          "displayName": "Image du mois 11/2026",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.monthly.2026_11.reduced",
+      "referenceName": "Image du mois 11/2026 (réduit)",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "1.99",
+      "familyShareable": false,
+      "internalID": "6500000012",
+      "localizations": [
+        {
+          "description": "Débloque l'image du mois",
+          "displayName": "Image du mois 12/2026",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.monthly.2026_12",
+      "referenceName": "Image du mois 12/2026",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "6500000013",
+      "localizations": [
+        {
+          "description": "Débloque l'image du mois (prix réduit)",
+          "displayName": "Image du mois 12/2026",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.monthly.2026_12.reduced",
+      "referenceName": "Image du mois 12/2026 (réduit)",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "1.99",
+      "familyShareable": false,
+      "internalID": "6500000014",
+      "localizations": [
+        {
+          "description": "Débloque l'image du mois",
+          "displayName": "Image du mois 01/2027",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.monthly.2027_01",
+      "referenceName": "Image du mois 01/2027",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "6500000015",
+      "localizations": [
+        {
+          "description": "Débloque l'image du mois (prix réduit)",
+          "displayName": "Image du mois 01/2027",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.monthly.2027_01.reduced",
+      "referenceName": "Image du mois 01/2027 (réduit)",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "1.99",
+      "familyShareable": false,
+      "internalID": "6500000016",
+      "localizations": [
+        {
+          "description": "Débloque l'image du mois",
+          "displayName": "Image du mois 02/2027",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.monthly.2027_02",
+      "referenceName": "Image du mois 02/2027",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "6500000017",
+      "localizations": [
+        {
+          "description": "Débloque l'image du mois (prix réduit)",
+          "displayName": "Image du mois 02/2027",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.monthly.2027_02.reduced",
+      "referenceName": "Image du mois 02/2027 (réduit)",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "1.99",
+      "familyShareable": false,
+      "internalID": "6500000018",
+      "localizations": [
+        {
+          "description": "Débloque l'image du mois",
+          "displayName": "Image du mois 03/2027",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.monthly.2027_03",
+      "referenceName": "Image du mois 03/2027",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "6500000019",
+      "localizations": [
+        {
+          "description": "Débloque l'image du mois (prix réduit)",
+          "displayName": "Image du mois 03/2027",
+          "locale": "fr"
+        }
+      ],
+      "productID": "com.sy2l.pixelfocus.monthly.2027_03.reduced",
+      "referenceName": "Image du mois 03/2027 (réduit)",
+      "type": "NonConsumable"
+    }
+  ],
+  "settings": {
+    "_failTransactionsEnabled": false,
+    "_locale": "fr_FR",
+    "_storefront": "FRA",
+    "_storeKitErrors": []
+  },
+  "subscriptionGroups": [
+    {
+      "id": "21000001",
+      "localizations": [],
+      "name": "PixelFocus Premium",
+      "subscriptions": [
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "2.99",
+          "familyShareable": false,
+          "groupNumber": 2,
+          "internalID": "6500000020",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "PixelFocus Premium, renouvelé chaque mois",
+              "displayName": "Premium mensuel",
+              "locale": "fr"
+            }
+          ],
+          "productID": "com.sy2l.pixelfocus.premium.monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Premium mensuel",
+          "subscriptionGroupID": "21000001",
+          "type": "RecurringSubscription"
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "24.99",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "6500000021",
+          "introductoryOffer": {
+            "internalID": "6500000022",
+            "numberOfPeriods": 1,
+            "paymentMode": "free",
+            "subscriptionPeriod": "P1W"
+          },
+          "localizations": [
+            {
+              "description": "PixelFocus Premium, renouvelé chaque année",
+              "displayName": "Premium annuel",
+              "locale": "fr"
+            }
+          ],
+          "productID": "com.sy2l.pixelfocus.premium.yearly",
+          "recurringSubscriptionPeriod": "P1Y",
+          "referenceName": "Premium annuel",
+          "subscriptionGroupID": "21000001",
+          "type": "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version": {
+    "major": 3,
+    "minor": 0
+  }
+}

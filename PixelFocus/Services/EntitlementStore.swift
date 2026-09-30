@@ -4,15 +4,12 @@
  *
  * Point d'entrée unique pour "qui a droit à quoi" (voir GAME_DESIGN.md §2 et §5).
  *
- * Objectifs:
- * - Exposer le statut Premium (et la date de fin d'abonnement pour le cadeau de fin de Premium).
- * - Exposer les images du mois achetées à l'unité.
- * - Calculer l'accès à une image du mois via MonthlyAccessPolicy.
+ * Sources des droits (combinées):
+ * - StoreKit: achats de cet appareil / de ce compte Apple (PurchaseManager)
+ * - Serveur: achats validés sur n'importe quel appareil, iOS ou Android (SyncService)
+ * - Debug: interrupteur "Premium simulé", uniquement dans les versions de développement
  *
- * Note:
- * - V1: le Premium est encore simulé (interrupteur dans Réglages) et aucun achat n'est branché.
- *   StoreKit (étape 3) viendra alimenter ce store sans changer son interface.
- * - La clé "isPremiumUser" reste partagée avec @AppStorage dans les vues existantes.
+ * Calcule aussi l'accès à une image du mois via MonthlyAccessPolicy.
  */
 
 import Foundation
@@ -27,13 +24,22 @@ final class EntitlementStore: ObservableObject {
         static let isPremium = "isPremiumUser"
         static let premiumLapsedAt = "premiumLapsedAt"
         static let purchasedMonthlyIds = "purchasedMonthlyIds"
+        static let debugPremium = "debugPremium"
+        static let storePremium = "storePremium"
+        static let serverPremium = "serverPremium"
     }
 
     // MARK: - Published State
     @Published private(set) var premium: PremiumStatus
     @Published private(set) var purchasedMonthlyIds: Set<String>
+    @Published private(set) var isLifetime: Bool = false
+    @Published private(set) var debugPremium: Bool
 
     let firstLaunchDate: Date
+
+    // MARK: - Sources
+    private var storePremium: Bool
+    private var serverPremium: Bool
 
     // MARK: - Dependencies
     private let defaults: UserDefaults
@@ -49,15 +55,63 @@ final class EntitlementStore: ObservableObject {
             lapsedAt: lapsedInterval.map { Date(timeIntervalSince1970: $0) }
         )
         self.purchasedMonthlyIds = Set(defaults.stringArray(forKey: Keys.purchasedMonthlyIds) ?? [])
+        self.storePremium = defaults.bool(forKey: Keys.storePremium)
+        self.serverPremium = defaults.bool(forKey: Keys.serverPremium)
+        #if DEBUG
+        self.debugPremium = defaults.bool(forKey: Keys.debugPremium)
+        #else
+        self.debugPremium = false
+        #endif
     }
 
     // MARK: - Premium
 
     var isPremium: Bool { premium.isActive }
 
-    /// Active/désactive le Premium. À la désactivation, on mémorise la date de fin
+    /// Droits issus de StoreKit (PurchaseManager)
+    func applyStore(isPremium: Bool, isLifetime: Bool, monthlyArtworkIds: Set<String>, now: Date = Date()) {
+        storePremium = isPremium
+        defaults.set(isPremium, forKey: Keys.storePremium)
+        self.isLifetime = isLifetime || self.isLifetime
+        addPurchasedMonthlies(monthlyArtworkIds)
+        refreshPremium(now: now)
+    }
+
+    /// Droits issus du serveur (SyncService)
+    func applyServer(_ entitlements: APIEntitlements, now: Date = Date()) {
+        serverPremium = entitlements.premium.active
+        defaults.set(serverPremium, forKey: Keys.serverPremium)
+        isLifetime = isLifetime || entitlements.premium.lifetime
+        addPurchasedMonthlies(Set(entitlements.monthlyArtworkIds))
+        refreshPremium(now: now)
+    }
+
+    /// Premium simulé (versions de développement uniquement)
+    func setDebugPremium(_ isActive: Bool, now: Date = Date()) {
+        #if DEBUG
+        debugPremium = isActive
+        defaults.set(isActive, forKey: Keys.debugPremium)
+        refreshPremium(now: now)
+        #endif
+    }
+
+    /// Remet tout à zéro (suppression du compte)
+    func reset() {
+        storePremium = false
+        serverPremium = false
+        debugPremium = false
+        isLifetime = false
+        purchasedMonthlyIds = []
+        premium = .none
+        for key in [Keys.isPremium, Keys.premiumLapsedAt, Keys.purchasedMonthlyIds, Keys.debugPremium, Keys.storePremium, Keys.serverPremium] {
+            defaults.removeObject(forKey: key)
+        }
+    }
+
+    /// Recalcule le statut Premium. À la fin d'un abonnement, on mémorise la date
     /// (l'image du mois en cours reste offerte jusqu'à la fin du mois).
-    func setPremium(_ isActive: Bool, now: Date = Date()) {
+    private func refreshPremium(now: Date) {
+        let isActive = storePremium || serverPremium || debugPremium
         guard isActive != premium.isActive else { return }
 
         premium.isActive = isActive
@@ -69,6 +123,13 @@ final class EntitlementStore: ObservableObject {
         } else {
             defaults.removeObject(forKey: Keys.premiumLapsedAt)
         }
+    }
+
+    private func addPurchasedMonthlies(_ ids: Set<String>) {
+        let merged = purchasedMonthlyIds.union(ids)
+        guard merged != purchasedMonthlyIds else { return }
+        purchasedMonthlyIds = merged
+        defaults.set(Array(merged).sorted(), forKey: Keys.purchasedMonthlyIds)
     }
 
     // MARK: - Monthly

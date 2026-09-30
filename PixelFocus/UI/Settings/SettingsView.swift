@@ -5,18 +5,22 @@
  * Réglages (maquette v2).
  *
  * Objectifs:
- * - Compte: Premium (simulé en attendant StoreKit)
+ * - Premium: statut, boutique, restauration (et Premium simulé en développement)
+ * - Compte et synchronisation: état, Se connecter avec Apple, suppression du compte
  * - Apparence: choix du thème (Minuit gratuit; Soleil et Braise Premium)
  * - Statistiques, règles du jeu, à propos
  */
 
 import SwiftUI
 import SwiftData
+import AuthenticationServices
 
 // MARK: - SettingsView
 struct SettingsView: View {
     @EnvironmentObject private var appCoordinator: AppCoordinator
     @EnvironmentObject private var entitlements: EntitlementStore
+    @EnvironmentObject private var syncService: SyncService
+    @EnvironmentObject private var purchaseManager: PurchaseManager
     @Environment(\.theme) private var theme
 
     @AppStorage(AppTheme.storageKey) private var storedTheme: String = AppTheme.minuit.rawValue
@@ -27,6 +31,8 @@ struct SettingsView: View {
     @Query private var badges: [SDBadge]
 
     @State private var infoMessage: String?
+    @State private var isStorePresented = false
+    @State private var isDeleteConfirmationPresented = false
 
     var body: some View {
         NavigationStack {
@@ -39,6 +45,7 @@ struct SettingsView: View {
                     }
 
                     accountSection
+                    syncSection
                     appearanceSection
                     statsSection
                     rulesSection
@@ -50,6 +57,22 @@ struct SettingsView: View {
             }
             .themedScreenBackground()
             .toolbar(.hidden, for: .navigationBar)
+            .sheet(isPresented: $isStorePresented) {
+                StoreView()
+                    .environment(\.theme, theme)
+            }
+            .confirmationDialog(
+                "Supprimer ton compte et toutes tes données ?",
+                isPresented: $isDeleteConfirmationPresented,
+                titleVisibility: .visible
+            ) {
+                Button("Supprimer définitivement", role: .destructive) {
+                    Task { await deleteAccount() }
+                }
+                Button("Annuler", role: .cancel) {}
+            } message: {
+                Text("Progression, boosters, badges et historique seront effacés, sur cet appareil et sur le serveur. Les abonnements App Store se résilient depuis les réglages de ton compte Apple.")
+            }
         }
     }
 
@@ -57,28 +80,23 @@ struct SettingsView: View {
 
     private var accountSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            SectionTitle(title: "Compte")
+            SectionTitle(title: "Premium")
 
             VStack(alignment: .leading, spacing: 12) {
-                // Passe par AppCoordinator: mémorise la fin d'abonnement et l'octroi mensuel de boosters
-                Toggle(isOn: Binding(
-                    get: { entitlements.isPremium },
-                    set: { appCoordinator.setPremium($0) }
-                )) {
-                    HStack(spacing: 12) {
-                        Image(systemName: "crown.fill")
-                            .foregroundStyle(theme.record)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Premium")
-                                .font(.headline)
-                                .foregroundStyle(theme.textPrimary)
-                            Text("Simulé en attendant l'App Store")
-                                .font(.caption)
-                                .foregroundStyle(theme.textSecondary)
-                        }
+                HStack(spacing: 12) {
+                    Image(systemName: "crown.fill")
+                        .font(.title2)
+                        .foregroundStyle(theme.record)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(entitlements.isPremium ? "Premium actif" : "Version gratuite")
+                            .font(.headline)
+                            .foregroundStyle(theme.textPrimary)
+                        Text(premiumSubtitle)
+                            .font(.caption)
+                            .foregroundStyle(theme.textSecondary)
                     }
+                    Spacer()
                 }
-                .tint(theme.primary)
 
                 if entitlements.isPremium {
                     PremiumPerkRow(text: "15 & 20 min illimités")
@@ -89,14 +107,190 @@ struct SettingsView: View {
                 }
 
                 Button {
-                    // Restauration des achats: branchée à l'étape 3 (StoreKit)
-                    infoMessage = "La restauration des achats arrivera avec l'App Store."
+                    isStorePresented = true
+                } label: {
+                    Label(entitlements.isPremium ? "Boutique et boosters" : "Découvrir Premium", systemImage: "sparkles")
+                }
+                .buttonStyle(PrimaryButtonStyle())
+
+                Button {
+                    Task { await restorePurchases() }
                 } label: {
                     Label("Restaurer les achats", systemImage: "arrow.clockwise")
                 }
                 .buttonStyle(SecondaryButtonStyle())
+
+                #if DEBUG
+                // Tests sans achat: n'existe pas dans la version publiée sur l'App Store
+                Toggle(isOn: Binding(
+                    get: { entitlements.debugPremium },
+                    set: { appCoordinator.setDebugPremium($0) }
+                )) {
+                    Text("Premium simulé (développement)")
+                        .font(.footnote)
+                        .foregroundStyle(theme.textSecondary)
+                }
+                .tint(theme.primary)
+                #endif
             }
             .themedCard()
+        }
+    }
+
+    private var premiumSubtitle: String {
+        if entitlements.isLifetime { return "À vie" }
+        if entitlements.isPremium { return "Abonnement en cours" }
+        return "Passe Premium pour tout débloquer"
+    }
+
+    // MARK: - Sync
+
+    private var syncSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionTitle(title: "Compte et synchronisation")
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 12) {
+                    Image(systemName: syncIcon)
+                        .font(.title3)
+                        .foregroundStyle(syncColor)
+                        .frame(width: 24)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(syncTitle)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(theme.textPrimary)
+                        Text(syncSubtitle)
+                            .font(.caption)
+                            .foregroundStyle(theme.textSecondary)
+                    }
+                    Spacer()
+                    if syncService.status == .syncing {
+                        ProgressView()
+                    }
+                }
+
+                if syncService.status != .notConfigured {
+                    Button {
+                        Task { await syncService.syncNow() }
+                    } label: {
+                        Label("Synchroniser maintenant", systemImage: "arrow.triangle.2.circlepath")
+                    }
+                    .buttonStyle(SecondaryButtonStyle())
+                    .disabled(syncService.status == .syncing)
+
+                    if syncService.isAppleLinked {
+                        Label("Compte Apple rattaché : ta progression te suit sur tous tes appareils.", systemImage: "checkmark.seal.fill")
+                            .font(.footnote)
+                            .foregroundStyle(theme.success)
+                    } else {
+                        Text("Connecte-toi avec Apple pour retrouver ta progression sur un autre appareil, y compris Android.")
+                            .font(.footnote)
+                            .foregroundStyle(theme.textSecondary)
+                        SignInWithAppleButton(.signIn) { request in
+                            request.requestedScopes = []
+                        } onCompletion: { result in
+                            Task { await handleAppleSignIn(result) }
+                        }
+                        .signInWithAppleButtonStyle(theme.colorScheme == .dark ? .white : .black)
+                        .frame(height: 44)
+                        .clipShape(RoundedRectangle(cornerRadius: ThemeTokens.Radius.control, style: .continuous))
+                    }
+                }
+
+                Button(role: .destructive) {
+                    isDeleteConfirmationPresented = true
+                } label: {
+                    Label("Supprimer mon compte et mes données", systemImage: "trash")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(theme.danger)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 4)
+            }
+            .themedCard()
+        }
+    }
+
+    private var syncIcon: String {
+        switch syncService.status {
+        case .notConfigured: return "icloud.slash"
+        case .idle: return "checkmark.icloud"
+        case .syncing: return "arrow.triangle.2.circlepath.icloud"
+        case .failed: return "exclamationmark.icloud"
+        }
+    }
+
+    private var syncColor: Color {
+        switch syncService.status {
+        case .idle: return theme.success
+        case .failed: return theme.danger
+        default: return theme.textSecondary
+        }
+    }
+
+    private var syncTitle: String {
+        switch syncService.status {
+        case .notConfigured: return "Hors ligne"
+        case .idle: return "Synchronisé"
+        case .syncing: return "Synchronisation…"
+        case .failed: return "Synchronisation en attente"
+        }
+    }
+
+    private var syncSubtitle: String {
+        switch syncService.status {
+        case .notConfigured:
+            return "Ta progression est enregistrée sur cet appareil."
+        case .failed(let message):
+            return message
+        default:
+            guard let lastSyncAt = syncService.lastSyncAt else { return "Jamais synchronisé" }
+            return "Dernière synchronisation : " + lastSyncAt.formatted(date: .abbreviated, time: .shortened)
+        }
+    }
+
+    // MARK: - Actions
+
+    private func restorePurchases() async {
+        do {
+            try await purchaseManager.restore()
+            infoMessage = "Achats restaurés."
+        } catch {
+            infoMessage = "Restauration impossible : \(error.localizedDescription)"
+        }
+    }
+
+    private func handleAppleSignIn(_ result: Result<ASAuthorization, Error>) async {
+        switch result {
+        case .success(let authorization):
+            guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
+                  let tokenData = credential.identityToken,
+                  let identityToken = String(data: tokenData, encoding: .utf8) else {
+                infoMessage = "Connexion Apple impossible."
+                return
+            }
+            do {
+                try await syncService.linkApple(identityToken: identityToken)
+                infoMessage = "Compte Apple rattaché."
+            } catch {
+                infoMessage = "Connexion Apple impossible : \(error.localizedDescription)"
+            }
+        case .failure(let error):
+            // Annulation par l'utilisateur: rien à signaler
+            if (error as? ASAuthorizationError)?.code != .canceled {
+                infoMessage = "Connexion Apple indisponible : vérifie la capacité « Sign in with Apple » du projet."
+            }
+        }
+    }
+
+    private func deleteAccount() async {
+        do {
+            try await syncService.deleteAccountAndLocalData()
+            appCoordinator.applyDatePolicies()
+            infoMessage = "Compte et données supprimés."
+        } catch {
+            infoMessage = "Suppression impossible : \(error.localizedDescription)"
         }
     }
 
@@ -316,7 +510,5 @@ private struct PremiumPerkRow: View {
 // MARK: - Preview
 #Preview {
     SettingsView()
-        .environmentObject(AppCoordinator())
-        .environmentObject(EntitlementStore())
-        .modelContainer(for: [SDWallet.self, SDStreak.self, SDProgress.self, SDBadge.self], inMemory: true)
+        .withAppEnvironment(AppCoordinator())
 }

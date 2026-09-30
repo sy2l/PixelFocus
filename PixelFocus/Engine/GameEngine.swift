@@ -74,9 +74,21 @@ final class GameEngine {
         minutes: Int,
         todayISO: String,
         dailyDateISO: String?,
-        didExceed30By extraMinutes: Int
+        didExceed30By extraMinutes: Int,
+        intention: String? = nil,
+        taskDone: Bool? = nil
     ) throws {
         guard let ruleset = rulesetProvider() else { return }
+
+        // 0) Historique (synchronisé avec le serveur)
+        var payload: [String: JSONValue] = [
+            "minutes": .number(Double(minutes)),
+            "extraMinutesOver30": .number(Double(extraMinutes)),
+            "pixels": .number(Double(ruleset.sessions.pixelsPerCompletedSession))
+        ]
+        if let intention, !intention.isEmpty { payload["intention"] = .string(String(intention.prefix(120))) }
+        if let taskDone { payload["taskDone"] = .bool(taskDone) }
+        record(.sessionCompleted, artworkId: artworkId, payload: payload)
 
         // 1) Progress: +5 pixels (+ complétion + série)
         try revealPixels(
@@ -165,6 +177,10 @@ final class GameEngine {
         case .purchased:
             wallet.purchasedBoosters -= 1
         }
+        record(.boosterUsed, artworkId: artworkId, payload: [
+            "source": .string(source == .earned ? "earned" : "purchased"),
+            "pixels": .number(Double(ruleset.boosters.pixelsPerBooster))
+        ])
 
         try revealPixels(
             artworkId: artworkId,
@@ -176,6 +192,14 @@ final class GameEngine {
 
         try modelContext.save()
         return source
+    }
+
+    /// Boosters achetés (App Store): crédités immédiatement; le serveur fait ensuite foi (SyncService)
+    func creditPurchasedBoosters(_ amount: Int) throws {
+        guard amount > 0 else { return }
+        let wallet = try fetchOrCreateWallet()
+        wallet.purchasedBoosters += amount
+        try modelContext.save()
     }
 
     /// Premium: +N boosters gagnés au début de chaque mois (une fois par mois).
@@ -193,6 +217,11 @@ final class GameEngine {
             cap: ruleset.boosters.earnedCap
         )
         wallet.premiumGrantMonthISO = currentMonthISO
+        record(.boosterEarned, payload: [
+            "amount": .number(Double(ruleset.boosters.premiumMonthlyGrant)),
+            "reason": .string("premium_monthly"),
+            "month": .string(currentMonthISO)
+        ])
         try modelContext.save()
     }
 
@@ -327,6 +356,7 @@ final class GameEngine {
         wallet.resetDailyIfNeeded(todayISO: todayISO)
         if wallet.protectionTokensAvailable > 0 {
             wallet.protectionTokensAvailable -= 1
+            record(.protectionTokenUsed)
             try modelContext.save()
         }
     }
@@ -343,6 +373,7 @@ final class GameEngine {
         if wallet.protectionTokensEarnedToday < dailyCap {
             wallet.protectionTokensAvailable += ruleset.tokens.protection.grantAmount
             wallet.protectionTokensEarnedToday += 1
+            record(.protectionTokenEarned, payload: ["amount": .number(Double(ruleset.tokens.protection.grantAmount))])
         }
     }
 
@@ -392,6 +423,24 @@ final class GameEngine {
                 amount: reward,
                 cap: ruleset.boosters.earnedCap
             )
+            record(.boosterEarned, payload: [
+                "amount": .number(Double(reward)),
+                "reason": .string("streak"),
+                "streakDay": .number(Double(streak.current))
+            ])
+        }
+    }
+
+    // MARK: - Focus Stats
+
+    /// Minutes de concentration (sessions terminées) depuis une date
+    func focusMinutes(since start: Date) throws -> Int {
+        let type = EventType.sessionCompleted.rawValue
+        let descriptor = FetchDescriptor<SDEvent>(
+            predicate: #Predicate { $0.type == type && $0.occurredAt >= start }
+        )
+        return try modelContext.fetch(descriptor).reduce(0) { total, event in
+            total + (event.payload?["minutes"]?.intValue ?? 0)
         }
     }
 
@@ -402,6 +451,7 @@ final class GameEngine {
         )
         if try modelContext.fetch(dayDescriptor).isEmpty {
             modelContext.insert(SDActiveDay(dayISO: todayISO))
+            record(.dayActive, payload: ["dayISO": .string(todayISO)])
         }
 
         let storedDays = try modelContext.fetch(FetchDescriptor<SDActiveDay>()).map(\.dayISO)
@@ -412,7 +462,14 @@ final class GameEngine {
         let ownedBadgeIds = Set(storedBadgeIds)
         for badgeId in BadgePolicy.earnedBadgeIds(activeDays: activeDays) where !ownedBadgeIds.contains(badgeId) {
             modelContext.insert(SDBadge(badgeId: badgeId))
+            record(.badgeUnlocked, payload: ["badgeId": .string(badgeId)])
         }
+    }
+
+    /// Ajoute un événement à l'historique local (envoyé au serveur par SyncService).
+    /// Ne sauvegarde pas: l'appelant sauvegarde avec le reste de l'action.
+    private func record(_ type: EventType, artworkId: String? = nil, payload: [String: JSONValue]? = nil) {
+        modelContext.insert(SDEvent(type: type, artworkId: artworkId, payload: payload))
     }
 
     private func fetchOrCreateMonthStats(monthISO: String) throws -> SDMonthStats {

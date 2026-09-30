@@ -25,6 +25,7 @@ struct ArtworkDetailView: View {
     // MARK: - Dependencies
     @EnvironmentObject private var appCoordinator: AppCoordinator
     @EnvironmentObject private var entitlements: EntitlementStore
+    @EnvironmentObject private var purchaseManager: PurchaseManager
     @Environment(\.modelContext) private var modelContext
     @Environment(\.theme) private var theme
 
@@ -43,6 +44,9 @@ struct ArtworkDetailView: View {
 
     @State private var isFocusSessionPresented: Bool = false
     @State private var isBoosterSheetPresented: Bool = false
+    @State private var isStorePresented: Bool = false
+    @State private var isPurchasing: Bool = false
+    @State private var intention: String = ""
 
     private var isPremiumUser: Bool { entitlements.isPremium }
 
@@ -89,8 +93,10 @@ struct ArtworkDetailView: View {
                 artworkId: artworkId,
                 minutesSelected: selectedMinutes,
                 isPremiumUser: isPremiumUser,
+                intention: intention.trimmingCharacters(in: .whitespacesAndNewlines),
                 onClose: {
                     isFocusSessionPresented = false
+                    intention = ""
                     Task { await loadArtworkAndProgress() }
                 }
             )
@@ -105,10 +111,21 @@ struct ArtworkDetailView: View {
                 dailyEarnedLimit: dailyEarnedLimit,
                 onUse: {
                     useBooster()
+                },
+                onBuyMore: {
+                    isBoosterSheetPresented = false
+                    // Laisse la première feuille se fermer avant d'ouvrir la boutique
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        isStorePresented = true
+                    }
                 }
             )
             .environment(\.theme, theme)
             .presentationDetents([.large])
+        }
+        .sheet(isPresented: $isStorePresented) {
+            StoreView()
+                .environment(\.theme, theme)
         }
     }
 
@@ -159,11 +176,11 @@ struct ArtworkDetailView: View {
                 .font(.caption)
                 .foregroundStyle(theme.textSecondary)
 
-            if canUseBooster && totalBoosters > 0 {
+            if canUseBooster {
                 Button {
                     isBoosterSheetPresented = true
                 } label: {
-                    Label("Utiliser un booster (\(usableBoosters) dispo.)", systemImage: "bolt.fill")
+                    Label(totalBoosters > 0 ? "Utiliser un booster (\(usableBoosters) dispo.)" : "Boosters", systemImage: "bolt.fill")
                 }
                 .buttonStyle(SecondaryButtonStyle())
             }
@@ -184,9 +201,20 @@ struct ArtworkDetailView: View {
 
     private var sessionSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Durée de session")
+            Text("Ta session")
                 .font(.headline)
                 .foregroundStyle(theme.textPrimary)
+
+            TextField(
+                "",
+                text: $intention,
+                prompt: Text("Sur quoi vas-tu te concentrer ?").foregroundStyle(theme.textSecondary)
+            )
+            .foregroundStyle(theme.textPrimary)
+            .submitLabel(.done)
+            .padding(.horizontal, 14)
+            .frame(height: 48)
+            .background(theme.surfaceHighlight, in: RoundedRectangle(cornerRadius: ThemeTokens.Radius.control, style: .continuous))
 
             PillPicker(options: [15, 20, 25, 30], selection: $selectedMinutes) { "\($0) min" }
 
@@ -199,7 +227,7 @@ struct ArtworkDetailView: View {
             }
             .buttonStyle(PrimaryButtonStyle())
 
-            Text("Récompense : +\(appCoordinator.ruleset?.sessions.pixelsPerCompletedSession ?? 5) pixels par session réussie")
+            Text("Chaque session terminée révèle \(appCoordinator.ruleset?.sessions.pixelsPerCompletedSession ?? 5) pixels de l'œuvre.")
                 .font(.footnote)
                 .foregroundStyle(theme.textSecondary)
         }
@@ -261,7 +289,9 @@ struct ArtworkDetailView: View {
         let priceTier: MonthlyPriceTier = rules.map {
             MonthlyAccessPolicy.unitPriceTier(monthISO: monthISO, now: Date(), revealedRatio: ratio, rules: $0)
         } ?? .full
-        let priceText = priceTier == .reduced ? "0,99 €" : "1,99 €"
+        let productId = StoreProducts.monthly(monthISO: monthISO, reduced: priceTier == .reduced)
+        let product = purchaseManager.product(productId)
+        let priceText = product?.displayPrice ?? (priceTier == .reduced ? "0,99 €" : "1,99 €")
 
         return VStack(alignment: .leading, spacing: 14) {
             Label("Image du mois verrouillée", systemImage: "lock.fill")
@@ -280,17 +310,30 @@ struct ArtworkDetailView: View {
                 }
             }
 
-            Text("Incluse avec Premium.")
-                .font(.subheadline)
-                .foregroundStyle(theme.textSecondary)
+            Button {
+                isStorePresented = true
+            } label: {
+                Label("Incluse avec Premium", systemImage: "crown.fill")
+            }
+            .buttonStyle(PrimaryButtonStyle())
 
             Button {
-                // Achat à l'unité: branché à l'étape 3 (StoreKit)
+                Task { await buyMonthly(productId: productId) }
             } label: {
-                Text("Acheter cette image — \(priceText) (bientôt)")
+                if isPurchasing {
+                    ProgressView()
+                } else {
+                    Text("Acheter cette image — \(priceText)")
+                }
             }
             .buttonStyle(SecondaryButtonStyle())
-            .disabled(true)
+            .disabled(product == nil || isPurchasing)
+
+            if priceTier == .reduced {
+                Text("Prix réduit : tu as déjà révélé plus de la moitié de l'image.")
+                    .font(.caption)
+                    .foregroundStyle(theme.success)
+            }
         }
         .themedCard()
     }
@@ -352,8 +395,20 @@ struct ArtworkDetailView: View {
             )
             self.progress = try fetchProgress(artworkId: artworkId)
             self.errorMessage = nil
+            appCoordinator.requestSync()
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    private func buyMonthly(productId: String) async {
+        guard let product = purchaseManager.product(productId) else { return }
+        isPurchasing = true
+        defer { isPurchasing = false }
+        do {
+            _ = try await purchaseManager.purchase(product)
+        } catch {
+            errorMessage = "L'achat n'a pas abouti : \(error.localizedDescription)"
         }
     }
 }
@@ -363,17 +418,5 @@ struct ArtworkDetailView: View {
     NavigationStack {
         ArtworkDetailView(artworkId: "daily_2026_01_15")
     }
-    .environmentObject(AppCoordinator())
-    .environmentObject(EntitlementStore())
-    .modelContainer(
-        for: [
-            SDArtwork.self,
-            SDProgress.self,
-            SDWallet.self,
-            SDStreak.self,
-            SDDailyQuota.self,
-            SDMonthStats.self
-        ],
-        inMemory: true
-    )
+    .withAppEnvironment(AppCoordinator())
 }

@@ -21,6 +21,7 @@
 import Foundation
 import SwiftData
 import SwiftUI
+import Combine
 
 // MARK: - AppCoordinator
 @MainActor
@@ -34,8 +35,6 @@ final class AppCoordinator: ObservableObject {
     @Published private(set) var catalog: CatalogDTO?
 
     // MARK: - Dependencies
-    private var modelContext: ModelContext?
-    private let jsonLoader: JSONContentLoader = JSONContentLoader()
 
     // Long-term scalable services
     private var contentStore: ContentStore?
@@ -44,37 +43,73 @@ final class AppCoordinator: ObservableObject {
 
     /// Droits d'accès (Premium, achats, image offerte). Injecté aussi en EnvironmentObject.
     let entitlements: EntitlementStore
+    /// Synchronisation avec le serveur (compte, événements, droits)
+    let syncService: SyncService
+    /// Achats App Store (StoreKit 2)
+    let purchaseManager: PurchaseManager
+
+    let modelContext: ModelContext
+    private var cancellables = Set<AnyCancellable>()
+    /// Garde le conteneur en mémoire pour les aperçus Xcode
+    private var previewContainer: ModelContainer?
+
+    /// Règles du jeu partagées avec les services créés avant le chargement du contenu
+    private let rulesetBox: RulesetBox
 
     // MARK: - Init
 
-    init(entitlements: EntitlementStore? = nil) {
-        self.entitlements = entitlements ?? EntitlementStore()
+    init(modelContext: ModelContext, entitlements: EntitlementStore? = nil) {
+        let entitlementStore = entitlements ?? EntitlementStore()
+        let store = ContentStore(loader: JSONContentLoader(), modelContext: modelContext)
+        let rulesetBox = RulesetBox()
+        let gameEngine = GameEngine(modelContext: modelContext, rulesetProvider: { rulesetBox.value })
+        let sync = SyncService(
+            modelContext: modelContext,
+            entitlements: entitlementStore,
+            rulesetProvider: { rulesetBox.value },
+            importArtwork: { artworkId in try? store.ensureArtworkImported(artworkId: artworkId) }
+        )
+
+        self.entitlements = entitlementStore
+        self.modelContext = modelContext
+        self.rulesetBox = rulesetBox
+        self.contentStore = store
+        self.engine = gameEngine
+        self.sessionManager = SessionManager()
+        self.syncService = sync
+        self.purchaseManager = PurchaseManager(
+            entitlements: entitlementStore,
+            syncService: sync,
+            creditBoosters: { amount in try? gameEngine.creditPurchasedBoosters(amount) }
+        )
+
+        // Quand le statut Premium change (achat, fin d'abonnement): octroi mensuel éventuel + rafraîchissement
+        entitlementStore.$premium
+            .removeDuplicates()
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                MainActor.assumeIsolated {
+                    guard let self else { return }
+                    self.applyDatePolicies()
+                    self.objectWillChange.send()
+                }
+            }
+            .store(in: &cancellables)
+    }
+
+    /// Coordinateur sur une base en mémoire (aperçus Xcode)
+    convenience init() {
+        let container = AppSchema.makeContainer(inMemory: true)
+        self.init(modelContext: container.mainContext)
+        self.previewContainer = container
     }
 
     // MARK: - Public Accessors
-    
+
     func getEngine() -> GameEngine? { engine }
     func getSessionManager() -> SessionManager? { sessionManager }
     func getContentStore() -> ContentStore? { contentStore }
-
-    // MARK: - Setup
-    
-    /// Configure le coordinateur avec le ModelContext SwiftData
-    func configure(modelContext: ModelContext) {
-        // Configure une seule fois
-        if self.modelContext != nil { return }
-        self.modelContext = modelContext
-
-        let store = ContentStore(loader: jsonLoader, modelContext: modelContext)
-        self.contentStore = store
-
-        let gameEngine = GameEngine(modelContext: modelContext, rulesetProvider: { [weak self] in
-            self?.ruleset
-        })
-        self.engine = gameEngine
-
-        self.sessionManager = SessionManager()
-    }
 
     /// Charge le contenu initial si nécessaire
     func loadInitialContentIfNeeded() {
@@ -84,6 +119,7 @@ final class AppCoordinator: ObservableObject {
         do {
             try contentStore.loadInitialContent()
             self.ruleset = contentStore.ruleset
+            self.rulesetBox.value = contentStore.ruleset
             self.catalog = contentStore.catalog
 
             self.isReady = true
@@ -95,6 +131,21 @@ final class AppCoordinator: ObservableObject {
         }
 
         applyDatePolicies()
+        purchaseManager.start(monthISOs: purchasableMonthISOs())
+        requestSync()
+    }
+
+    /// Mois dont l'image est achetable à l'unité (jusqu'au mois en cours)
+    private func purchasableMonthISOs(now: Date = Date()) -> [String] {
+        let current = DatePolicy.isoMonthString(for: now)
+        return (catalog?.monthly.map(\.month) ?? []).filter { $0 <= current }
+    }
+
+    // MARK: - Sync
+
+    /// Lance une synchronisation en arrière-plan (sans effet si déjà en cours ou non configurée)
+    func requestSync() {
+        Task { await syncService.syncNow() }
     }
 
     /// Œuvres échues -> "à finaliser", puis purge (daily toFinalize purgées le 4).
@@ -115,11 +166,9 @@ final class AppCoordinator: ObservableObject {
 
     // MARK: - Premium
 
-    /// Change le statut Premium (V1: simulé depuis Réglages; étape 3: StoreKit).
-    func setPremium(_ isActive: Bool) {
-        entitlements.setPremium(isActive)
-        applyDatePolicies()
-        objectWillChange.send()
+    /// Premium simulé (versions de développement uniquement, pour tester sans achat)
+    func setDebugPremium(_ isActive: Bool) {
+        entitlements.setDebugPremium(isActive)
     }
 
     // MARK: - Session Start
@@ -248,7 +297,7 @@ final class AppCoordinator: ObservableObject {
     ///   - nil si quota illimité
     ///   - sinon un Int >= 0
     func remainingQuota(for minutes: Int, isPremium: Bool) -> Int? {
-        guard let ruleset, let modelContext else { return nil }
+        guard let ruleset else { return nil }
 
         let quotaProfile = isPremium ? ruleset.quotas.premium : ruleset.quotas.free
         let dailyMaxSessions = quotaProfile.dailyMaxByMinutes["\(minutes)"] ?? -1
@@ -276,4 +325,10 @@ final class AppCoordinator: ObservableObject {
         }
     }
 
+}
+
+// MARK: - RulesetBox
+/// Référence partagée vers les règles, chargées après la création des services
+final class RulesetBox {
+    var value: RulesetDTO?
 }
