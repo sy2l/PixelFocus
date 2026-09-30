@@ -21,6 +21,8 @@ final class Handlers
         'protection_token_used'   => ['artwork' => false],
         'badge_unlocked'          => ['artwork' => false],
         'monthly_unlocked'        => ['artwork' => true],
+        // Jour actif: la daily du jour terminée le jour même (série, badges). payload: {dayISO}
+        'day_active'              => ['artwork' => false],
     ];
 
     // MARK: - Santé
@@ -226,14 +228,191 @@ final class Handlers
             'events'     => $events,
             'cursor'     => $cursor,
             'hasMore'    => $hasMore,
-            'purchases'  => $purchases,
-            'serverTime' => Database::toIso(Database::now()),
+            'purchases'    => $purchases,
+            'entitlements' => Entitlements::forUser($userId),
+            'serverTime'   => Database::toIso(Database::now()),
         ]);
+    }
+
+    // MARK: - Achats Apple
+
+    /**
+     * POST /v1/purchases/apple {transactionId}
+     * Le serveur récupère la transaction auprès d'Apple (source faisant autorité), l'enregistre
+     * et renvoie les droits à jour. Idempotent.
+     */
+    public static function postApplePurchase(): never
+    {
+        $userId = Auth::requireUserId();
+        $transactionId = (string) (Http::body()['transactionId'] ?? '');
+        if (!preg_match('/^\d{1,40}$/', $transactionId)) {
+            Http::error(422, 'invalid_transaction_id', 'transactionId invalide.');
+        }
+
+        $transaction = Apple::fetchTransaction($transactionId);
+        if ($transaction === null) {
+            Http::error(404, 'transaction_not_found', 'Transaction inconnue chez Apple.');
+        }
+
+        $error = self::checkAppleTransaction($transaction, $userId);
+        if ($error !== null) {
+            Http::error($error[0], $error[1], $error[2]);
+        }
+
+        $owner = self::purchaseOwner('apple', (string) $transaction['transactionId']);
+        if ($owner !== null && $owner !== $userId) {
+            Http::error(409, 'owned_by_another_account', 'Cet achat appartient à un autre compte. Connecte-toi avec Apple pour le retrouver.');
+        }
+
+        self::upsertApplePurchase($userId, $transaction);
+        Http::json(200, ['entitlements' => Entitlements::forUser($userId)]);
+    }
+
+    /**
+     * POST /v1/webhooks/apple {signedPayload}
+     * Notifications App Store Server V2 (renouvellement, expiration, remboursement…).
+     * Le contenu n'est pas pris pour argent comptant: on relit la transaction auprès d'Apple.
+     * Répond toujours 200 pour les notifications traitées ou ignorées (Apple réessaie sinon).
+     */
+    public static function appleWebhook(): never
+    {
+        $signedPayload = (string) (Http::body()['signedPayload'] ?? '');
+        try {
+            $notification = Jwt::decodeUnverified($signedPayload)['payload'];
+            $signedTransaction = $notification['data']['signedTransactionInfo'] ?? null;
+            if (!is_string($signedTransaction)) {
+                Http::json(200, ['ignored' => 'no_transaction']);
+            }
+            $transactionId = (string) (Jwt::decodeUnverified($signedTransaction)['payload']['transactionId'] ?? '');
+        } catch (\InvalidArgumentException) {
+            Http::error(400, 'invalid_payload', 'signedPayload invalide.');
+        }
+
+        $transaction = Apple::fetchTransaction($transactionId);
+        if ($transaction === null || self::checkAppleTransaction($transaction, null) !== null) {
+            Http::json(200, ['ignored' => 'unknown_transaction']);
+        }
+
+        // Rattachement: même transaction ou même abonnement d'origine déjà connu
+        $userId = self::purchaseOwner('apple', (string) $transaction['transactionId'])
+            ?? self::purchaseOwnerByOriginal('apple', (string) ($transaction['originalTransactionId'] ?? ''))
+            ?? self::userFromAppAccountToken($transaction['appAccountToken'] ?? null);
+        if ($userId === null) {
+            Http::json(200, ['ignored' => 'unknown_user']);
+        }
+
+        self::upsertApplePurchase($userId, $transaction);
+        Http::json(200, ['ok' => true, 'type' => $notification['notificationType'] ?? null]);
+    }
+
+    /** Erreur [statut, code, message] si la transaction n'est pas acceptable, sinon null */
+    private static function checkAppleTransaction(array $transaction, ?string $userId): ?array
+    {
+        $bundleId = Config::get('apple')['bundle_id'] ?? null;
+        if (($transaction['bundleId'] ?? null) !== $bundleId) {
+            return [422, 'wrong_app', "Cette transaction ne concerne pas l'app."];
+        }
+        if (!Products::isKnown((string) ($transaction['productId'] ?? ''))) {
+            return [422, 'unknown_product', 'Produit inconnu.'];
+        }
+        // L'app associe chaque achat à l'identifiant du compte (appAccountToken)
+        $token = $transaction['appAccountToken'] ?? null;
+        if ($userId !== null && is_string($token) && $token !== '' && strtolower($token) !== strtolower($userId)) {
+            return [409, 'owned_by_another_account', 'Cet achat appartient à un autre compte. Connecte-toi avec Apple pour le retrouver.'];
+        }
+        return null;
+    }
+
+    private static function upsertApplePurchase(string $userId, array $transaction): void
+    {
+        Database::pdo()->prepare(
+            'INSERT INTO purchases (user_id, store, product_id, transaction_id, original_transaction_id, purchased_at, expires_at, revoked_at, raw, created_at)
+             VALUES (?, \'apple\', ?, ?, ?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE expires_at = VALUES(expires_at), revoked_at = VALUES(revoked_at), raw = VALUES(raw)'
+        )->execute([
+            $userId,
+            (string) $transaction['productId'],
+            (string) $transaction['transactionId'],
+            isset($transaction['originalTransactionId']) ? (string) $transaction['originalTransactionId'] : null,
+            Apple::msToUtc($transaction['purchaseDate'] ?? null) ?? Database::now(),
+            Apple::msToUtc($transaction['expiresDate'] ?? null),
+            Apple::msToUtc($transaction['revocationDate'] ?? null),
+            json_encode($transaction, JSON_UNESCAPED_SLASHES),
+            Database::now(),
+        ]);
+    }
+
+    private static function purchaseOwner(string $store, string $transactionId): ?string
+    {
+        $statement = Database::pdo()->prepare('SELECT user_id FROM purchases WHERE store = ? AND transaction_id = ?');
+        $statement->execute([$store, $transactionId]);
+        $owner = $statement->fetchColumn();
+        return $owner === false ? null : (string) $owner;
+    }
+
+    private static function purchaseOwnerByOriginal(string $store, string $originalTransactionId): ?string
+    {
+        if ($originalTransactionId === '') {
+            return null;
+        }
+        $statement = Database::pdo()->prepare('SELECT user_id FROM purchases WHERE store = ? AND original_transaction_id = ? ORDER BY id DESC LIMIT 1');
+        $statement->execute([$store, $originalTransactionId]);
+        $owner = $statement->fetchColumn();
+        return $owner === false ? null : (string) $owner;
+    }
+
+    private static function userFromAppAccountToken(mixed $token): ?string
+    {
+        if (!is_string($token) || !Uuid::isValid($token)) {
+            return null;
+        }
+        $statement = Database::pdo()->prepare('SELECT id FROM users WHERE id = ?');
+        $statement->execute([strtolower($token)]);
+        $id = $statement->fetchColumn();
+        return $id === false ? null : (string) $id;
+    }
+
+    // MARK: - Se connecter avec Apple
+
+    /**
+     * POST /v1/auth/link/apple {identityToken}
+     * - Si ce compte Apple n'est lié à personne: il est rattaché au compte courant.
+     * - S'il est déjà lié à un autre compte (ex: nouvel appareil): les données du compte courant
+     *   sont fusionnées dans ce compte existant, et un jeton pour ce compte est renvoyé.
+     */
+    public static function linkApple(): never
+    {
+        $userId = Auth::requireUserId();
+        $identityToken = (string) (Http::body()['identityToken'] ?? '');
+
+        try {
+            $claims = Apple::verifyIdentityToken($identityToken);
+        } catch (\InvalidArgumentException $error) {
+            Http::error(401, 'invalid_identity_token', 'Jeton Apple invalide: ' . $error->getMessage());
+        }
+        $sub = (string) ($claims['sub'] ?? '');
+        if ($sub === '') {
+            Http::error(401, 'invalid_identity_token', 'Jeton Apple sans identifiant.');
+        }
+
+        $pdo = Database::pdo();
+        $statement = $pdo->prepare('SELECT id FROM users WHERE apple_sub = ?');
+        $statement->execute([$sub]);
+        $existing = $statement->fetchColumn();
+
+        if ($existing === false || $existing === $userId) {
+            $pdo->prepare('UPDATE users SET apple_sub = ? WHERE id = ?')->execute([$sub, $userId]);
+            Http::json(200, ['userId' => $userId, 'merged' => false]);
+        }
+
+        $targetId = (string) $existing;
+        $result = Auth::mergeInto($userId, $targetId);
+        Http::json(200, ['userId' => $targetId, 'token' => $result['token'], 'merged' => true]);
     }
 
     // MARK: - Prochaines étapes
 
-    /** Routes prévues (rattachement Apple/Google, achats, webhooks) — branchées avec StoreKit */
+    /** Routes prévues (Google Play: rattachement, achats, notifications) — avec l'app Android */
     public static function notImplemented(): never
     {
         Http::error(501, 'not_implemented', 'Disponible dans une prochaine version.');

@@ -12,8 +12,10 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 PORT="${PORT:-8099}"
-CONFIG_FILE="$(mktemp -t pixelfocus-config-XXXX.php)"
-trap 'rm -f "$CONFIG_FILE"; [[ -n "${SERVER_PID:-}" ]] && kill "$SERVER_PID" 2>/dev/null || true' EXIT
+MOCK_PORT="${MOCK_PORT:-8098}"
+export TEST_DIR="$(mktemp -d -t pixelfocus-test-XXXX)"
+CONFIG_FILE="$TEST_DIR/config.php"
+trap 'rm -rf "$TEST_DIR"; rm -f "$(php -r "echo sys_get_temp_dir();")"/pixelfocus-apple-jwks-*.json; for p in ${SERVER_PID:-} ${MOCK_PID:-}; do kill "$p" 2>/dev/null || true; done' EXIT
 
 cat > "$CONFIG_FILE" <<PHP
 <?php
@@ -26,6 +28,14 @@ return [
         'password' => '${DB_PASSWORD:-pf}',
     ],
     'env' => 'development',
+    'apple' => [
+        'bundle_id' => 'com.sy2l.PixelFocus',
+        'issuer_id' => '11111111-2222-3333-4444-555555555555',
+        'key_id' => 'TESTKEY123',
+        'private_key_path' => '$TEST_DIR/AuthKey.p8',
+        'api_base_urls' => ['http://127.0.0.1:$MOCK_PORT/prod', 'http://127.0.0.1:$MOCK_PORT/sandbox'],
+        'jwks_url' => 'http://127.0.0.1:$MOCK_PORT/auth/keys',
+    ],
     'max_events_per_request' => 500,
     'max_payload_bytes' => 4096,
 ];
@@ -42,9 +52,11 @@ $pdo->exec("SET FOREIGN_KEY_CHECKS = 1");
 '
 php bin/migrate.php
 
-# Serveur PHP local
-php -S "127.0.0.1:$PORT" public/index.php >/tmp/pixelfocus-api-test.log 2>&1 &
+# Serveur PHP local + faux serveurs Apple
+php -S "127.0.0.1:$PORT" public/index.php >"$TEST_DIR/api.log" 2>&1 &
 SERVER_PID=$!
+php -S "127.0.0.1:$MOCK_PORT" tests/mock_apple.php >"$TEST_DIR/mock.log" 2>&1 &
+MOCK_PID=$!
 sleep 1
 
-API_URL="http://127.0.0.1:$PORT" php tests/api_test.php
+API_URL="http://127.0.0.1:$PORT" php tests/api_test.php || { echo "--- journal API ---"; tail -20 "$TEST_DIR/api.log"; exit 1; }

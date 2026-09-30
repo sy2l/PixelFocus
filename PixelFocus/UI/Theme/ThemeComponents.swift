@@ -22,9 +22,9 @@ struct ThemedCard: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding(padding)
-            .background(theme.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .background(theme.surface, in: RoundedRectangle(cornerRadius: ThemeTokens.Radius.card, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                RoundedRectangle(cornerRadius: ThemeTokens.Radius.card, style: .continuous)
                     .stroke(theme.border, lineWidth: 1)
             )
     }
@@ -70,7 +70,7 @@ struct ScreenHeader: View {
             }
 
             Text(title)
-                .font(.system(size: 34, weight: .bold))
+                .font(.system(size: 34, weight: .bold)) // typography.screenTitle
                 .foregroundStyle(theme.textPrimary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -179,7 +179,7 @@ struct DotsProgress: View {
 struct ThemedProgressBar: View {
     let value: Double
     var color: Color? = nil
-    var height: CGFloat = 8
+    var height: CGFloat = ThemeTokens.Size.progressBarHeight
     @Environment(\.theme) private var theme
 
     var body: some View {
@@ -278,9 +278,9 @@ struct PrimaryButtonStyle: ButtonStyle {
         configuration.label
             .font(.headline)
             .foregroundStyle(theme.onPrimary)
-            .frame(maxWidth: .infinity, minHeight: 52)
+            .frame(maxWidth: .infinity, minHeight: ThemeTokens.Size.buttonHeight)
             .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                RoundedRectangle(cornerRadius: ThemeTokens.Radius.button, style: .continuous)
                     .fill(theme.primary.opacity(isEnabled ? 1 : 0.4))
             )
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
@@ -297,9 +297,9 @@ struct SecondaryButtonStyle: ButtonStyle {
         configuration.label
             .font(.subheadline.weight(.semibold))
             .foregroundStyle(theme.textPrimary.opacity(isEnabled ? 1 : 0.4))
-            .frame(maxWidth: .infinity, minHeight: 44)
+            .frame(maxWidth: .infinity, minHeight: ThemeTokens.Size.secondaryButtonHeight)
             .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: ThemeTokens.Radius.control, style: .continuous)
                     .fill(theme.surfaceHighlight)
             )
             .scaleEffect(configuration.isPressed ? 0.97 : 1)

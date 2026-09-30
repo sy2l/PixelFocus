@@ -65,6 +65,39 @@ final class Auth
         return (string) $userId;
     }
 
+    /**
+     * Fusionne le compte $sourceId dans $targetId (ex: compte anonyme d'un nouvel appareil
+     * rattaché à un compte Apple déjà connu), supprime $sourceId et renvoie un jeton pour $targetId.
+     * @return array{token: string}
+     */
+    public static function mergeInto(string $sourceId, string $targetId): array
+    {
+        $pdo = Database::pdo();
+
+        // Plateforme et nom de l'appareil courant (jeton de la requête)
+        $statement = $pdo->prepare('SELECT platform, device_name FROM auth_tokens WHERE token_hash = ?');
+        $statement->execute([hash('sha256', (string) Http::bearerToken())]);
+        $device = $statement->fetch() ?: ['platform' => 'ios', 'device_name' => null];
+
+        $token = self::newToken();
+        $now = Database::now();
+
+        $pdo->beginTransaction();
+        $pdo->prepare('UPDATE events SET user_id = ? WHERE user_id = ?')->execute([$targetId, $sourceId]);
+        $pdo->prepare('UPDATE purchases SET user_id = ? WHERE user_id = ?')->execute([$targetId, $sourceId]);
+        $pdo->prepare(
+            'UPDATE users target JOIN users source ON source.id = ?
+             SET target.first_launch_at = LEAST(target.first_launch_at, source.first_launch_at)
+             WHERE target.id = ?'
+        )->execute([$sourceId, $targetId]);
+        $pdo->prepare('DELETE FROM users WHERE id = ?')->execute([$sourceId]);
+        $pdo->prepare('INSERT INTO auth_tokens (token_hash, user_id, platform, device_name, created_at, last_seen_at) VALUES (?, ?, ?, ?, ?, ?)')
+            ->execute([hash('sha256', $token), $targetId, $device['platform'], $device['device_name'], $now, $now]);
+        $pdo->commit();
+
+        return ['token' => $token];
+    }
+
     private static function newToken(): string
     {
         return rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');

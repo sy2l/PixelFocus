@@ -1,0 +1,107 @@
+{
+  "$comment": "Source unique des valeurs de design de PixelFocus (iOS, Android, web). Couleurs en #RRGGBB ou #RRGGBBAA. Après modification : python3 tools/generate_theme.py",
+  "version": 1,
+  "themes": {
+    "minuit": {
+      "name": "Minuit",
+      "subtitle": "Sombre",
+      "scheme": "dark",
+      "premium": false,
+      "colors": {
+        "background": "#0B0B0F",
+        "surface": "#1C1C22",
+        "surfaceHighlight": "#2A2A33",
+        "border": "#FFFFFF0F",
+        "primary": "#7C3AED",
+        "onPrimary": "#FFFFFF",
+        "secondary": "#C4B5FD",
+        "textPrimary": "#FFFFFF",
+        "textSecondary": "#9CA3AF",
+        "streak": "#FB923C",
+        "record": "#FACC15",
+        "booster": "#A78BFA",
+        "token": "#2DD4BF",
+        "success": "#4ADE80",
+        "danger": "#F87171",
+        "emptyPixel": "#2A2A33"
+      }
+    },
+    "soleil": {
+      "name": "Soleil",
+      "subtitle": "Clair",
+      "scheme": "light",
+      "premium": true,
+      "colors": {
+        "background": "#F7F8E3",
+        "surface": "#FFFDF2",
+        "surfaceHighlight": "#E7EB90",
+        "border": "#632B301A",
+        "primary": "#2274A5",
+        "onPrimary": "#FFFFFF",
+        "secondary": "#E6AF2E",
+        "textPrimary": "#632B30",
+        "textSecondary": "#632B30A6",
+        "streak": "#E6AF2E",
+        "record": "#C9971C",
+        "booster": "#2274A5",
+        "token": "#3A8FBF",
+        "success": "#4C8A2A",
+        "danger": "#9B2C2C",
+        "emptyPixel": "#E7EB90"
+      }
+    },
+    "braise": {
+      "name": "Braise",
+      "subtitle": "Bleu nuit",
+      "scheme": "dark",
+      "premium": true,
+      "colors": {
+        "background": "#001427",
+        "surface": "#0A2238",
+        "surfaceHighlight": "#12304C",
+        "border": "#FFFFFF0F",
+        "primary": "#BF0603",
+        "onPrimary": "#FFFFFF",
+        "secondary": "#708D81",
+        "textPrimary": "#FFF6E0",
+        "textSecondary": "#9FB5AB",
+        "streak": "#E8553F",
+        "record": "#F4D58D",
+        "booster": "#F4D58D",
+        "token": "#8FB0A2",
+        "success": "#8FB0A2",
+        "danger": "#E8553F",
+        "emptyPixel": "#12304C"
+      }
+    }
+  },
+  "radius": {
+    "card": 22,
+    "button": 18,
+    "control": 14,
+    "thumbnail": 12,
+    "dayCell": 8
+  },
+  "spacing": {
+    "xxs": 4,
+    "xs": 8,
+    "s": 12,
+    "m": 16,
+    "l": 24,
+    "xl": 32
+  },
+  "typography": {
+    "screenTitle": { "size": 34, "weight": "bold" },
+    "sectionTitle": { "style": "title3", "weight": "semibold" },
+    "cardTitle": { "style": "headline", "weight": "semibold" },
+    "body": { "style": "subheadline", "weight": "regular" },
+    "caption": { "style": "caption", "weight": "regular" },
+    "timer": { "size": 80, "weight": "bold", "design": "monospaced" }
+  },
+  "sizes": {
+    "buttonHeight": 52,
+    "secondaryButtonHeight": 44,
+    "minTouchTarget": 44,
+    "progressBarHeight": 8
+  }
+}

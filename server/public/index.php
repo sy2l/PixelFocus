@@ -24,8 +24,13 @@ try {
     $router->add('POST', '/v1/events', [Handlers::class, 'postEvents']);
     $router->add('GET', '/v1/state', [Handlers::class, 'getState']);
 
-    // Prochaines étapes (StoreKit / Play Billing, rattachement de compte)
-    foreach (['/v1/auth/link/apple', '/v1/auth/link/google', '/v1/purchases/apple', '/v1/purchases/google', '/v1/webhooks/apple', '/v1/webhooks/google'] as $path) {
+    // Apple: achats, notifications App Store, "Se connecter avec Apple"
+    $router->add('POST', '/v1/purchases/apple', [Handlers::class, 'postApplePurchase']);
+    $router->add('POST', '/v1/webhooks/apple', [Handlers::class, 'appleWebhook']);
+    $router->add('POST', '/v1/auth/link/apple', [Handlers::class, 'linkApple']);
+
+    // Google Play: avec l'app Android
+    foreach (['/v1/auth/link/google', '/v1/purchases/google', '/v1/webhooks/google'] as $path) {
         $router->add('POST', $path, [Handlers::class, 'notImplemented']);
     }
 

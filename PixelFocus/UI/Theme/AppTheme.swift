@@ -2,7 +2,8 @@
  * AppTheme.swift
  * PixelFocus
  *
- * Thèmes de couleur de l'app (voir GAME_DESIGN.md §7).
+ * Thèmes de couleur de l'app (voir DESIGN_SYSTEM.md et GAME_DESIGN.md §7).
+ * Les valeurs viennent de design/design-tokens.json via tools/generate_theme.py (ThemeTokens.generated.swift).
  *
  * - Minuit: sombre, noir/gris, accent violet (gratuit, par défaut)
  * - Soleil: clair, palette Cerulean / Lime Cream / Gold / Wine Plum (Premium)
@@ -46,23 +47,15 @@ enum AppTheme: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     var displayName: String {
-        switch self {
-        case .minuit: return "Minuit"
-        case .soleil: return "Soleil"
-        case .braise: return "Braise"
-        }
+        ThemeTokens.name(for: self)
     }
 
     var subtitle: String {
-        switch self {
-        case .minuit: return "Sombre"
-        case .soleil: return "Clair"
-        case .braise: return "Bleu nuit"
-        }
+        ThemeTokens.subtitle(for: self)
     }
 
     var requiresPremium: Bool {
-        self != .minuit
+        ThemeTokens.requiresPremium(self)
     }
 
     /// Thème réellement appliqué: un thème Premium retombe sur Minuit sans Premium
@@ -71,69 +64,9 @@ enum AppTheme: String, CaseIterable, Identifiable {
         return (stored.requiresPremium && !isPremium) ? .minuit : stored
     }
 
+    /// Couleurs du thème (générées depuis design/design-tokens.json)
     var palette: ThemePalette {
-        switch self {
-        case .minuit:
-            return ThemePalette(
-                background: Color(rgb: 0x0B0B0F),
-                surface: Color(rgb: 0x1C1C22),
-                surfaceHighlight: Color(rgb: 0x2A2A33),
-                border: Color.white.opacity(0.06),
-                primary: Color(rgb: 0x8B5CF6),
-                onPrimary: .white,
-                secondary: Color(rgb: 0xC4B5FD),
-                textPrimary: .white,
-                textSecondary: Color(rgb: 0x9CA3AF),
-                streak: Color(rgb: 0xFB923C),
-                record: Color(rgb: 0xFACC15),
-                booster: Color(rgb: 0xA78BFA),
-                token: Color(rgb: 0x2DD4BF),
-                success: Color(rgb: 0x4ADE80),
-                danger: Color(rgb: 0xF87171),
-                emptyPixel: Color(rgb: 0x2A2A33),
-                colorScheme: .dark
-            )
-        case .soleil:
-            return ThemePalette(
-                background: Color(rgb: 0xF7F8E3),
-                surface: Color(rgb: 0xFFFDF2),
-                surfaceHighlight: Color(rgb: 0xE7EB90),
-                border: Color(rgb: 0x632B30, opacity: 0.10),
-                primary: Color(rgb: 0x2274A5),
-                onPrimary: .white,
-                secondary: Color(rgb: 0xE6AF2E),
-                textPrimary: Color(rgb: 0x632B30),
-                textSecondary: Color(rgb: 0x632B30, opacity: 0.65),
-                streak: Color(rgb: 0xE6AF2E),
-                record: Color(rgb: 0xC9971C),
-                booster: Color(rgb: 0x2274A5),
-                token: Color(rgb: 0x3A8FBF),
-                success: Color(rgb: 0x4C8A2A),
-                danger: Color(rgb: 0x9B2C2C),
-                emptyPixel: Color(rgb: 0xE7EB90),
-                colorScheme: .light
-            )
-        case .braise:
-            return ThemePalette(
-                background: Color(rgb: 0x001427),
-                surface: Color(rgb: 0x0A2238),
-                surfaceHighlight: Color(rgb: 0x12304C),
-                border: Color.white.opacity(0.06),
-                primary: Color(rgb: 0xBF0603),
-                onPrimary: .white,
-                secondary: Color(rgb: 0x708D81),
-                textPrimary: Color(rgb: 0xFFF6E0),
-                textSecondary: Color(rgb: 0x9FB5AB),
-                streak: Color(rgb: 0xE8553F),
-                record: Color(rgb: 0xF4D58D),
-                booster: Color(rgb: 0xF4D58D),
-                token: Color(rgb: 0x8FB0A2),
-                success: Color(rgb: 0x8FB0A2),
-                danger: Color(rgb: 0xE8553F),
-                emptyPixel: Color(rgb: 0x12304C),
-                colorScheme: .dark
-            )
-        }
+        ThemeTokens.palette(for: self)
     }
 }
 

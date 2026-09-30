@@ -21,6 +21,15 @@ return [
     // 'production' masque le détail des erreurs dans les réponses
     'env' => 'production',
 
+    // Apple (App Store Connect > Utilisateurs et accès > Intégrations > Achats intégrés)
+    'apple' => [
+        'bundle_id'        => 'com.sy2l.PixelFocus',
+        'issuer_id'        => '00000000-0000-0000-0000-000000000000',
+        'key_id'           => 'ABC123DEFG',
+        // Clé .p8 téléchargée depuis App Store Connect, à placer HORS du dossier public
+        'private_key_path' => __DIR__ . '/AuthKey_ABC123DEFG.p8',
+    ],
+
     // Limites
     'max_events_per_request' => 500,
     'max_payload_bytes'      => 4096,
