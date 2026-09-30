@@ -59,8 +59,14 @@ PixelFocus/
 ├── Services/
 │   ├── JSONContentLoader.swift      # Chargeur JSON
 │   ├── ContentStore.swift           # Store de contenu
-│   ├── EntitlementStore.swift       # Droits d'accès (Premium, achats)
-│   └── FirstLaunchStore.swift       # Date du 1er lancement (trousseau)
+│   ├── EntitlementStore.swift       # Droits d'accès (StoreKit + serveur)
+│   ├── FirstLaunchStore.swift       # Date du 1er lancement (trousseau)
+│   ├── SyncService.swift            # Synchronisation avec l'API (événements, droits)
+│   ├── APIClient.swift              # Client HTTP de l'API
+│   └── KeychainStore.swift          # Jeton d'API (trousseau iCloud)
+├── Store/
+│   ├── StoreProducts.swift          # Identifiants des produits App Store
+│   └── PurchaseManager.swift        # Achats StoreKit 2
 ├── Engine/
 │   ├── GameEngine.swift             # Moteur de règles
 │   ├── SessionManager.swift         # Gestion des sessions
@@ -71,7 +77,9 @@ PixelFocus/
 │   ├── MonthlyAccessPolicy.swift    # Accès et prix de l'image du mois
 │   └── BadgePolicy.swift            # Badges de régularité
 ├── UI/
-│   ├── Theme/                       # Thèmes Minuit / Soleil / Braise + composants
+│   ├── Theme/                       # Thèmes + composants (voir DESIGN_SYSTEM.md)
+│   ├── Onboarding/OnboardingView.swift
+│   ├── Store/StoreView.swift        # Boutique (Premium, boosters)
 │   ├── Root/MainTabView.swift       # TabView principal + thème
 │   ├── Today/TodayView.swift        # Écran "Aujourd'hui"
 │   ├── Artwork/
@@ -94,7 +102,11 @@ PixelFocusTests/                     # Cible de tests unitaires (à la racine du
 └── DatePolicyTests.swift
 ```
 
-Les règles du jeu et de la monétisation sont décrites dans [`GAME_DESIGN.md`](../GAME_DESIGN.md) (à la racine du dépôt), qui fait foi en cas de conflit avec ce README.
+Documents de référence (racine du dépôt) :
+- [`GAME_DESIGN.md`](../GAME_DESIGN.md) — règles du jeu et monétisation (fait foi)
+- [`DESIGN_SYSTEM.md`](../DESIGN_SYSTEM.md) — couleurs, composants, écrans
+- [`MISE_EN_PRODUCTION.md`](../MISE_EN_PRODUCTION.md) — étapes pour publier (App Store Connect, serveur, contenu)
+- [`server/README.md`](../server/README.md) — API PHP + MySQL (o2switch)
 
 ---
 

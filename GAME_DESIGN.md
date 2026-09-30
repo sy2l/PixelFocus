@@ -2,7 +2,18 @@
 
 Document de référence des règles métier. En cas de conflit avec le README, **ce document fait foi**.
 
-Statut : v1.1 — règles validées (ajouts : daily toute l'année, badges, thèmes).
+Statut : v1.2 — règles validées (ajouts : concentration au centre, daily toute l'année, badges, thèmes, serveur maison).
+
+---
+
+## 0. Le but
+
+**PixelFocus aide à se concentrer sur une tâche précise**, en se déconnectant le temps d'une session (15 à 30 min).
+Le pixel art est la récompense, pas le sujet :
+- avant la session : « Sur quoi vas-tu te concentrer ? » (intention) ;
+- pendant : écran épuré, minuteur, conseil « Ne pas déranger » ; quitter l'app interrompt la session (sauf token de protection) ;
+- après : « As-tu terminé ta tâche ? » ; la session compte dans tous les cas ;
+- l'accueil affiche d'abord le **temps de concentration** du jour et de la semaine.
 
 ---
 
