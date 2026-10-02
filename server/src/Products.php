@@ -14,8 +14,6 @@ final class Products
 
     public const PREMIUM_MONTHLY = self::PREFIX . 'premium.monthly';
     public const PREMIUM_YEARLY = self::PREFIX . 'premium.yearly';
-    public const LIFETIME = self::PREFIX . 'lifetime';
-    public const LIFETIME_MEMBER = self::PREFIX . 'lifetime.member';
 
     /** Boosters (consommables): identifiant -> nombre de boosters */
     public const BOOSTERS = [
@@ -27,11 +25,6 @@ final class Products
     public static function isSubscription(string $productId): bool
     {
         return in_array($productId, [self::PREMIUM_MONTHLY, self::PREMIUM_YEARLY], true);
-    }
-
-    public static function isLifetime(string $productId): bool
-    {
-        return in_array($productId, [self::LIFETIME, self::LIFETIME_MEMBER], true);
     }
 
     public static function boosterAmount(string $productId): int
@@ -63,7 +56,6 @@ final class Products
     public static function isKnown(string $productId): bool
     {
         return self::isSubscription($productId)
-            || self::isLifetime($productId)
             || self::boosterAmount($productId) > 0
             || self::monthlyArtworkId($productId) !== null
             || self::packId($productId) !== null;

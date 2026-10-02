@@ -2,11 +2,10 @@
  * StoreView.swift
  * PixelFocus
  *
- * Boutique: Premium (mensuel, annuel, à vie), boosters, restauration des achats.
+ * Boutique: Premium (mensuel, annuel), boosters, restauration des achats.
  *
  * - Prix affichés depuis l'App Store (Product.displayPrice), jamais écrits en dur
- * - Offre "à vie" au tarif abonné proposée uniquement pendant un abonnement actif
- * - Après un achat à vie pendant un abonnement: invitation à résilier l'abonnement
+ * - Abonnés: accès direct à la gestion de l'abonnement (App Store)
  */
 
 import SwiftUI
@@ -22,7 +21,6 @@ struct StoreView: View {
     @State private var message: String?
     @State private var purchasingId: String?
     @State private var isManageSubscriptionsPresented = false
-    @State private var isCancelSubscriptionHintPresented = false
 
     var body: some View {
         NavigationStack {
@@ -52,12 +50,6 @@ struct StoreView: View {
                 }
             }
             .manageSubscriptionsSheet(isPresented: $isManageSubscriptionsPresented)
-            .alert("Pense à résilier ton abonnement", isPresented: $isCancelSubscriptionHintPresented) {
-                Button("Gérer mon abonnement") { isManageSubscriptionsPresented = true }
-                Button("Plus tard", role: .cancel) {}
-            } message: {
-                Text("Tu as maintenant Premium à vie. Ton abonnement ne s'arrête pas tout seul : résilie-le pour ne plus être prélevé.")
-            }
         }
     }
 
@@ -94,19 +86,21 @@ struct StoreView: View {
         VStack(alignment: .leading, spacing: 12) {
             SectionTitle(title: "Premium")
 
-            if entitlements.isLifetime {
-                Label("Tu as Premium à vie. Merci !", systemImage: "checkmark.seal.fill")
+            if purchaseManager.hasActiveSubscription {
+                Label("Ton abonnement Premium est actif. Merci !", systemImage: "checkmark.seal.fill")
                     .foregroundStyle(theme.success)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .themedCard()
+
+                Button {
+                    isManageSubscriptionsPresented = true
+                } label: {
+                    Label("Gérer mon abonnement", systemImage: "gearshape")
+                }
+                .buttonStyle(SecondaryButtonStyle())
             } else {
                 offerRow(id: StoreProducts.premiumYearly, title: "Annuel", subtitle: "Essai gratuit de 7 jours • le meilleur prix", highlighted: true)
                 offerRow(id: StoreProducts.premiumMonthly, title: "Mensuel", subtitle: "Sans engagement", highlighted: false)
-                if purchaseManager.hasActiveSubscription {
-                    offerRow(id: StoreProducts.lifetimeMember, title: "À vie — tarif abonné", subtitle: "Un seul paiement, pour toujours", highlighted: false)
-                } else {
-                    offerRow(id: StoreProducts.lifetime, title: "À vie", subtitle: "Un seul paiement, pour toujours", highlighted: false)
-                }
             }
         }
     }
@@ -222,7 +216,6 @@ struct StoreView: View {
             message = "Produit indisponible pour le moment."
             return
         }
-        let wasSubscribed = purchaseManager.hasActiveSubscription
         purchasingId = id
         defer { purchasingId = nil }
 
@@ -230,9 +223,6 @@ struct StoreView: View {
             switch try await purchaseManager.purchase(product) {
             case .purchased:
                 message = "Merci ! Ton achat est actif."
-                if StoreProducts.lifetimes.contains(id) && wasSubscribed {
-                    isCancelSubscriptionHintPresented = true
-                }
             case .pending:
                 message = "Achat en attente de validation (contrôle parental ou paiement)."
             case .cancelled:

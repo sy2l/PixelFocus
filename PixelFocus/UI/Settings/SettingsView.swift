@@ -138,7 +138,6 @@ struct SettingsView: View {
     }
 
     private var premiumSubtitle: String {
-        if entitlements.isLifetime { return "À vie" }
         if entitlements.isPremium { return "Abonnement en cours" }
         return "Passe Premium pour tout débloquer"
     }

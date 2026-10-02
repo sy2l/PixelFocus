@@ -32,8 +32,6 @@ Adhérer au **Small Business Program** (commission de 15 %).
 |---|---|---|
 | `com.sy2l.pixelfocus.premium.monthly` | Abonnement auto-renouvelable (groupe « PixelFocus Premium ») | 2,99 € / mois |
 | `com.sy2l.pixelfocus.premium.yearly` | Abonnement auto-renouvelable (même groupe), offre de lancement : 1 semaine gratuite | 24,99 € / an |
-| `com.sy2l.pixelfocus.lifetime` | Non consommable | 69,99 € |
-| `com.sy2l.pixelfocus.lifetime.member` | Non consommable | 49,99 € |
 | `com.sy2l.pixelfocus.boosters.1` / `.5` / `.15` | Consommable | 0,99 € / 3,99 € / 9,99 € |
 | `com.sy2l.pixelfocus.monthly.AAAA_MM` | Non consommable (un par mois) | 1,99 € |
 | `com.sy2l.pixelfocus.monthly.AAAA_MM.reduced` | Non consommable (un par mois) | 0,99 € |

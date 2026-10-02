@@ -176,7 +176,6 @@ final class PurchaseManager: ObservableObject {
     /// Droits actuels selon StoreKit -> EntitlementStore
     func refreshEntitlements() async {
         var subscriptionActive = false
-        var lifetime = false
         var monthlyIds = Set<String>()
 
         for await result in Transaction.currentEntitlements {
@@ -186,15 +185,13 @@ final class PurchaseManager: ObservableObject {
             if StoreProducts.subscriptions.contains(productId) {
                 if let expiration = transaction.expirationDate, expiration < Date() { continue }
                 subscriptionActive = true
-            } else if StoreProducts.lifetimes.contains(productId) {
-                lifetime = true
             } else if let artworkId = StoreProducts.monthlyArtworkId(productId: productId) {
                 monthlyIds.insert(artworkId)
             }
         }
 
         hasActiveSubscription = subscriptionActive
-        entitlements.applyStore(isPremium: subscriptionActive || lifetime, isLifetime: lifetime, monthlyArtworkIds: monthlyIds)
+        entitlements.applyStore(isPremium: subscriptionActive, monthlyArtworkIds: monthlyIds)
     }
 
     // MARK: - Persistance

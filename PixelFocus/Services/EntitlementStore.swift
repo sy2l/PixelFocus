@@ -32,7 +32,6 @@ final class EntitlementStore: ObservableObject {
     // MARK: - Published State
     @Published private(set) var premium: PremiumStatus
     @Published private(set) var purchasedMonthlyIds: Set<String>
-    @Published private(set) var isLifetime: Bool = false
     @Published private(set) var debugPremium: Bool
 
     let firstLaunchDate: Date
@@ -69,10 +68,9 @@ final class EntitlementStore: ObservableObject {
     var isPremium: Bool { premium.isActive }
 
     /// Droits issus de StoreKit (PurchaseManager)
-    func applyStore(isPremium: Bool, isLifetime: Bool, monthlyArtworkIds: Set<String>, now: Date = Date()) {
+    func applyStore(isPremium: Bool, monthlyArtworkIds: Set<String>, now: Date = Date()) {
         storePremium = isPremium
         defaults.set(isPremium, forKey: Keys.storePremium)
-        self.isLifetime = isLifetime || self.isLifetime
         addPurchasedMonthlies(monthlyArtworkIds)
         refreshPremium(now: now)
     }
@@ -81,7 +79,6 @@ final class EntitlementStore: ObservableObject {
     func applyServer(_ entitlements: APIEntitlements, now: Date = Date()) {
         serverPremium = entitlements.premium.active
         defaults.set(serverPremium, forKey: Keys.serverPremium)
-        isLifetime = isLifetime || entitlements.premium.lifetime
         addPurchasedMonthlies(Set(entitlements.monthlyArtworkIds))
         refreshPremium(now: now)
     }
@@ -100,7 +97,6 @@ final class EntitlementStore: ObservableObject {
         storePremium = false
         serverPremium = false
         debugPremium = false
-        isLifetime = false
         purchasedMonthlyIds = []
         premium = .none
         for key in [Keys.isPremium, Keys.premiumLapsedAt, Keys.purchasedMonthlyIds, Keys.debugPremium, Keys.storePremium, Keys.serverPremium] {

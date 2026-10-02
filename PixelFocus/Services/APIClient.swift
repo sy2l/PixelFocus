@@ -39,7 +39,6 @@ struct APIEventsResponse: Decodable {
 struct APIEntitlements: Decodable, Equatable {
     struct Premium: Decodable, Equatable {
         let active: Bool
-        let lifetime: Bool
         let expiresAt: String?
     }
     let premium: Premium

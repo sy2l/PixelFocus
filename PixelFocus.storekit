@@ -3,36 +3,6 @@
   "nonRenewingSubscriptions": [],
   "products": [
     {
-      "displayPrice": "69.99",
-      "familyShareable": false,
-      "internalID": "6500000001",
-      "localizations": [
-        {
-          "description": "Tous les avantages Premium, pour toujours",
-          "displayName": "Premium à vie",
-          "locale": "fr"
-        }
-      ],
-      "productID": "com.sy2l.pixelfocus.lifetime",
-      "referenceName": "Premium à vie",
-      "type": "NonConsumable"
-    },
-    {
-      "displayPrice": "49.99",
-      "familyShareable": false,
-      "internalID": "6500000002",
-      "localizations": [
-        {
-          "description": "Premium pour toujours, tarif réservé aux abonnés",
-          "displayName": "Premium à vie — tarif abonné",
-          "locale": "fr"
-        }
-      ],
-      "productID": "com.sy2l.pixelfocus.lifetime.member",
-      "referenceName": "Premium à vie (abonnés)",
-      "type": "NonConsumable"
-    },
-    {
       "displayPrice": "0.99",
       "familyShareable": false,
       "internalID": "6500000003",

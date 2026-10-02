@@ -25,7 +25,6 @@ final class Entitlements
     {
         $premiumActive = false;
         $premiumExpiresAt = null;
-        $lifetime = false;
         $purchasedBoosters = 0;
         $monthlyArtworkIds = [];
         $packIds = [];
@@ -36,10 +35,7 @@ final class Entitlements
             }
             $productId = $purchase['product_id'];
 
-            if (Products::isLifetime($productId)) {
-                $lifetime = true;
-                $premiumActive = true;
-            } elseif (Products::isSubscription($productId)) {
+            if (Products::isSubscription($productId)) {
                 $expiresAt = $purchase['expires_at'];
                 if ($expiresAt !== null && $expiresAt > $nowUtc) {
                     $premiumActive = true;
@@ -59,8 +55,7 @@ final class Entitlements
         return [
             'premium' => [
                 'active'    => $premiumActive,
-                'lifetime'  => $lifetime,
-                'expiresAt' => $lifetime ? null : Database::toIso($premiumExpiresAt),
+                'expiresAt' => Database::toIso($premiumExpiresAt),
             ],
             // Total acheté depuis le début (l'app déduit les boosters utilisés via les événements)
             'purchasedBoostersTotal' => $purchasedBoosters,

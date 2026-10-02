@@ -23,12 +23,9 @@ Le pixel art est la récompense, pas le sujet :
 |---|---|---|
 | Premium mensuel | Abonnement auto-renouvelable | 2,99 € / mois |
 | Premium annuel | Abonnement auto-renouvelable (essai 7 j) | 24,99 € / an |
-| Premium à vie | Achat unique (non-consumable) | 69,99 € |
-| Premium à vie — tarif abonné | Achat unique (non-consumable), proposé uniquement aux abonnés actifs | 49,99 € |
 
 Notes techniques :
-- Apple n'autorise qu'un prix par produit → le tarif « à vie abonné » est un **produit distinct**, affiché seulement si un abonnement est actif.
-- Acheter le « à vie » ne résilie pas l'abonnement automatiquement : l'app doit inviter l'utilisateur à le résilier (lien direct vers la gestion des abonnements).
+- Pas d'achat « à vie » : Premium est uniquement un abonnement (mensuel ou annuel).
 
 Le Premium donne :
 - Sessions 15 et 20 min illimitées.

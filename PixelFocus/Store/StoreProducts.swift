@@ -9,8 +9,6 @@
  * |---------------------------------|----------------------|---------|
  * | premium.monthly                 | Abonnement (1 mois)  | 2,99 €  |
  * | premium.yearly                  | Abonnement (1 an)    | 24,99 € |
- * | lifetime                        | Non-consommable      | 69,99 € |
- * | lifetime.member                 | Non-consommable      | 49,99 € (abonnés uniquement) |
  * | boosters.1 / .5 / .15           | Consommable          | 0,99 € / 3,99 € / 9,99 € |
  * | monthly.AAAA_MM                 | Non-consommable      | 1,99 €  |
  * | monthly.AAAA_MM.reduced         | Non-consommable      | 0,99 €  |
@@ -24,8 +22,6 @@ enum StoreProducts {
 
     static let premiumMonthly = prefix + "premium.monthly"
     static let premiumYearly = prefix + "premium.yearly"
-    static let lifetime = prefix + "lifetime"
-    static let lifetimeMember = prefix + "lifetime.member"
 
     /// Boosters: identifiant -> nombre de boosters
     static let boosters: [String: Int] = [
@@ -39,7 +35,6 @@ enum StoreProducts {
     }
 
     static let subscriptions: Set<String> = [premiumMonthly, premiumYearly]
-    static let lifetimes: Set<String> = [lifetime, lifetimeMember]
 
     /// Image du mois à l'unité: "2026-10" -> "com.sy2l.pixelfocus.monthly.2026_10" (+ ".reduced")
     static func monthly(monthISO: String, reduced: Bool) -> String {
@@ -59,7 +54,7 @@ enum StoreProducts {
 
     /// Tous les identifiants à charger (produits fixes + images du mois des mois donnés)
     static func allIdentifiers(monthISOs: [String]) -> [String] {
-        var ids = [premiumMonthly, premiumYearly, lifetime, lifetimeMember] + boosterIdsSorted
+        var ids = [premiumMonthly, premiumYearly] + boosterIdsSorted
         for month in monthISOs {
             ids.append(monthly(monthISO: month, reduced: false))
             ids.append(monthly(monthISO: month, reduced: true))
